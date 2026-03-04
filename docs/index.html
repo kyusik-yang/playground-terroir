@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bourgogne Blanc - A Data-Driven Wine Explorer</title>
+<meta name="description" content="An interactive, data-driven guide to 15 white Burgundy villages. Explore real appellation boundaries, discover wine styles, and find your perfect bottle.">
+<meta property="og:title" content="Bourgogne Blanc - A Data-Driven Wine Explorer">
+<meta property="og:description" content="Interactive guide to 15 white Burgundy villages with real geodata, tasting profiles, and a taste finder quiz.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kyusik-yang.github.io/playground-terroir/">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0C0C0E;
+  --surface: #161618;
+  --surface-2: #1E1E22;
+  --surface-3: #252529;
+  --border: #2A2A2E;
+  --border-light: #3A3A3E;
+  --wine: #C49A3C;
+  --wine-dim: rgba(196, 154, 60, 0.15);
+  --wine-glow: rgba(196, 154, 60, 0.3);
+  --gold: #E8C94A;
+  --gold-dim: rgba(232, 201, 74, 0.15);
+  --gold-glow: rgba(232, 201, 74, 0.4);
+  --amber: #B87A3D;
+  --amber-dim: rgba(184, 122, 61, 0.15);
+  --text: #E8E4DF;
+  --text-muted: #8A8680;
+  --text-dim: #5A5854;
+  --mono: #6B9F78;
+  --mono-dim: rgba(107, 159, 120, 0.15);
+  --shadow: 0 2px 16px rgba(0,0,0,0.3);
+  --shadow-hover: 0 12px 40px rgba(0,0,0,0.5);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Dot grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--border) 0.5px, transparent 0.5px);
+  background-size: 32px 32px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+.mono { font-family: 'JetBrains Mono', monospace; color: var(--mono); }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Section dividers */
+.section-rule {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
+/* ===== HERO ===== */
+.hero {
+  padding: 100px 0 60px;
+  position: relative;
+  z-index: 1;
+}
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+}
+.hero-text { flex: 1; }
+.hero h1 {
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.hero h1 span { color: var(--wine); }
+.hero .subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 12px 28px;
+  background: var(--wine);
+  color: var(--text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+}
+.hero-cta:hover { background: #d4a843; transform: translateY(-1px); }
+
+.hero-stats {
+  display: flex;
+  gap: 32px;
+}
+.hero-stat {
+  text-align: center;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  min-width: 100px;
+}
+.hero-stat .num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  display: block;
+  line-height: 1.2;
+}
+.hero-stat .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===== QUIZ ===== */
+.quiz-section {
+  padding: 80px 0;
+  position: relative;
+  z-index: 1;
+}
+.quiz-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.quiz-header h2 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+.quiz-header p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.quiz-header .tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--wine);
+  background: var(--wine-dim);
+  padding: 4px 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.quiz-container {
+  max-width: 680px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.quiz-progress {
+  display: flex;
+  height: 3px;
+  background: var(--surface-2);
+}
+.quiz-progress-segment {
+  flex: 1;
+  background: var(--border);
+  transition: background 0.4s ease;
+}
+.quiz-progress-segment.done { background: var(--wine); }
+.quiz-progress-segment.current { background: var(--gold); }
+
+.quiz-step {
+  display: none;
+  padding: 40px 32px;
+}
+.quiz-step.active { display: block; }
+
+.quiz-step-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.quiz-question {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option {
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--surface-2);
+}
+.quiz-option:hover {
+  border-color: var(--border-light);
+  background: var(--surface-3);
+}
+.quiz-option.selected {
+  border-color: var(--wine);
+  background: var(--wine-dim);
+}
+.quiz-option-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+.quiz-option-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.quiz-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 28px;
+}
+.quiz-btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+}
+.quiz-btn-back {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.quiz-btn-back:hover { color: var(--text); border-color: var(--border-light); }
+.quiz-btn-next {
+  background: var(--wine);
+  color: var(--text);
+}
+.quiz-btn-next:hover:not(:disabled) { background: #d4a843; }
+.quiz-btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Quiz results */
+.quiz-results {
+  display: none;
+  padding: 40px 32px;
+}
+.quiz-results.active { display: block; }
+.quiz-results-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.quiz-results-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.quiz-result-card {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  background: var(--surface-2);
+  transition: var(--transition);
+}
+.quiz-result-card:hover { border-color: var(--border-light); }
+.quiz-result-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--gold);
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quiz-result-body { flex: 1; }
+.quiz-result-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.quiz-result-region {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.quiz-result-why {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.quiz-result-link {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--wine);
+  cursor: pointer;
+  margin-top: 6px;
+  text-decoration: none;
+}
+.quiz-result-link:hover { text-decoration: underline; }
+
+/* Radar chart (mini SVG) */
+.quiz-result-radar {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.quiz-restart {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.quiz-restart:hover { color: var(--text); border-color: var(--border-light); }
+
+/* ===== MAP ===== */
+.map-section {
+  padding: 80px 0;
+  position: relative;
+  z-index: 1;
+}
+.section-header {
+  margin-bottom: 32px;
+}
+.section-header .tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--mono);
+  background: var(--mono-dim);
+  padding: 4px 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.section-header h2 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+.section-header p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  max-width: 600px;
+}
+
+/* ===== MODERN MAP ===== */
+.map-container {
+  position: relative;
+  height: 640px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+#map { height: 100%; width: 100%; background: var(--surface); }
+
+/* Hide default Leaflet controls */
+.leaflet-container { background: var(--surface) !important; }
+.leaflet-control-zoom { display: none !important; }
+.leaflet-control-attribution {
+  background: transparent !important;
+  color: var(--text-dim) !important;
+  font-size: 9px !important;
+}
+.leaflet-control-attribution a { color: var(--text-dim) !important; }
+
+/* Floating region selector */
+.map-region-nav {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  gap: 2px;
+  background: rgba(12, 12, 14, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 4px;
+}
+.map-region-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+.map-region-btn:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+}
+.map-region-btn.active {
+  color: var(--bg);
+  background: var(--wine);
+  font-weight: 600;
+}
+
+/* Floating legend */
+.map-legend-float {
+  position: absolute;
+  bottom: 32px;
+  left: 16px;
+  z-index: 1000;
+  display: flex;
+  gap: 16px;
+  background: rgba(12, 12, 14, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-dot.gc { background: var(--gold); box-shadow: 0 0 6px rgba(232,201,74,0.4); }
+.legend-dot.pc { background: var(--amber); }
+.legend-dot.vl { background: var(--text-dim); }
+
+/* Floating info card */
+.map-info-card {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  width: 280px;
+  background: rgba(22, 22, 24, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  transform: translateX(320px);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  pointer-events: none;
+}
+.map-info-card.visible {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.info-card-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.info-card-close:hover { color: var(--text); }
+.info-card-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.info-card-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.info-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.info-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.info-card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text-muted);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.info-card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.info-card-stat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+}
+.info-card-stat-label {
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+.info-card-stat-value { color: var(--mono); }
+.info-card-link {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--wine);
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.info-card-link:hover { border-bottom-color: var(--wine); }
+
+/* Floating zoom controls */
+.map-zoom-controls {
+  position: absolute;
+  bottom: 32px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.map-zoom-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 12, 14, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.map-zoom-btn:hover {
+  background: rgba(30, 30, 34, 0.9);
+  color: var(--text);
+}
+
+/* Village markers */
+.village-marker-dot {
+  border-radius: 50%;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.village-marker:hover .village-marker-dot { transform: scale(1.4); }
+.village-marker-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-align: center;
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+}
+#map.show-labels .village-marker-label { opacity: 1; }
+
+/* Pulsing animation for Grand Cru markers */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(232,201,74,0.3), 0 0 12px rgba(232,201,74,0.1); }
+  50% { box-shadow: 0 0 8px rgba(232,201,74,0.5), 0 0 20px rgba(232,201,74,0.2); }
+}
+.marker-grand-cru { animation: pulse-glow 3s ease-in-out infinite; }
+
+/* Region labels on map */
+.region-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  color: var(--text-dim) !important;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: none !important;
+  border: none !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.95);
+}
+
+/* Leaflet popup overrides (hidden - using info card instead) */
+.leaflet-popup { display: none !important; }
+
+/* Map responsive */
+@media (max-width: 768px) {
+  .map-container { height: 500px; }
+  .map-region-nav {
+    top: 12px; gap: 1px; padding: 3px;
+    max-width: calc(100% - 24px);
+    overflow-x: auto;
+  }
+  .map-region-btn { font-size: 0.58rem; padding: 5px 10px; }
+  .map-info-card {
+    top: auto; bottom: 80px; right: 12px; left: 12px;
+    width: auto;
+    transform: translateY(20px);
+  }
+  .map-info-card.visible { transform: translateY(0); }
+  .map-legend-float { bottom: 16px; left: 12px; gap: 10px; padding: 6px 12px; }
+  .map-zoom-controls { bottom: 16px; }
+}
+
+/* ===== FILTER BAR ===== */
+.filter-section {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0;
+  transition: var(--transition);
+  background: rgba(12, 12, 14, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid transparent;
+}
+.filter-section.scrolled {
+  border-bottom-color: var(--border);
+}
+.filter-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 14px 0;
+}
+.filter-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 6px 18px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+}
+.filter-btn:hover {
+  color: var(--text);
+  border-color: var(--border-light);
+  background: var(--surface-2);
+}
+.filter-btn.active {
+  background: var(--wine);
+  color: var(--text);
+  border-color: var(--wine);
+}
+.filter-count {
+  display: inline-block;
+  font-size: 0.6rem;
+  opacity: 0.6;
+  margin-left: 4px;
+}
+
+/* ===== CARDS ===== */
+.cards-section {
+  padding: 0 0 80px;
+  position: relative;
+  z-index: 1;
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.wine-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+.wine-card.card-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.wine-card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow);
+}
+
+/* Wine label (CSS-designed) */
+.card-label {
+  padding: 28px 24px;
+  text-align: center;
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border);
+}
+.card-label::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.card-label-region {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.card-label-appellation {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+.badge-grand-cru { background: var(--gold-dim); color: var(--gold); }
+.badge-premier-cru { background: var(--amber-dim); color: var(--amber); }
+.badge-village { background: rgba(107,104,100,0.15); color: var(--text-muted); }
+.card-label-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.card-label-producer {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.card-label-grape {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+  letter-spacing: 0.08em;
+}
+
+/* Card body */
+.card-body { padding: 20px 24px; }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.card-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.card-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--mono);
+  white-space: nowrap;
+}
+.card-style {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.card-divider {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 0 0 14px;
+}
+.card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.card-meta dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+.card-meta dd {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.card-producers {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.card-producers strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+.card-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding-left: 12px;
+  border-left: 2px solid var(--wine);
+  line-height: 1.5;
+}
+.card-coords {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  margin-top: 12px;
+}
+
+/* Flavor bar chart */
+.card-flavor-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.flavor-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flavor-bar-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.flavor-bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.flavor-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* ===== BOTTLES & RESOURCES ===== */
+.picks-section {
+  padding: 80px 0;
+  position: relative;
+  z-index: 1;
+}
+.bottle-gallery {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.bottle-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 12px 16px;
+  text-align: center;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.bottle-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-4px);
+}
+.bottle-img {
+  height: 180px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 14px;
+  filter: brightness(0.92);
+  transition: filter 0.3s;
+}
+.bottle-card:hover .bottle-img { filter: brightness(1); }
+.bottle-producer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.bottle-wine {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.bottle-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  font-style: italic;
+}
+.bottle-rating {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--wine);
+  margin-top: 8px;
+}
+
+/* Resources row */
+.resources-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+.resources-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.resource-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  transition: border-color 0.3s;
+  text-decoration: none;
+  display: block;
+}
+.resource-card:hover { border-color: var(--wine); }
+.resource-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.resource-card h4 {
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.resource-card p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .bottle-gallery { grid-template-columns: repeat(3, 1fr); }
+  .resources-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .bottle-gallery { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== FOOTER ===== */
+.site-footer {
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+.footer-text a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.footer-text a:hover { color: var(--text); }
+.footer-credit {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .hero-inner { flex-direction: column; align-items: flex-start; }
+  .hero-stats { flex-wrap: wrap; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .map-wrapper { height: 400px; }
+  .bottle-gallery { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+  .hero { padding: 60px 0 40px; }
+  .hero h1 { font-size: 2rem; }
+  .hero-stats { gap: 12px; }
+  .hero-stat { padding: 12px 16px; min-width: 80px; }
+  .hero-stat .num { font-size: 1.5rem; }
+  .quiz-step { padding: 24px 20px; }
+  .quiz-results { padding: 24px 20px; }
+  .map-wrapper { height: 320px; }
+  .filter-bar { gap: 6px; }
+  .filter-btn { font-size: 0.65rem; padding: 5px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1>Bourgogne <span>Blanc</span></h1>
+      <p class="subtitle">15 villages / 4 regions / 1 grape</p>
+      <a href="#quizSection" class="hero-cta">Find your village &#8595;</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num" data-target="15">0</span>
+        <span class="label">villages</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-target="4">0</span>
+        <span class="label">regions</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num" data-target="45">0</span>
+        <span class="label">producers</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- Taste Finder Quiz -->
+<section class="quiz-section" id="quizSection">
+  <div class="container">
+    <div class="quiz-header reveal">
+      <span class="tag">taste_finder.exe</span>
+      <h2>Find Your Village</h2>
+      <p>Answer four questions and we'll match you with your ideal Burgundy white.</p>
+    </div>
+    <div class="quiz-container reveal">
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizSteps"></div>
+      <div class="quiz-results" id="quizResults">
+        <p class="quiz-results-title">Your top matches</p>
+        <p class="quiz-results-sub">Based on your preferences, sorted by compatibility score</p>
+        <div id="quizResultCards"></div>
+        <button class="quiz-restart" id="quizRestart">Reset &amp; try again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- Map -->
+<section class="map-section container reveal" id="map-section">
+  <div class="section-header">
+    <span class="tag">geodata</span>
+    <h2>The Terroir Map</h2>
+    <p>Real appellation boundaries from INAO, France's national origin authority. Select a region to explore.</p>
+  </div>
+  <div class="map-container">
+    <div id="map"></div>
+    <!-- Floating region selector -->
+    <div class="map-region-nav">
+      <button class="map-region-btn active" data-region="all" onclick="selectMapRegion('all', this)">All</button>
+      <button class="map-region-btn" data-region="Chablis" onclick="selectMapRegion('Chablis', this)">Chablis</button>
+      <button class="map-region-btn" data-region="Cote de Beaune" onclick="selectMapRegion('Cote de Beaune', this)">Cote de Beaune</button>
+      <button class="map-region-btn" data-region="Cote Chalonnaise" onclick="selectMapRegion('Cote Chalonnaise', this)">Chalonnaise</button>
+      <button class="map-region-btn" data-region="Maconnais" onclick="selectMapRegion('Maconnais', this)">Maconnais</button>
+    </div>
+    <!-- Floating legend -->
+    <div class="map-legend-float">
+      <div class="legend-item"><span class="legend-dot gc"></span>Grand Cru</div>
+      <div class="legend-item"><span class="legend-dot pc"></span>Premier Cru</div>
+      <div class="legend-item"><span class="legend-dot vl"></span>Village</div>
+    </div>
+    <!-- Floating info card -->
+    <div class="map-info-card" id="map-info-card">
+      <button class="info-card-close" onclick="closeInfoCard()">&times;</button>
+      <div id="info-card-content"></div>
+    </div>
+    <!-- Custom zoom controls -->
+    <div class="map-zoom-controls">
+      <button class="map-zoom-btn" onclick="map.zoomIn()">+</button>
+      <button class="map-zoom-btn" onclick="map.zoomOut()">&minus;</button>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- Filter + Cards -->
+<section class="filter-section" id="filterSection">
+  <div class="container">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-region="all">All<span class="filter-count">15</span></button>
+      <button class="filter-btn" data-region="Chablis">Chablis<span class="filter-count">2</span></button>
+      <button class="filter-btn" data-region="Cote de Beaune">Cote de Beaune<span class="filter-count">7</span></button>
+      <button class="filter-btn" data-region="Cote Chalonnaise">Chalonnaise<span class="filter-count">3</span></button>
+      <button class="filter-btn" data-region="Maconnais">Maconnais<span class="filter-count">3</span></button>
+    </div>
+  </div>
+</section>
+
+<section class="cards-section container" id="cardsSection">
+  <div class="cards-grid" id="cardsGrid"></div>
+</section>
+
+<hr class="section-rule">
+
+<!-- Bottles & Resources -->
+<section class="picks-section container reveal">
+  <div class="section-header">
+    <span class="tag">editor's picks</span>
+    <h2>Bottles Worth Knowing</h2>
+    <p>Six essential whites from across Burgundy. Start here.</p>
+  </div>
+
+  <div class="bottle-gallery">
+    <div class="bottle-card">
+      <img src="https://images.vivino.com/thumbs/lhoVd6A_RyCBnFXk_otI6A_pb_x300.png" alt="Raveneau Chablis" class="bottle-img" loading="lazy">
+      <div class="bottle-producer">Raveneau</div>
+      <div class="bottle-wine">Chablis 1er Cru</div>
+      <div class="bottle-note">The benchmark. Pure mineral tension from Kimmeridgian fossils.</div>
+      <div class="bottle-rating">4.6 / 5</div>
+    </div>
+    <div class="bottle-card">
+      <img src="https://images.vivino.com/thumbs/YrZsb5v7THaZrh4HWgzqFA_pb_x300.png" alt="Leflaive Puligny-Montrachet" class="bottle-img" loading="lazy">
+      <div class="bottle-producer">Leflaive</div>
+      <div class="bottle-wine">Puligny-Montrachet</div>
+      <div class="bottle-note">Biodynamic royalty. Laser precision meets floral delicacy.</div>
+      <div class="bottle-rating">4.4 / 5</div>
+    </div>
+    <div class="bottle-card">
+      <img src="https://images.vivino.com/thumbs/pUsme1JHStKyyENIGB9U6Q_pb_x300.png" alt="Coche-Dury Meursault" class="bottle-img" loading="lazy">
+      <div class="bottle-producer">Coche-Dury</div>
+      <div class="bottle-wine">Meursault</div>
+      <div class="bottle-note">The white whale. Allocation-only, worth every centime.</div>
+      <div class="bottle-rating">4.6 / 5</div>
+    </div>
+    <div class="bottle-card">
+      <img src="https://images.vivino.com/thumbs/sMJXOMS9S2Kd8ZwJxvVS9g_pb_x300.png" alt="Ramonet Chassagne-Montrachet" class="bottle-img" loading="lazy">
+      <div class="bottle-producer">Ramonet</div>
+      <div class="bottle-wine">Chassagne-Montrachet</div>
+      <div class="bottle-note">Old-school Burgundy. Complex, age-worthy, unapologetically rich.</div>
+      <div class="bottle-rating">4.2 / 5</div>
+    </div>
+    <div class="bottle-card">
+      <img src="https://images.vivino.com/thumbs/RRyAR1NFS8OGNbCb8H_BEQ_pb_x300.png" alt="Hubert Lamy Saint-Aubin" class="bottle-img" loading="lazy">
+      <div class="bottle-producer">Hubert Lamy</div>
+      <div class="bottle-wine">Saint-Aubin</div>
+      <div class="bottle-note">The insider's pick. Grand Cru quality at half the price.</div>
+      <div class="bottle-rating">4.1 / 5</div>
+    </div>
+    <div class="bottle-card">
+      <img src="https://images.vivino.com/thumbs/GHVrjZ8jTjO0C5I6ucJkyA_pb_x300.png" alt="Chateau de Fuisse Pouilly-Fuisse" class="bottle-img" loading="lazy">
+      <div class="bottle-producer">Ch. de Fuisse</div>
+      <div class="bottle-wine">Pouilly-Fuisse</div>
+      <div class="bottle-note">Maconnais flagship. Le Clos is a monopole worth discovering.</div>
+      <div class="bottle-rating">4.3 / 5</div>
+    </div>
+  </div>
+
+  <div class="resources-header">down the rabbit hole</div>
+  <div class="resources-row">
+    <a class="resource-card" href="https://www.bigmacsandburgundy.com" target="_blank" rel="noopener">
+      <div class="resource-type">website</div>
+      <h4>Big Macs & Burgundy</h4>
+      <p>Mark Oldman proves fine wine and fast food pair better than you think. Accessible, irreverent, essential.</p>
+    </a>
+    <a class="resource-card" href="https://noblerot.org" target="_blank" rel="noopener">
+      <div class="resource-type">magazine</div>
+      <h4>Noble Rot</h4>
+      <p>A wine mag for people who also read The Paris Review. Burgundy through the lens of culture, music, and food.</p>
+    </a>
+    <a class="resource-card" href="https://winefolly.com/deep-dive/burgundy-wine" target="_blank" rel="noopener">
+      <div class="resource-type">guide</div>
+      <h4>Wine Folly: Burgundy</h4>
+      <p>The best visual explainer of Burgundy's impossibly complex appellation system. Infographics that actually help.</p>
+    </a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-text">
+        Bourgogne Blanc Explorer &middot;
+        Appellation data: <a href="https://www.data.gouv.fr" target="_blank" rel="noopener">INAO / data.gouv.fr</a> (CC-BY-SA) &middot;
+        Map: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a> &amp; <a href="https://carto.com" target="_blank" rel="noopener">CARTO</a>
+      </span>
+      <span class="footer-credit">Made with data &amp; wine</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const VILLAGES = [
+  {
+    id: "chablis", name: "Chablis", region: "Chablis",
+    lat: 47.8136, lng: 3.7994,
+    appellations: ["Grand Cru", "Premier Cru", "Village"], topAppellation: "Grand Cru",
+    grape: "Chardonnay",
+    style: "The benchmark for mineral-driven Chardonnay. Steel-fermented purity, flinty nerve, and a salinity that recalls the Kimmeridgian oyster fossils in the soil.",
+    tags: ["Flinty", "Citrus", "Mineral", "Crisp", "Oyster Shell"],
+    foodPairing: "Raw oysters, sashimi, goat cheese, grilled Dover sole",
+    priceRange: "$$-$$$$",
+    producers: ["Raveneau", "Dauvissat", "William Fevre"],
+    personalNote: "The Grand Cru vineyards (Les Clos, Vaudesir) are on another level, but a good village Chablis is one of the best values in all of Burgundy.",
+    quiz: { style: [3, 0, 1], budget: [3, 2, 1], food: [3, 0, 1, 1], level: [2, 3, 3] },
+    flavor: { mineral: 95, citrus: 80, oak: 5, body: 40, floral: 30 }
+  },
+  {
+    id: "petit-chablis", name: "Petit Chablis", region: "Chablis",
+    lat: 47.8300, lng: 3.7600,
+    appellations: ["Village"], topAppellation: "Village",
+    grape: "Chardonnay",
+    style: "Lighter and more straightforward than Chablis proper, planted on Portlandian limestone. Bright, easy-drinking, and refreshingly uncomplicated.",
+    tags: ["Light", "Green Apple", "Fresh", "Simple"],
+    foodPairing: "Aperitif, salads, fish and chips, picnic fare",
+    priceRange: "$$",
+    producers: ["La Chablisienne", "Jean-Marc Brocard", "Billaud-Simon"],
+    personalNote: "Don't overthink it. This is your Tuesday night white that overdelivers for the price.",
+    quiz: { style: [3, 0, 1], budget: [3, 0, 0], food: [2, 0, 0, 3], level: [3, 1, 0] },
+    flavor: { mineral: 60, citrus: 70, oak: 0, body: 25, floral: 20 }
+  },
+  {
+    id: "puligny-montrachet", name: "Puligny-Montrachet", region: "Cote de Beaune",
+    lat: 46.9456, lng: 4.7542,
+    appellations: ["Grand Cru", "Premier Cru", "Village"], topAppellation: "Grand Cru",
+    grape: "Chardonnay",
+    style: "The aristocrat of white Burgundy. Laser-focused precision, floral aromatics, and a tension between richness and minerality that defines greatness.",
+    tags: ["Elegant", "Floral", "Hazelnut", "Citrus Blossom", "Precise"],
+    foodPairing: "Lobster, turbot in butter sauce, aged Comte, truffle risotto",
+    priceRange: "$$$$",
+    producers: ["Leflaive", "Sauzet", "Carillon"],
+    personalNote: "Home to Le Montrachet, arguably the greatest white wine vineyard on earth. Even village-level Puligny has that unmistakable finesse.",
+    quiz: { style: [1, 1, 3], budget: [0, 1, 3], food: [2, 1, 2, 2], level: [0, 2, 3] },
+    flavor: { mineral: 85, citrus: 60, oak: 35, body: 65, floral: 90 }
+  },
+  {
+    id: "chassagne-montrachet", name: "Chassagne-Montrachet", region: "Cote de Beaune",
+    lat: 46.9361, lng: 4.7433,
+    appellations: ["Grand Cru", "Premier Cru", "Village"], topAppellation: "Grand Cru",
+    grape: "Chardonnay",
+    style: "Fuller-bodied sibling of Puligny with more stone fruit and toasted almond character. Shares Grand Cru Le Montrachet but trades some finesse for power.",
+    tags: ["Rich", "Stone Fruit", "Toasted Almond", "Honey", "Full"],
+    foodPairing: "Roast chicken, cream sauces, grilled langoustines, pork belly",
+    priceRange: "$$$-$$$$",
+    producers: ["Ramonet", "Blain-Gagnard", "Marc Colin"],
+    personalNote: "Often overshadowed by Puligny, but Chassagne Premier Crus like Morgeot offer incredible depth at slightly gentler prices.",
+    quiz: { style: [0, 2, 2], budget: [0, 2, 3], food: [1, 2, 2, 1], level: [0, 2, 3] },
+    flavor: { mineral: 55, citrus: 40, oak: 50, body: 80, floral: 45 }
+  },
+  {
+    id: "meursault", name: "Meursault", region: "Cote de Beaune",
+    lat: 46.9633, lng: 4.7686,
+    appellations: ["Premier Cru", "Village"], topAppellation: "Premier Cru",
+    grape: "Chardonnay",
+    style: "Golden, generous, and open-armed. The poster child for barrel-fermented Chardonnay with buttery texture, nutty warmth, and a round, embracing mouthfeel.",
+    tags: ["Buttery", "Nutty", "Golden", "Generous", "Oak-Kissed"],
+    foodPairing: "Roast turkey, lobster thermidor, mushroom pasta, Epoisses cheese",
+    priceRange: "$$$-$$$$",
+    producers: ["Coche-Dury", "Roulot", "Comtes Lafon"],
+    personalNote: "If Puligny is a string quartet, Meursault is a full orchestra. Les Perrieres is the finest Premier Cru here, with almost Grand Cru intensity.",
+    quiz: { style: [0, 3, 2], budget: [0, 2, 3], food: [0, 3, 2, 2], level: [1, 3, 3] },
+    flavor: { mineral: 50, citrus: 30, oak: 75, body: 85, floral: 35 }
+  },
+  {
+    id: "corton-charlemagne", name: "Corton-Charlemagne", region: "Cote de Beaune",
+    lat: 47.0664, lng: 4.8581,
+    appellations: ["Grand Cru"], topAppellation: "Grand Cru",
+    grape: "Chardonnay",
+    style: "A single Grand Cru appellation on the great hill of Corton. Monumental structure, explosive minerality, and a steely backbone that demands patience.",
+    tags: ["Powerful", "Mineral", "Steel", "Long-Lived", "Structured"],
+    foodPairing: "Seared scallops, foie gras, aged Gruyere, sole meuniere",
+    priceRange: "$$$$",
+    producers: ["Bonneau du Martray", "Coche-Dury", "Louis Latour"],
+    personalNote: "Legend has it Charlemagne owned vines here. These wines need 5-10 years to truly open up, but the payoff is extraordinary.",
+    quiz: { style: [2, 1, 3], budget: [0, 0, 3], food: [2, 1, 2, 1], level: [0, 1, 3] },
+    flavor: { mineral: 90, citrus: 55, oak: 40, body: 75, floral: 40 }
+  },
+  {
+    id: "saint-aubin", name: "Saint-Aubin", region: "Cote de Beaune",
+    lat: 46.9453, lng: 4.7200,
+    appellations: ["Premier Cru", "Village"], topAppellation: "Premier Cru",
+    grape: "Chardonnay",
+    style: "The insider's Burgundy. Tucked behind Puligny and Chassagne, offering remarkable finesse and citrus-driven minerality at a fraction of the neighbor's price.",
+    tags: ["Citrus", "Mineral", "Value", "Elegant", "Fresh"],
+    foodPairing: "Grilled fish, crab cakes, asparagus, light pasta dishes",
+    priceRange: "$$-$$$",
+    producers: ["Hubert Lamy", "Marc Colin", "Thomas Morey"],
+    personalNote: "The best-kept secret in the Cote de Beaune. Hubert Lamy's Premier Crus can rival wines costing three times as much from next door.",
+    quiz: { style: [2, 0, 3], budget: [2, 3, 1], food: [2, 0, 1, 2], level: [1, 3, 2] },
+    flavor: { mineral: 75, citrus: 75, oak: 20, body: 50, floral: 60 }
+  },
+  {
+    id: "auxey-duresses", name: "Auxey-Duresses", region: "Cote de Beaune",
+    lat: 46.9597, lng: 4.7347,
+    appellations: ["Premier Cru", "Village"], topAppellation: "Premier Cru",
+    grape: "Chardonnay",
+    style: "Another hidden valley behind Meursault. Leaner and more angular than its famous neighbor, with a pleasant austerity and good aging potential.",
+    tags: ["Lean", "Angular", "Mineral", "Value", "Subtle"],
+    foodPairing: "Poached trout, vegetable tarts, mild cheeses, quiche",
+    priceRange: "$$",
+    producers: ["Comte Armand", "Prunier", "Alain Gras"],
+    personalNote: "For those who love Meursault's address but not the price tag. Less opulent, more honest.",
+    quiz: { style: [2, 0, 2], budget: [3, 2, 0], food: [1, 1, 1, 2], level: [1, 2, 1] },
+    flavor: { mineral: 65, citrus: 55, oak: 15, body: 45, floral: 25 }
+  },
+  {
+    id: "pernand-vergelesses", name: "Pernand-Vergelesses", region: "Cote de Beaune",
+    lat: 47.0756, lng: 4.8458,
+    appellations: ["Village"], topAppellation: "Village",
+    grape: "Chardonnay",
+    style: "A tiny, charming village on the backside of the Corton hill. Its whites are taut and nervy with green apple freshness and a pleasantly rustic edge.",
+    tags: ["Taut", "Green Apple", "Rustic", "Fresh", "Affordable"],
+    foodPairing: "Charcuterie, escargot, roasted vegetables, simple grilled fish",
+    priceRange: "$$",
+    producers: ["Rapet", "Rollin", "Chandon de Briailles"],
+    personalNote: "One of the most affordable addresses in the Cote de Beaune. Charming village wines that reward curiosity.",
+    quiz: { style: [2, 0, 1], budget: [3, 1, 0], food: [1, 1, 1, 2], level: [2, 2, 0] },
+    flavor: { mineral: 55, citrus: 65, oak: 10, body: 35, floral: 20 }
+  },
+  {
+    id: "rully", name: "Rully", region: "Cote Chalonnaise",
+    lat: 46.8750, lng: 4.7450,
+    appellations: ["Premier Cru", "Village"], topAppellation: "Premier Cru",
+    grape: "Chardonnay",
+    style: "Bright and vivacious with a lovely citrus-floral character. Also famous for excellent Cremant de Bourgogne. The gateway to the Cote Chalonnaise.",
+    tags: ["Bright", "Floral", "Citrus", "Lively", "Cremant"],
+    foodPairing: "Aperitif, sushi, goat cheese salad, grilled shrimp",
+    priceRange: "$$",
+    producers: ["Dureuil-Janthial", "Jacqueson", "de Villaine"],
+    personalNote: "Dureuil-Janthial is making some of the most exciting whites in this part of Burgundy. Snag them before prices climb.",
+    quiz: { style: [2, 0, 2], budget: [3, 2, 0], food: [2, 0, 1, 3], level: [2, 2, 1] },
+    flavor: { mineral: 60, citrus: 75, oak: 15, body: 45, floral: 70 }
+  },
+  {
+    id: "montagny", name: "Montagny", region: "Cote Chalonnaise",
+    lat: 46.7650, lng: 4.7250,
+    appellations: ["Premier Cru", "Village"], topAppellation: "Premier Cru",
+    grape: "Chardonnay",
+    style: "White-only appellation with generous, round wines showing ripe orchard fruit and a gentle creaminess. The southernmost outpost of the Cote Chalonnaise.",
+    tags: ["Round", "Orchard Fruit", "Creamy", "Approachable"],
+    foodPairing: "Roast chicken, cream-based soups, baked brie, white pizza",
+    priceRange: "$$",
+    producers: ["Berthenet", "Cave de Buxy", "Steinmaier"],
+    personalNote: "Generous and crowd-pleasing. A great choice when you want something richer without the Cote de Beaune markup.",
+    quiz: { style: [0, 2, 2], budget: [3, 1, 0], food: [0, 2, 2, 1], level: [2, 2, 0] },
+    flavor: { mineral: 35, citrus: 40, oak: 30, body: 60, floral: 35 }
+  },
+  {
+    id: "bouzeron", name: "Bouzeron", region: "Cote Chalonnaise",
+    lat: 46.8994, lng: 4.7333,
+    appellations: ["Village"], topAppellation: "Village",
+    grape: "Aligote",
+    style: "The only village appellation in Burgundy devoted to Aligote, Chardonnay's humbler cousin. Racy acidity, stone fruit, and an unmistakable saline finish.",
+    tags: ["Aligote", "Racy", "Saline", "Unique", "Light"],
+    foodPairing: "Kir (with creme de cassis), gougeres, smoked salmon, aperitif",
+    priceRange: "$$",
+    producers: ["de Villaine", "Chanzy", "Dureuil-Janthial"],
+    personalNote: "Aubert de Villaine (yes, the Romanee-Conti co-owner) lives here and champions Aligote. That should tell you something about this grape's potential.",
+    quiz: { style: [3, 0, 0], budget: [3, 0, 0], food: [1, 0, 0, 3], level: [1, 2, 3] },
+    flavor: { mineral: 50, citrus: 80, oak: 0, body: 30, floral: 25 }
+  },
+  {
+    id: "pouilly-fuisse", name: "Pouilly-Fuisse", region: "Maconnais",
+    lat: 46.2975, lng: 4.7150,
+    appellations: ["Premier Cru", "Village"], topAppellation: "Premier Cru",
+    grape: "Chardonnay",
+    style: "The crown jewel of the Maconnais, recently elevated with Premier Cru vineyards (2020). Rich and concentrated with tropical fruit, toasted notes, and surprising complexity.",
+    tags: ["Rich", "Tropical", "Complex", "Toasty", "Concentrated"],
+    foodPairing: "Grilled lobster, coq au vin, aged cheddar, risotto with truffle",
+    priceRange: "$$$",
+    producers: ["Guffens-Heynen", "Chateau-Fuisse", "Daniel Barraud"],
+    personalNote: "The new Premier Cru status is a game-changer. Top examples rival mid-range Cote de Beaune at better prices, but that window is closing.",
+    quiz: { style: [0, 3, 2], budget: [1, 3, 1], food: [1, 3, 2, 1], level: [1, 2, 2] },
+    flavor: { mineral: 40, citrus: 35, oak: 55, body: 75, floral: 30 }
+  },
+  {
+    id: "saint-veran", name: "Saint-Veran", region: "Maconnais",
+    lat: 46.3200, lng: 4.6900,
+    appellations: ["Village"], topAppellation: "Village",
+    grape: "Chardonnay",
+    style: "Sunny, fruit-forward, and generous. Think ripe peach, white flowers, and a touch of honey. The friendly face of southern Burgundy.",
+    tags: ["Fruity", "Sunny", "Peach", "Honeyed", "Easygoing"],
+    foodPairing: "Thai cuisine, grilled vegetables, pizza margherita, brunch",
+    priceRange: "$$",
+    producers: ["Domaine des Deux Roches", "Verget", "Rijckaert"],
+    personalNote: "One of the best introductions to Burgundy whites. Open a bottle on a warm evening with simple food and you'll understand immediately.",
+    quiz: { style: [0, 2, 1], budget: [3, 1, 0], food: [1, 1, 0, 2], level: [3, 1, 0] },
+    flavor: { mineral: 25, citrus: 50, oak: 15, body: 55, floral: 60 }
+  },
+  {
+    id: "vire-clesse", name: "Vire-Clesse", region: "Maconnais",
+    lat: 46.3400, lng: 4.7400,
+    appellations: ["Village"], topAppellation: "Village",
+    grape: "Chardonnay",
+    style: "Ripe and rounded with orchard fruit and floral notes. A step up from basic Macon with more concentration and a touch of elegance from the best sites.",
+    tags: ["Ripe", "Rounded", "Floral", "Orchard Fruit", "Elegant"],
+    foodPairing: "Roast pork, creamy pasta, Brie, lighter curries",
+    priceRange: "$$",
+    producers: ["Rijckaert", "Guillemot-Michel", "Thevenet"],
+    personalNote: "Jean Thevenet's cuvees from old vines show what this appellation is truly capable of. Burgundy depth, Maconnais warmth.",
+    quiz: { style: [0, 2, 2], budget: [3, 1, 0], food: [0, 2, 1, 1], level: [2, 2, 0] },
+    flavor: { mineral: 30, citrus: 45, oak: 25, body: 60, floral: 55 }
+  }
+];
+
+const QUIZ_QUESTIONS = [
+  {
+    question: "What white wine style do you reach for?",
+    options: [
+      { label: "Mineral & Crisp", desc: "Steely, citrus-driven, clean finish", value: 0 },
+      { label: "Rich & Buttery", desc: "Golden, oaky, generous mouthfeel", value: 1 },
+      { label: "Balanced & Textured", desc: "Best of both worlds, with nuance", value: 2 }
+    ]
+  },
+  {
+    question: "What's your budget per bottle?",
+    options: [
+      { label: "Everyday ($15-30)", desc: "Reliable quality for regular drinking", value: 0 },
+      { label: "Weekend ($30-60)", desc: "Something special for a nice dinner", value: 1 },
+      { label: "Splurge ($60+)", desc: "Celebration-worthy or collector territory", value: 2 }
+    ]
+  },
+  {
+    question: "What food will you be pairing?",
+    options: [
+      { label: "Seafood", desc: "Oysters, fish, shellfish, sushi", value: 0 },
+      { label: "Comfort Food", desc: "Roast chicken, pasta, creamy dishes", value: 1 },
+      { label: "Cheese Board", desc: "Aged, soft, or blue cheeses", value: 2 },
+      { label: "Just Wine", desc: "Sipping on its own, aperitif style", value: 3 }
+    ]
+  },
+  {
+    question: "How deep is your Burgundy experience?",
+    options: [
+      { label: "Beginner", desc: "New to Burgundy, want something approachable", value: 0 },
+      { label: "Intermediate", desc: "Know the basics, ready to explore", value: 1 },
+      { label: "Advanced", desc: "Familiar with terroir, seeking complexity", value: 2 }
+    ]
+  }
+];
+
+const REGION_BOUNDS = {
+  "Chablis": { center: [47.82, 3.78], zoom: 12 },
+  "Cote de Beaune": { center: [46.98, 4.77], zoom: 12 },
+  "Cote Chalonnaise": { center: [46.85, 4.73], zoom: 12 },
+  "Maconnais": { center: [46.32, 4.72], zoom: 12 }
+};
+
+// GeoJSON appellation boundaries (from INAO shapefile, dissolved + simplified)
+const APPELLATION_GEO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Auxey-Duresses","level":"Premier Cru"},"geometry":{"type":"MultiPolygon","coordinates":[[[[4.7265,46.9921],[4.7556,46.993],[4.7631,46.9876],[4.7499,46.9784],[4.7462,46.9823],[4.7499,46.9862],[4.7265,46.9889],[4.7265,46.9921]]],[[[4.7005,46.9817],[4.712,46.989],[4.72,46.9872],[4.7089,46.9801],[4.7005,46.9817]]]]}},{"type":"Feature","properties":{"name":"Bouzeron","level":"Village"},"geometry":{"type":"Polygon","coordinates":[[[4.7165,46.8857],[4.7302,46.9017],[4.74,46.9045],[4.7434,46.9007],[4.7216,46.8761],[4.7164,46.8782],[4.7165,46.8857]]]}},{"type":"Feature","properties":{"name":"Chablis","level":"Grand Cru"},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.7053,47.8232],[3.7126,47.8287],[3.713,47.8251],[3.7201,47.8233],[3.7162,47.8276],[3.7224,47.8295],[3.7305,47.824],[3.7473,47.8326],[3.755,47.831],[3.7497,47.8385],[3.758,47.8521],[3.7437,47.8497],[3.737,47.8431],[3.715,47.85],[3.7334,47.8605],[3.7312,47.866],[3.7418,47.873],[3.7444,47.8835],[3.7499,47.8843],[3.7533,47.8703],[3.738,47.8638],[3.7401,47.861],[3.7274,47.8501],[3.7343,47.8536],[3.7388,47.8495],[3.7362,47.8561],[3.7539,47.8653],[3.7661,47.8479],[3.772,47.8267],[3.7477,47.824],[3.7334,47.8189],[3.7711,47.8244],[3.7712,47.8153],[3.7881,47.813],[3.7948,47.8048],[3.7761,47.7837],[3.7814,47.7819],[3.7931,47.8001],[3.7969,47.7838],[3.7744,47.7637],[3.7649,47.7608],[3.7651,47.7533],[3.7395,47.7597],[3.7375,47.7671],[3.7463,47.7703],[3.7417,47.7743],[3.7451,47.7816],[3.7616,47.7903],[3.757,47.7975],[3.7717,47.806],[3.76,47.8021],[3.7617,47.8102],[3.753,47.8108],[3.7614,47.819],[3.7562,47.8192],[3.7506,47.808],[3.7392,47.8028],[3.741,47.7918],[3.7348,47.7921],[3.734,47.8051],[3.7254,47.7983],[3.7259,47.7882],[3.719,47.8006],[3.7219,47.8077],[3.7072,47.8098],[3.707,47.8142],[3.7168,47.82],[3.7068,47.8193],[3.7053,47.8232]]],[[[3.7676,47.8661],[3.7761,47.8693],[3.7924,47.8636],[3.7781,47.8567],[3.7728,47.8602],[3.7908,47.8376],[3.8107,47.8526],[3.8303,47.8537],[3.8175,47.8465],[3.8234,47.8437],[3.8216,47.8393],[3.811,47.8394],[3.8104,47.8346],[3.7996,47.831],[3.8013,47.8271],[3.8104,47.8301],[3.8102,47.8221],[3.8156,47.8224],[3.8174,47.831],[3.8241,47.8303],[3.8325,47.8392],[3.8312,47.8339],[3.8395,47.8245],[3.8326,47.8203],[3.8311,47.8145],[3.8346,47.8144],[3.8424,47.828],[3.8516,47.8236],[3.8568,47.8279],[3.855,47.833],[3.8638,47.8333],[3.8629,47.8285],[3.8768,47.8239],[3.8647,47.8251],[3.8591,47.8201],[3.8794,47.8222],[3.8831,47.8162],[3.871,47.8114],[3.8749,47.8064],[3.8852,47.8126],[3.92,47.814],[3.9266,47.8079],[3.915,47.8032],[3.925,47.8003],[3.9157,47.7938],[3.905,47.7959],[3.9128,47.8033],[3.9093,47.805],[3.8858,47.7955],[3.8822,47.7998],[3.8656,47.798],[3.8665,47.7909],[3.8486,47.7916],[3.8356,47.802],[3.8517,47.8177],[3.8312,47.8053],[3.7886,47.8232],[3.7933,47.8326],[3.7782,47.8325],[3.7676,47.8661]]],[[[3.8669,47.7844],[3.8721,47.7896],[3.8867,47.7882],[3.8904,47.7838],[3.9078,47.7847],[3.8922,47.7777],[3.8708,47.779],[3.8669,47.7844]]],[[[3.8059,47.7936],[3.808,47.7985],[3.8229,47.7975],[3.8226,47.7923],[3.8305,47.7862],[3.8141,47.7801],[3.8059,47.7936]]],[[[3.7649,47.8773],[3.7655,47.8818],[3.7771,47.8826],[3.7766,47.8781],[3.785,47.8745],[3.7741,47.8711],[3.7664,47.8725],[3.7649,47.8773]]]]}},{"type":"Feature","properties":{"name":"Chablis Grand Cru","level":"Grand Cru"},"geometry":{"type":"Polygon","coordinates":[[[3.7892,47.8266],[3.8,47.8294],[3.8197,47.8207],[3.8101,47.8147],[3.7886,47.8232],[3.7892,47.8266]]]}},{"type":"Feature","properties":{"name":"Chassagne-Montrachet","level":"Grand Cru"},"geometry":{"type":"Polygon","coordinates":[[[4.7103,46.9272],[4.72,46.9333],[4.7179,46.936],[4.724,46.9406],[4.7175,46.9393],[4.7206,46.9446],[4.7355,46.9468],[4.7503,46.9399],[4.7431,46.9362],[4.7444,46.9304],[4.7338,46.9274],[4.7274,46.9194],[4.7181,46.9189],[4.7103,46.9272]]]}},{"type":"Feature","properties":{"name":"Corton-Charlemagne","level":"Grand Cru"},"geometry":{"type":"Polygon","coordinates":[[[4.8489,47.0747],[4.8556,47.08],[4.8566,47.0737],[4.8699,47.0824],[4.8741,47.0806],[4.859,47.0672],[4.8489,47.0747]]]}},{"type":"Feature","properties":{"name":"Meursault","level":"Premier Cru"},"geometry":{"type":"Polygon","coordinates":[[[4.7358,46.9607],[4.7477,46.9654],[4.7491,46.9799],[4.7617,46.9894],[4.7751,46.9929],[4.7867,46.9896],[4.774,46.9774],[4.7784,46.9778],[4.7789,46.9729],[4.7664,46.9677],[4.7603,46.9548],[4.7358,46.9607]]]}},{"type":"Feature","properties":{"name":"Montagny","level":"Premier Cru"},"geometry":{"type":"MultiPolygon","coordinates":[[[[4.6664,46.6826],[4.6706,46.7135],[4.6784,46.7106],[4.6908,46.7132],[4.689,46.6923],[4.6822,46.6831],[4.6754,46.6835],[4.6832,46.6793],[4.6664,46.6826]]],[[[4.6762,46.7156],[4.6849,46.7213],[4.6982,46.7213],[4.6945,46.7151],[4.6825,46.7123],[4.6762,46.7156]]],[[[4.6839,46.6848],[4.6877,46.6863],[4.6887,46.6841],[4.6845,46.6832],[4.6839,46.6848]]]]}},{"type":"Feature","properties":{"name":"Pernand-Vergelesses","level":"Village"},"geometry":{"type":"Polygon","coordinates":[[[4.8416,47.0808],[4.8447,47.0925],[4.8531,47.0867],[4.8679,47.0881],[4.8509,47.0748],[4.8538,47.0608],[4.8429,47.0627],[4.8453,47.0782],[4.8416,47.0808]]]}},{"type":"Feature","properties":{"name":"Petit Chablis","level":"Village"},"geometry":{"type":"MultiPolygon","coordinates":[[[[3.6924,47.8166],[3.6908,47.8198],[3.701,47.8208],[3.7097,47.8297],[3.7401,47.837],[3.745,47.8311],[3.742,47.8374],[3.7472,47.8408],[3.713,47.8507],[3.7281,47.8636],[3.7243,47.8656],[3.7343,47.8807],[3.7498,47.8844],[3.7534,47.8704],[3.7403,47.8643],[3.7399,47.8596],[3.7541,47.8651],[3.7661,47.8479],[3.772,47.8267],[3.7477,47.824],[3.7334,47.8189],[3.7711,47.8244],[3.7712,47.8153],[3.7881,47.813],[3.7948,47.8049],[3.783,47.7912],[3.7803,47.7813],[3.7929,47.8001],[3.7969,47.7839],[3.7785,47.768],[3.7846,47.7638],[3.7824,47.7607],[3.7637,47.7587],[3.7649,47.7533],[3.74,47.7595],[3.7375,47.7671],[3.7463,47.7703],[3.7422,47.7715],[3.7463,47.7798],[3.7432,47.7819],[3.7579,47.7934],[3.7541,47.7958],[3.7579,47.7999],[3.7619,47.7985],[3.7717,47.806],[3.7578,47.804],[3.7617,47.8102],[3.753,47.8113],[3.7612,47.819],[3.7392,47.8028],[3.7427,47.785],[3.7256,47.7884],[3.7188,47.8021],[3.7054,47.7989],[3.6917,47.8121],[3.6924,47.8166]]],[[[3.7676,47.8661],[3.7846,47.8693],[3.7994,47.8626],[3.7984,47.8589],[3.7778,47.8566],[3.7728,47.8602],[3.7829,47.8523],[3.7812,47.8479],[3.7855,47.8479],[3.7906,47.8377],[3.8142,47.8552],[3.8279,47.8545],[3.8348,47.8509],[3.8182,47.8461],[3.8315,47.844],[3.8279,47.8388],[3.8337,47.8384],[3.8312,47.834],[3.8437,47.8353],[3.845,47.8301],[3.8413,47.8277],[3.8392,47.8213],[3.8425,47.828],[3.8516,47.8236],[3.8568,47.8279],[3.855,47.833],[3.8638,47.8333],[3.8629,47.8285],[3.8768,47.8239],[3.8647,47.8251],[3.8591,47.8201],[3.8794,47.8222],[3.8831,47.8162],[3.871,47.8114],[3.8749,47.8064],[3.8875,47.8132],[3.92,47.814],[3.9266,47.8079],[3.915,47.8032],[3.925,47.8003],[3.9157,47.7938],[3.905,47.7959],[3.9128,47.8033],[3.9093,47.805],[3.8975,47.7978],[3.867,47.7983],[3.8682,47.7913],[3.8491,47.7898],[3.8356,47.802],[3.8517,47.8177],[3.8312,47.8053],[3.7886,47.8232],[3.7933,47.8326],[3.7782,47.8325],[3.7676,47.8661]]],[[[3.8669,47.7844],[3.872,47.7895],[3.8902,47.7841],[3.9119,47.7911],[3.9232,47.7904],[3.9251,47.7841],[3.8883,47.7772],[3.8707,47.7791],[3.8669,47.7844]]],[[[3.7649,47.8812],[3.7842,47.8861],[3.803,47.8831],[3.8011,47.877],[3.7952,47.8769],[3.7963,47.8828],[3.7895,47.8811],[3.7989,47.8699],[3.7945,47.8674],[3.7806,47.8725],[3.7665,47.8725],[3.7649,47.8812]]],[[[3.8059,47.7936],[3.808,47.7985],[3.8229,47.7975],[3.8306,47.7931],[3.8305,47.7862],[3.8141,47.7801],[3.8059,47.7936]]]]}},{"type":"Feature","properties":{"name":"Pouilly-Fuiss\u00e9","level":"Premier Cru"},"geometry":{"type":"MultiPolygon","coordinates":[[[[4.7041,46.3184],[4.7184,46.3242],[4.7262,46.3189],[4.7161,46.3141],[4.7289,46.3137],[4.7281,46.3066],[4.7442,46.2961],[4.7597,46.2961],[4.7553,46.2719],[4.757,46.2672],[4.7714,46.2636],[4.7686,46.2552],[4.7556,46.2538],[4.7522,46.2656],[4.7405,46.2695],[4.7421,46.2768],[4.7302,46.2745],[4.729,46.2865],[4.7353,46.2885],[4.7309,46.2922],[4.7113,46.291],[4.7265,46.3059],[4.7112,46.2983],[4.7041,46.3184]]],[[[4.7045,46.3028],[4.7067,46.3028],[4.7071,46.3007],[4.7035,46.3005],[4.7045,46.3028]]]]}},{"type":"Feature","properties":{"name":"Puligny-Montrachet","level":"Grand Cru"},"geometry":{"type":"Polygon","coordinates":[[[4.7316,46.9552],[4.7366,46.962],[4.7614,46.9554],[4.7509,46.9457],[4.7502,46.9384],[4.7339,46.9452],[4.7381,46.9516],[4.7316,46.9552]]]}},{"type":"Feature","properties":{"name":"Rully","level":"Premier Cru"},"geometry":{"type":"MultiPolygon","coordinates":[[[[4.7066,46.8567],[4.7127,46.8601],[4.7103,46.8688],[4.7179,46.8775],[4.7271,46.8758],[4.7416,46.883],[4.7432,46.8928],[4.7398,46.8953],[4.7445,46.9004],[4.7513,46.8982],[4.7506,46.8871],[4.7382,46.8745],[4.7395,46.8644],[4.744,46.8742],[4.7498,46.8729],[4.7437,46.8599],[4.7228,46.8519],[4.7177,46.8528],[4.7224,46.8575],[4.7103,46.8529],[4.7066,46.8567]]],[[[4.7374,46.8865],[4.7358,46.8875],[4.7369,46.889],[4.7391,46.8881],[4.7374,46.8865]]]]}},{"type":"Feature","properties":{"name":"Saint-Aubin","level":"Premier Cru"},"geometry":{"type":"Polygon","coordinates":[[[4.6872,46.9489],[4.7125,46.9568],[4.7095,46.9608],[4.7197,46.9591],[4.7199,46.9625],[4.7372,46.9524],[4.7304,46.9424],[4.7204,46.9428],[4.7246,46.9482],[4.7198,46.9553],[4.7184,46.9502],[4.7077,46.9467],[4.6946,46.9451],[4.6872,46.9489]]]}},{"type":"Feature","properties":{"name":"Saint-V\u00e9ran","level":"Village"},"geometry":{"type":"MultiPolygon","coordinates":[[[[4.7182,46.3228],[4.7324,46.3224],[4.7387,46.3269],[4.7565,46.304],[4.7437,46.3028],[4.7584,46.2995],[4.7581,46.2957],[4.7428,46.2943],[4.731,46.3021],[4.7256,46.3083],[4.7291,46.3111],[4.7182,46.3228]]],[[[4.712,46.2848],[4.7165,46.2884],[4.7293,46.2867],[4.7318,46.2708],[4.7427,46.2733],[4.7383,46.2669],[4.7258,46.2643],[4.7288,46.2523],[4.7184,46.2561],[4.7197,46.2766],[4.712,46.2848]]],[[[4.735,46.3423],[4.759,46.3422],[4.7525,46.3391],[4.7601,46.3328],[4.7585,46.3287],[4.7646,46.3277],[4.7622,46.3179],[4.7519,46.323],[4.7535,46.3326],[4.7467,46.3317],[4.7445,46.3357],[4.7425,46.331],[4.7354,46.3326],[4.7383,46.3378],[4.735,46.3423]]],[[[4.7512,46.2498],[4.7569,46.2553],[4.7665,46.2511],[4.7647,46.2462],[4.7512,46.2498]]],[[[4.7702,46.3195],[4.7812,46.3239],[4.7823,46.3148],[4.7711,46.3163],[4.7702,46.3195]]]]}},{"type":"Feature","properties":{"name":"Vir\u00e9-Cless\u00e9","level":"Village"},"geometry":{"type":"Polygon","coordinates":[[[4.8022,46.4041],[4.8077,46.4076],[4.8097,46.4171],[4.8161,46.4155],[4.8153,46.4297],[4.8237,46.4295],[4.8231,46.439],[4.8284,46.4376],[4.8329,46.4472],[4.8316,46.4553],[4.844,46.4625],[4.8451,46.4724],[4.8489,46.4728],[4.8573,46.4502],[4.8473,46.4492],[4.848,46.4415],[4.8424,46.4412],[4.8438,46.4365],[4.8337,46.4282],[4.824,46.4102],[4.8144,46.4106],[4.8063,46.401],[4.8022,46.4041]]]}}]};
+
+// ============================================================
+// GLOBALS
+// ============================================================
+let map, markers = [];
+let regionPolygonLayers = [], regionLabelLayers = [];
+let currentRegion = "all";
+let quizStep = 0;
+let quizAnswers = [null, null, null, null];
+
+// ============================================================
+// ANIMATED COUNTERS
+// ============================================================
+function animateCounters() {
+  document.querySelectorAll('.hero-stat .num').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+// ============================================================
+// SCROLL REVEAL
+// ============================================================
+function initScrollReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+function observeCards() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const card = entry.target;
+        const idx = parseInt(card.dataset.index) || 0;
+        setTimeout(() => card.classList.add('card-visible'), idx % 3 * 100);
+        observer.unobserve(card);
+      }
+    });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('.wine-card').forEach(el => observer.observe(el));
+}
+
+// ============================================================
+// STICKY FILTER
+// ============================================================
+function initStickyFilter() {
+  const filterSection = document.getElementById('filterSection');
+  const observer = new IntersectionObserver(([entry]) => {
+    filterSection.classList.toggle('scrolled', !entry.isIntersecting);
+  }, { threshold: 0, rootMargin: '-1px 0px 0px 0px' });
+  observer.observe(document.querySelector('.hero'));
+}
+
+// ============================================================
+// MAP
+// ============================================================
+let geoJsonLayer = null;
+let activeRegion = 'all';
+
+function initMap() {
+  map = L.map('map', { scrollWheelZoom: false, zoomControl: false, zoomSnap: 0.25, zoomDelta: 0.5, attributionControl: true });
+
+  // Dark tiles
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 18, subdomains: 'abcd'
+  }).addTo(map);
+
+  // Region labels (always visible)
+  const REGION_LABEL_POS = {
+    "Chablis": [47.84, 3.75],
+    "Cote de Beaune": [47.00, 4.72],
+    "Cote Chalonnaise": [46.85, 4.70],
+    "Maconnais": [46.35, 4.67]
+  };
+
+  const REGION_DISPLAY_NAMES = {
+    "Chablis": "CHABLIS",
+    "Cote de Beaune": "COTE DE BEAUNE",
+    "Cote Chalonnaise": "CHALONNAISE",
+    "Maconnais": "MACONNAIS"
+  };
+  Object.entries(REGION_LABEL_POS).forEach(([name, pos]) => {
+    const displayName = REGION_DISPLAY_NAMES[name] || name.toUpperCase();
+    const label = L.marker(pos, {
+      icon: L.divIcon({ className: 'region-label', html: displayName, iconSize: [0, 0], iconAnchor: [0, 8] }),
+      interactive: false
+    }).addTo(map);
+    regionLabelLayers.push({ name, layer: label });
+  });
+
+  // Village markers
+  VILLAGES.forEach(v => {
+    const color = v.topAppellation === "Grand Cru" ? '#E8C94A' :
+                  v.topAppellation === "Premier Cru" ? '#B87A3D' : '#6B6864';
+    const size = v.topAppellation === "Grand Cru" ? 22 :
+                 v.topAppellation === "Premier Cru" ? 16 : 12;
+    const extraClass = v.topAppellation === "Grand Cru" ? ' marker-grand-cru' : '';
+
+    const icon = L.divIcon({
+      className: 'village-marker',
+      html: `<div class="village-marker-dot${extraClass}" style="width:${size}px;height:${size}px;background:${color};box-shadow:0 2px 6px rgba(0,0,0,0.5)"></div>
+             <span class="village-marker-label">${v.name}</span>`,
+      iconSize: [size, size], iconAnchor: [size/2, size/2]
+    });
+
+    const marker = L.marker([v.lat, v.lng], { icon }).addTo(map);
+    marker.villageData = v;
+    marker.on('click', () => showInfoCard(v));
+    markers.push(marker);
+  });
+
+  fitMapToAll();
+  map.on('zoomend', () => {
+    document.getElementById('map').classList.toggle('show-labels', map.getZoom() >= 10);
+  });
+
+  // Click on map background closes info card
+  map.on('click', (e) => {
+    if (!e.originalEvent.target.closest('.village-marker')) closeInfoCard();
+  });
+}
+
+function getGeoStyle(level, highlighted) {
+  const base = {
+    'Grand Cru':   { color: '#E8C94A', weight: 1.5, fillColor: '#E8C94A' },
+    'Premier Cru': { color: '#B87A3D', weight: 1.2, fillColor: '#B87A3D' },
+    'Village':     { color: '#6B6864', weight: 1,   fillColor: '#6B6864' }
+  };
+  const s = base[level] || base['Village'];
+  return {
+    ...s,
+    opacity: highlighted ? 0.7 : 0.4,
+    fillOpacity: highlighted ? 0.12 : 0.04,
+    dashArray: null
+  };
+}
+
+function showRegionBoundaries(region) {
+  if (geoJsonLayer) { map.removeLayer(geoJsonLayer); geoJsonLayer = null; }
+  if (region === 'all') return; // No boundaries in all-view for cleaner look
+
+  // Map region name to appellation names in GeoJSON
+  const regionAppellations = {
+    'Chablis': ['Chablis', 'Chablis Grand Cru', 'Petit Chablis'],
+    'Cote de Beaune': ['Puligny-Montrachet', 'Chassagne-Montrachet', 'Meursault', 'Corton-Charlemagne', 'Saint-Aubin', 'Auxey-Duresses', 'Pernand-Vergelesses'],
+    'Cote Chalonnaise': ['Rully', 'Montagny', 'Bouzeron'],
+    'Maconnais': ['Pouilly-Fuiss\u00e9', 'Saint-V\u00e9ran', 'Vir\u00e9-Cless\u00e9']
+  };
+
+  const names = regionAppellations[region] || [];
+  const filtered = {
+    type: 'FeatureCollection',
+    features: APPELLATION_GEO.features.filter(f => names.includes(f.properties.name))
+  };
+
+  geoJsonLayer = L.geoJSON(filtered, {
+    style: function(feature) {
+      return getGeoStyle(feature.properties.level, true);
+    },
+    onEachFeature: function(feature, layer) {
+      layer.on('mouseover', function() {
+        this.setStyle({ fillOpacity: 0.22, opacity: 0.9, weight: 2 });
+      });
+      layer.on('mouseout', function() {
+        const s = getGeoStyle(feature.properties.level, true);
+        this.setStyle(s);
+      });
+    }
+  }).addTo(map);
+}
+
+function selectMapRegion(region, btn) {
+  activeRegion = region;
+  currentRegion = region;
+  // Update map region buttons
+  document.querySelectorAll('.map-region-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Sync filter bar
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.region === region);
+  });
+  closeInfoCard();
+
+  // Remove any existing boundary layer
+  if (geoJsonLayer) { map.removeLayer(geoJsonLayer); geoJsonLayer = null; }
+
+  // Fade markers
+  markers.forEach(m => {
+    const el = m.getElement();
+    if (el) {
+      el.style.opacity = (region === 'all' || m.villageData.region === region) ? '1' : '0.7';
+      el.style.transition = 'opacity 0.3s';
+    }
+  });
+  regionLabelLayers.forEach(({ name, layer }) => {
+    const el = layer.getElement();
+    if (el) {
+      el.style.opacity = region === 'all' ? '0.5' : name === region ? '0.8' : '0.1';
+      el.style.transition = 'opacity 0.3s';
+    }
+  });
+
+  // Fly to region
+  if (region === 'all') {
+    fitMapToAll();
+  } else {
+    fitMapToRegion(region);
+  }
+
+  // Update cards
+  renderCards(region);
+}
+
+function showInfoCard(v) {
+  const card = document.getElementById('map-info-card');
+  const content = document.getElementById('info-card-content');
+  const badgeClass = v.topAppellation === 'Grand Cru' ? 'badge-grand-cru' :
+                     v.topAppellation === 'Premier Cru' ? 'badge-premier-cru' : 'badge-village';
+  const badgeStyle = v.topAppellation === 'Grand Cru' ? `background:var(--gold-dim);color:var(--gold)` :
+                     v.topAppellation === 'Premier Cru' ? `background:var(--amber-dim);color:var(--amber)` :
+                     `background:rgba(107,104,100,0.15);color:var(--text-muted)`;
+
+  const tags = v.tags.slice(0, 5).map(t => `<span class="info-card-tag">${t}</span>`).join('');
+
+  content.innerHTML = `
+    <div class="info-card-name">${v.name}</div>
+    <span class="info-card-badge" style="${badgeStyle}">${v.topAppellation}</span>
+    <p class="info-card-desc">${v.style.substring(0, 140)}${v.style.length > 140 ? '...' : ''}</p>
+    <div class="info-card-tags">${tags}</div>
+    <div class="info-card-stats">
+      <div class="info-card-stat">
+        <div class="info-card-stat-label">Price</div>
+        <div class="info-card-stat-value">${v.priceRange}</div>
+      </div>
+      <div class="info-card-stat">
+        <div class="info-card-stat-label">Region</div>
+        <div class="info-card-stat-value">${v.region}</div>
+      </div>
+      <div class="info-card-stat">
+        <div class="info-card-stat-label">Lat</div>
+        <div class="info-card-stat-value">${v.lat.toFixed(4)}</div>
+      </div>
+      <div class="info-card-stat">
+        <div class="info-card-stat-label">Lng</div>
+        <div class="info-card-stat-value">${v.lng.toFixed(4)}</div>
+      </div>
+    </div>
+    <a class="info-card-link" onclick="scrollToCard('${v.id}')">View full profile &darr;</a>
+  `;
+  card.classList.add('visible');
+}
+
+function closeInfoCard() {
+  document.getElementById('map-info-card').classList.remove('visible');
+}
+
+let mapInitialized = false;
+function fitMapToAll() {
+  const group = L.featureGroup(markers);
+  if (!mapInitialized) {
+    map.fitBounds(group.getBounds().pad(0.1));
+    mapInitialized = true;
+  } else {
+    map.flyToBounds(group.getBounds().pad(0.1), { duration: 0.8, easeLinearity: 0.25 });
+  }
+}
+
+function fitMapToRegion(region) {
+  if (region === 'all') { fitMapToAll(); return; }
+  const regionMarkers = markers.filter(m => m.villageData.region === region);
+  if (regionMarkers.length) {
+    const group = L.featureGroup(regionMarkers);
+    map.flyToBounds(group.getBounds().pad(0.2), { duration: 0.8, easeLinearity: 0.25 });
+  }
+}
+
+// ============================================================
+// CARDS
+// ============================================================
+function renderCards(region) {
+  const grid = document.getElementById('cardsGrid');
+  const filtered = region === 'all' ? VILLAGES : VILLAGES.filter(v => v.region === region);
+
+  grid.innerHTML = filtered.map((v, i) => {
+    const badgeClass = v.topAppellation === "Grand Cru" ? 'badge-grand-cru' :
+                       v.topAppellation === "Premier Cru" ? 'badge-premier-cru' : 'badge-village';
+    const tags = v.tags.map(t => `<span class="card-tag">${t}</span>`).join('');
+
+    // Flavor bars
+    const flavorKeys = ['mineral', 'citrus', 'oak', 'body', 'floral'];
+    const flavorColors = { mineral: '#6B9F78', citrus: '#C49A3C', oak: '#B87A3D', body: '#E8E4DF', floral: '#8B7EC8' };
+    const flavorBars = flavorKeys.map(k => `
+      <div class="flavor-bar-row">
+        <span class="flavor-bar-label">${k}</span>
+        <div class="flavor-bar-track">
+          <div class="flavor-bar-fill" style="width:${v.flavor[k]}%;background:${flavorColors[k]}"></div>
+        </div>
+      </div>
+    `).join('');
+
+    // Label border color
+    const labelBorder = v.topAppellation === "Grand Cru" ? 'var(--gold-dim)' :
+                        v.topAppellation === "Premier Cru" ? 'var(--amber-dim)' : 'var(--border)';
+
+    return `
+      <div class="wine-card" id="card-${v.id}" data-index="${i}">
+        <div class="card-label" style="border-bottom-color:${labelBorder}">
+          <div class="card-label-region">${v.region}</div>
+          <span class="card-label-appellation ${badgeClass}">${v.topAppellation}</span>
+          <div class="card-label-name">${v.name}</div>
+          <div class="card-label-producer">${v.producers[0]}</div>
+          <div class="card-label-grape">${v.grape}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-header">
+            <div class="card-name">${v.name}</div>
+            <div class="card-price">${v.priceRange}</div>
+          </div>
+          <p class="card-style">${v.style}</p>
+          <div class="card-tags">${tags}</div>
+          <div class="card-flavor-bars">${flavorBars}</div>
+          <hr class="card-divider">
+          <dl class="card-meta">
+            <div><dt>food pairing</dt><dd>${v.foodPairing}</dd></div>
+            <div><dt>appellations</dt><dd>${v.appellations.join(', ')}</dd></div>
+          </dl>
+          <p class="card-producers"><strong>producers</strong> ${v.producers.join(' / ')}</p>
+          <p class="card-note">${v.personalNote}</p>
+          <div class="card-coords">${v.lat.toFixed(4)}N, ${v.lng.toFixed(4)}E</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  requestAnimationFrame(() => observeCards());
+}
+
+function scrollToCard(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.boxShadow = '0 0 0 2px var(--gold)';
+    setTimeout(() => { card.style.boxShadow = ''; }, 2500);
+  }
+}
+
+// ============================================================
+// FILTERS
+// ============================================================
+function initFilters() {
+  document.getElementById('filterBar').addEventListener('click', e => {
+    if (!e.target.closest('.filter-btn')) return;
+    const btn = e.target.closest('.filter-btn');
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRegion = btn.dataset.region;
+    // Sync map region buttons
+    document.querySelectorAll('.map-region-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.region === currentRegion);
+    });
+    activeRegion = currentRegion;
+    if (geoJsonLayer) { map.removeLayer(geoJsonLayer); geoJsonLayer = null; }
+    fitMapToRegion(currentRegion);
+    closeInfoCard();
+    renderCards(currentRegion);
+
+    markers.forEach(m => {
+      const el = m.getElement();
+      if (el) {
+        el.style.opacity = (currentRegion === 'all' || m.villageData.region === currentRegion) ? '1' : '0.7';
+        el.style.transition = 'opacity 0.3s';
+      }
+    });
+    regionLabelLayers.forEach(({ name, layer }) => {
+      const el = layer.getElement();
+      if (el) {
+        el.style.opacity = currentRegion === 'all' ? '0.5' : name === currentRegion ? '0.8' : '0.1';
+        el.style.transition = 'opacity 0.3s';
+      }
+    });
+  });
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function initQuiz() {
+  const stepsEl = document.getElementById('quizSteps');
+  const progressEl = document.getElementById('quizProgress');
+
+  QUIZ_QUESTIONS.forEach((q, qi) => {
+    const seg = document.createElement('div');
+    seg.className = 'quiz-progress-segment' + (qi === 0 ? ' current' : '');
+    progressEl.appendChild(seg);
+  });
+
+  stepsEl.innerHTML = QUIZ_QUESTIONS.map((q, qi) => `
+    <div class="quiz-step${qi === 0 ? ' active' : ''}" data-step="${qi}">
+      <div class="quiz-step-label">question ${qi + 1} of ${QUIZ_QUESTIONS.length}</div>
+      <p class="quiz-question">${q.question}</p>
+      <div class="quiz-options">
+        ${q.options.map(o => `
+          <div class="quiz-option" data-step="${qi}" data-value="${o.value}">
+            <div class="quiz-option-label">${o.label}</div>
+            <div class="quiz-option-desc">${o.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="quiz-nav">
+        <button class="quiz-btn quiz-btn-back" ${qi === 0 ? 'style="visibility:hidden"' : ''} data-dir="back">Back</button>
+        <button class="quiz-btn quiz-btn-next" data-dir="next" disabled>${qi === QUIZ_QUESTIONS.length - 1 ? 'See Results' : 'Next'}</button>
+      </div>
+    </div>
+  `).join('');
+
+  stepsEl.addEventListener('click', e => {
+    const option = e.target.closest('.quiz-option');
+    if (option) {
+      const step = parseInt(option.dataset.step);
+      quizAnswers[step] = parseInt(option.dataset.value);
+      option.closest('.quiz-step').querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+      option.classList.add('selected');
+      option.closest('.quiz-step').querySelector('.quiz-btn-next').disabled = false;
+    }
+    const btn = e.target.closest('.quiz-btn');
+    if (btn) {
+      if (btn.dataset.dir === 'next') {
+        if (quizStep < QUIZ_QUESTIONS.length - 1) { quizStep++; updateQuizView(); }
+        else showQuizResults();
+      } else if (btn.dataset.dir === 'back' && quizStep > 0) { quizStep--; updateQuizView(); }
+    }
+  });
+
+  document.getElementById('quizRestart').addEventListener('click', () => {
+    quizStep = 0;
+    quizAnswers = [null, null, null, null];
+    document.getElementById('quizResults').classList.remove('active');
+    document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+    document.querySelectorAll('.quiz-btn-next').forEach(b => b.disabled = true);
+    updateQuizView();
+  });
+}
+
+function updateQuizView() {
+  document.querySelectorAll('.quiz-step').forEach((s, i) => s.classList.toggle('active', i === quizStep));
+  document.querySelectorAll('.quiz-progress-segment').forEach((d, i) => {
+    d.className = 'quiz-progress-segment';
+    if (i < quizStep) d.classList.add('done');
+    if (i === quizStep) d.classList.add('current');
+  });
+}
+
+function showQuizResults() {
+  document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.quiz-progress-segment').forEach(d => { d.className = 'quiz-progress-segment done'; });
+
+  const scores = VILLAGES.map(v => {
+    let score = 0;
+    score += (v.quiz.style[quizAnswers[0]] || 0);
+    score += (v.quiz.budget[quizAnswers[1]] || 0);
+    score += (v.quiz.food[quizAnswers[2]] || 0);
+    score += (v.quiz.level[quizAnswers[3]] || 0);
+    return { village: v, score };
+  }).sort((a, b) => b.score - a.score);
+
+  const top3 = scores.slice(0, 3);
+  const maxScore = 12;
+
+  document.getElementById('quizResultCards').innerHTML = top3.map((item, i) => {
+    const v = item.village;
+    const pct = Math.round(item.score / maxScore * 100);
+    const badgeClass = v.topAppellation === "Grand Cru" ? 'badge-grand-cru' :
+                       v.topAppellation === "Premier Cru" ? 'badge-premier-cru' : 'badge-village';
+
+    // Mini radar SVG
+    const dims = ['mineral', 'citrus', 'oak', 'body', 'floral'];
+    const cx = 32, cy = 32, r = 24;
+    const points = dims.map((d, di) => {
+      const angle = (Math.PI * 2 * di / dims.length) - Math.PI / 2;
+      const val = v.flavor[d] / 100;
+      return `${cx + r * val * Math.cos(angle)},${cy + r * val * Math.sin(angle)}`;
+    }).join(' ');
+    const bgPoints = dims.map((d, di) => {
+      const angle = (Math.PI * 2 * di / dims.length) - Math.PI / 2;
+      return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+    }).join(' ');
+
+    return `
+      <div class="quiz-result-card">
+        <div class="quiz-result-rank">${i + 1}</div>
+        <div class="quiz-result-body">
+          <div class="quiz-result-name">${v.name} <span class="popup-badge ${badgeClass}" style="font-size:0.55rem;vertical-align:middle">${v.topAppellation}</span></div>
+          <div class="quiz-result-region">${v.region} / ${v.grape} / ${v.priceRange}</div>
+          <p class="quiz-result-why">Match score: ${pct}%</p>
+          <a class="quiz-result-link" onclick="scrollToCard('${v.id}')">View profile &#8595;</a>
+        </div>
+        <svg class="quiz-result-radar" viewBox="0 0 64 64">
+          <polygon points="${bgPoints}" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+          <polygon points="${points}" fill="var(--wine-dim)" stroke="var(--wine)" stroke-width="1"/>
+        </svg>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('quizResults').classList.add('active');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  animateCounters();
+  initQuiz();
+  initMap();
+  renderCards('all');
+  initFilters();
+  initScrollReveal();
+  initStickyFilter();
+});
+</script>
+</body>
+</html>
