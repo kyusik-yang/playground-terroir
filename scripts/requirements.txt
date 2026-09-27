@@ -1,0 +1,8 @@
+geopandas>=1.1
+shapely>=2.1
+pyogrio>=0.11
+pyproj
+numpy
+pandas
+requests
+matplotlib

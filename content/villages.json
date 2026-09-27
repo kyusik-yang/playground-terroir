@@ -1,0 +1,863 @@
+{
+ "_comment": "Curated village profiles. Edit here, then run scripts/06_villages.py to merge computed stats into docs/data/villages.json.",
+ "villages": [
+  {
+   "id": "chablis",
+   "name": "Chablis",
+   "region": "chablis",
+   "levels": [
+    "grand-cru",
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "grand-cru",
+   "grape": "Chardonnay",
+   "style": "The benchmark for mineral-driven Chardonnay. Steel-fermented purity, flinty nerve, and a salinity that recalls the Kimmeridgian oyster fossils in the soil.",
+   "tags": [
+    "Flinty",
+    "Citrus",
+    "Mineral",
+    "Crisp",
+    "Oyster Shell"
+   ],
+   "foodPairing": "Raw oysters, sashimi, goat cheese, grilled Dover sole",
+   "priceRange": "$$-$$$$",
+   "producers": [
+    "Raveneau",
+    "Vincent Dauvissat",
+    "William Fèvre"
+   ],
+   "note": "The Grand Cru vineyards (Les Clos, Vaudésir) are on another level, but a good village Chablis is one of the best values in all of Burgundy.",
+   "flavor": {
+    "mineral": 95,
+    "citrus": 80,
+    "oak": 5,
+    "body": 40,
+    "floral": 30
+   },
+   "quiz": {
+    "style": [
+     3,
+     0,
+     1
+    ],
+    "budget": [
+     3,
+     2,
+     1
+    ],
+    "food": [
+     3,
+     0,
+     1,
+     1
+    ],
+    "level": [
+     2,
+     3,
+     3
+    ]
+   },
+   "climatsOfficial": {
+    "count": 40,
+    "label": "premier cru climats listed by the Bourgogne wine board (BIVB)",
+    "url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/chablis-and-chablis-premier-cru,2458,9253.html?&args=Y29tcF9pZD0yMjc4JmFjdGlvbj12aWV3RmljaGUmaWQ9MjU5Jnw%3D",
+    "accessed": "2026-09-25"
+   }
+  },
+  {
+   "id": "petit-chablis",
+   "name": "Petit Chablis",
+   "region": "chablis",
+   "levels": [
+    "village"
+   ],
+   "topLevel": "village",
+   "grape": "Chardonnay",
+   "style": "Lighter and more straightforward than Chablis proper, planted on Portlandian limestone. Bright, easy-drinking, and refreshingly uncomplicated.",
+   "tags": [
+    "Light",
+    "Green Apple",
+    "Fresh",
+    "Simple"
+   ],
+   "foodPairing": "Aperitif, salads, fish and chips, picnic fare",
+   "priceRange": "$$",
+   "producers": [
+    "La Chablisienne",
+    "Jean-Marc Brocard",
+    "Billaud-Simon"
+   ],
+   "note": "Don’t overthink it. This is your Tuesday night white that overdelivers for the price.",
+   "flavor": {
+    "mineral": 60,
+    "citrus": 70,
+    "oak": 0,
+    "body": 25,
+    "floral": 20
+   },
+   "quiz": {
+    "style": [
+     3,
+     0,
+     1
+    ],
+    "budget": [
+     3,
+     0,
+     0
+    ],
+    "food": [
+     2,
+     0,
+     0,
+     3
+    ],
+    "level": [
+     3,
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "id": "puligny-montrachet",
+   "name": "Puligny-Montrachet",
+   "region": "cote-de-beaune",
+   "levels": [
+    "grand-cru",
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "grand-cru",
+   "grape": "Chardonnay",
+   "style": "The aristocrat of white Burgundy. Laser-focused precision, floral aromatics, and a tension between richness and minerality that defines greatness.",
+   "tags": [
+    "Elegant",
+    "Floral",
+    "Hazelnut",
+    "Citrus Blossom",
+    "Precise"
+   ],
+   "foodPairing": "Lobster, turbot in butter sauce, aged Comté, truffle risotto",
+   "priceRange": "$$$$",
+   "producers": [
+    "Leflaive",
+    "Sauzet",
+    "Jacques Carillon"
+   ],
+   "note": "Home to Le Montrachet, arguably the greatest white wine vineyard on earth. Even village-level Puligny has that unmistakable finesse.",
+   "flavor": {
+    "mineral": 85,
+    "citrus": 60,
+    "oak": 35,
+    "body": 65,
+    "floral": 90
+   },
+   "quiz": {
+    "style": [
+     1,
+     1,
+     3
+    ],
+    "budget": [
+     0,
+     1,
+     3
+    ],
+    "food": [
+     2,
+     1,
+     2,
+     2
+    ],
+    "level": [
+     0,
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "chassagne-montrachet",
+   "name": "Chassagne-Montrachet",
+   "region": "cote-de-beaune",
+   "levels": [
+    "grand-cru",
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "grand-cru",
+   "grape": "Chardonnay",
+   "style": "Fuller-bodied sibling of Puligny with more stone fruit and toasted almond character. Shares Grand Cru Le Montrachet but trades some finesse for power.",
+   "tags": [
+    "Rich",
+    "Stone Fruit",
+    "Toasted Almond",
+    "Honey",
+    "Full"
+   ],
+   "foodPairing": "Roast chicken, cream sauces, grilled langoustines, pork belly",
+   "priceRange": "$$$-$$$$",
+   "producers": [
+    "Ramonet",
+    "Blain-Gagnard",
+    "Marc Colin"
+   ],
+   "note": "Often overshadowed by Puligny, but Chassagne Premier Crus like Morgeot offer incredible depth at slightly gentler prices.",
+   "flavor": {
+    "mineral": 55,
+    "citrus": 40,
+    "oak": 50,
+    "body": 80,
+    "floral": 45
+   },
+   "quiz": {
+    "style": [
+     0,
+     2,
+     2
+    ],
+    "budget": [
+     0,
+     2,
+     3
+    ],
+    "food": [
+     1,
+     2,
+     2,
+     1
+    ],
+    "level": [
+     0,
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "meursault",
+   "name": "Meursault",
+   "region": "cote-de-beaune",
+   "levels": [
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "premier-cru",
+   "grape": "Chardonnay",
+   "style": "Golden, generous, and open-armed. The poster child for barrel-fermented Chardonnay with buttery texture, nutty warmth, and a round, embracing mouthfeel.",
+   "tags": [
+    "Buttery",
+    "Nutty",
+    "Golden",
+    "Generous",
+    "Oak-Kissed"
+   ],
+   "foodPairing": "Roast turkey, lobster thermidor, mushroom pasta, Époisses cheese",
+   "priceRange": "$$$-$$$$",
+   "producers": [
+    "Coche-Dury",
+    "Roulot",
+    "Comtes Lafon"
+   ],
+   "note": "If Puligny is a string quartet, Meursault is a full orchestra. Perrières is the finest Premier Cru here, with almost Grand Cru intensity.",
+   "flavor": {
+    "mineral": 50,
+    "citrus": 30,
+    "oak": 75,
+    "body": 85,
+    "floral": 35
+   },
+   "quiz": {
+    "style": [
+     0,
+     3,
+     2
+    ],
+    "budget": [
+     0,
+     2,
+     3
+    ],
+    "food": [
+     0,
+     3,
+     2,
+     2
+    ],
+    "level": [
+     1,
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "id": "corton-charlemagne",
+   "name": "Corton-Charlemagne",
+   "region": "cote-de-beaune",
+   "levels": [
+    "grand-cru"
+   ],
+   "topLevel": "grand-cru",
+   "grape": "Chardonnay",
+   "style": "A single Grand Cru appellation on the great hill of Corton. Monumental structure, explosive minerality, and a steely backbone that demands patience.",
+   "tags": [
+    "Powerful",
+    "Mineral",
+    "Steel",
+    "Long-Lived",
+    "Structured"
+   ],
+   "foodPairing": "Seared scallops, foie gras, aged Gruyère, sole meunière",
+   "priceRange": "$$$$",
+   "producers": [
+    "Bonneau du Martray",
+    "Coche-Dury",
+    "Louis Latour"
+   ],
+   "note": "Legend has it Charlemagne owned vines here. These wines need 5–10 years to truly open up, but the payoff is extraordinary.",
+   "flavor": {
+    "mineral": 90,
+    "citrus": 55,
+    "oak": 40,
+    "body": 75,
+    "floral": 40
+   },
+   "quiz": {
+    "style": [
+     2,
+     1,
+     3
+    ],
+    "budget": [
+     0,
+     0,
+     3
+    ],
+    "food": [
+     2,
+     1,
+     2,
+     1
+    ],
+    "level": [
+     0,
+     1,
+     3
+    ]
+   }
+  },
+  {
+   "id": "saint-aubin",
+   "name": "Saint-Aubin",
+   "region": "cote-de-beaune",
+   "levels": [
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "premier-cru",
+   "grape": "Chardonnay",
+   "style": "The insider’s Burgundy. Tucked behind Puligny and Chassagne, offering remarkable finesse and citrus-driven minerality at a fraction of the neighbor’s price.",
+   "tags": [
+    "Citrus",
+    "Mineral",
+    "Value",
+    "Elegant",
+    "Fresh"
+   ],
+   "foodPairing": "Grilled fish, crab cakes, asparagus, light pasta dishes",
+   "priceRange": "$$-$$$",
+   "producers": [
+    "Hubert Lamy",
+    "Marc Colin",
+    "Thomas Morey"
+   ],
+   "note": "The best-kept secret in the Côte de Beaune. Hubert Lamy’s Premier Crus can rival wines costing three times as much from next door.",
+   "flavor": {
+    "mineral": 75,
+    "citrus": 75,
+    "oak": 20,
+    "body": 50,
+    "floral": 60
+   },
+   "quiz": {
+    "style": [
+     2,
+     0,
+     3
+    ],
+    "budget": [
+     2,
+     3,
+     1
+    ],
+    "food": [
+     2,
+     0,
+     1,
+     2
+    ],
+    "level": [
+     1,
+     3,
+     2
+    ]
+   }
+  },
+  {
+   "id": "auxey-duresses",
+   "name": "Auxey-Duresses",
+   "region": "cote-de-beaune",
+   "levels": [
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "premier-cru",
+   "grape": "Chardonnay",
+   "style": "Another hidden valley behind Meursault. Leaner and more angular than its famous neighbor, with a pleasant austerity and good aging potential.",
+   "tags": [
+    "Lean",
+    "Angular",
+    "Mineral",
+    "Value",
+    "Subtle"
+   ],
+   "foodPairing": "Poached trout, vegetable tarts, mild cheeses, quiche",
+   "priceRange": "$$",
+   "producers": [
+    "Lafouge",
+    "Michel Prunier et Fille",
+    "Alain Gras"
+   ],
+   "note": "For those who love Meursault’s address but not the price tag. Less opulent, more honest.",
+   "flavor": {
+    "mineral": 65,
+    "citrus": 55,
+    "oak": 15,
+    "body": 45,
+    "floral": 25
+   },
+   "quiz": {
+    "style": [
+     2,
+     0,
+     2
+    ],
+    "budget": [
+     3,
+     2,
+     0
+    ],
+    "food": [
+     1,
+     1,
+     1,
+     2
+    ],
+    "level": [
+     1,
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "id": "pernand-vergelesses",
+   "name": "Pernand-Vergelesses",
+   "region": "cote-de-beaune",
+   "levels": [
+    "grand-cru",
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "grand-cru",
+   "grape": "Chardonnay",
+   "style": "A tiny, charming village on the backside of the Corton hill. Its whites are taut and nervy with green apple freshness and a pleasantly rustic edge.",
+   "tags": [
+    "Taut",
+    "Green Apple",
+    "Rustic",
+    "Fresh",
+    "Affordable"
+   ],
+   "foodPairing": "Charcuterie, escargot, roasted vegetables, simple grilled fish",
+   "priceRange": "$$",
+   "producers": [
+    "Rapet",
+    "Rollin",
+    "Chandon de Briailles"
+   ],
+   "note": "One of the most affordable addresses in the Côte de Beaune. Charming village wines that reward curiosity.",
+   "flavor": {
+    "mineral": 55,
+    "citrus": 65,
+    "oak": 10,
+    "body": 35,
+    "floral": 20
+   },
+   "quiz": {
+    "style": [
+     2,
+     0,
+     1
+    ],
+    "budget": [
+     3,
+     1,
+     0
+    ],
+    "food": [
+     1,
+     1,
+     1,
+     2
+    ],
+    "level": [
+     2,
+     2,
+     0
+    ]
+   }
+  },
+  {
+   "id": "rully",
+   "name": "Rully",
+   "region": "cote-chalonnaise",
+   "levels": [
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "premier-cru",
+   "grape": "Chardonnay",
+   "style": "Bright and vivacious with a lovely citrus-floral character. Also famous for excellent Crémant de Bourgogne. The gateway to the Côte Chalonnaise.",
+   "tags": [
+    "Bright",
+    "Floral",
+    "Citrus",
+    "Lively",
+    "Crémant"
+   ],
+   "foodPairing": "Aperitif, sushi, goat cheese salad, grilled shrimp",
+   "priceRange": "$$",
+   "producers": [
+    "Dureuil-Janthial",
+    "Jacqueson",
+    "de Villaine"
+   ],
+   "note": "Dureuil-Janthial is making some of the most exciting whites in this part of Burgundy. Snag them before prices climb.",
+   "flavor": {
+    "mineral": 60,
+    "citrus": 75,
+    "oak": 15,
+    "body": 45,
+    "floral": 70
+   },
+   "quiz": {
+    "style": [
+     2,
+     0,
+     2
+    ],
+    "budget": [
+     3,
+     2,
+     0
+    ],
+    "food": [
+     2,
+     0,
+     1,
+     3
+    ],
+    "level": [
+     2,
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "id": "montagny",
+   "name": "Montagny",
+   "region": "cote-chalonnaise",
+   "levels": [
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "premier-cru",
+   "grape": "Chardonnay",
+   "style": "White-only appellation with generous, round wines showing ripe orchard fruit and a gentle creaminess. The southernmost outpost of the Côte Chalonnaise.",
+   "tags": [
+    "Round",
+    "Orchard Fruit",
+    "Creamy",
+    "Approachable"
+   ],
+   "foodPairing": "Roast chicken, cream-based soups, baked brie, white pizza",
+   "priceRange": "$$",
+   "producers": [
+    "Berthenet",
+    "Cave de Buxy",
+    "Steinmaier"
+   ],
+   "note": "Generous and crowd-pleasing. A great choice when you want something richer without the Côte de Beaune markup.",
+   "flavor": {
+    "mineral": 35,
+    "citrus": 40,
+    "oak": 30,
+    "body": 60,
+    "floral": 35
+   },
+   "quiz": {
+    "style": [
+     0,
+     2,
+     2
+    ],
+    "budget": [
+     3,
+     1,
+     0
+    ],
+    "food": [
+     0,
+     2,
+     2,
+     1
+    ],
+    "level": [
+     2,
+     2,
+     0
+    ]
+   }
+  },
+  {
+   "id": "bouzeron",
+   "name": "Bouzeron",
+   "region": "cote-chalonnaise",
+   "levels": [
+    "village"
+   ],
+   "topLevel": "village",
+   "grape": "Aligoté",
+   "style": "The only village appellation in Burgundy devoted to Aligoté, Chardonnay’s humbler sibling. Racy acidity, stone fruit, and an unmistakable saline finish.",
+   "tags": [
+    "Aligoté",
+    "Racy",
+    "Saline",
+    "Unique",
+    "Light"
+   ],
+   "foodPairing": "Kir (with crème de cassis), gougères, smoked salmon, aperitif",
+   "priceRange": "$$",
+   "producers": [
+    "de Villaine",
+    "Chanzy",
+    "Jacqueson"
+   ],
+   "note": "Aubert de Villaine (yes, the Romanée-Conti co-owner) lives here and champions Aligoté. That should tell you something about this grape’s potential.",
+   "flavor": {
+    "mineral": 50,
+    "citrus": 80,
+    "oak": 0,
+    "body": 30,
+    "floral": 25
+   },
+   "quiz": {
+    "style": [
+     3,
+     0,
+     0
+    ],
+    "budget": [
+     3,
+     0,
+     0
+    ],
+    "food": [
+     1,
+     0,
+     0,
+     3
+    ],
+    "level": [
+     1,
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "pouilly-fuisse",
+   "name": "Pouilly-Fuissé",
+   "region": "maconnais",
+   "levels": [
+    "premier-cru",
+    "village"
+   ],
+   "topLevel": "premier-cru",
+   "grape": "Chardonnay",
+   "style": "The crown jewel of the Mâconnais, recently elevated with Premier Cru vineyards (2020). Rich and concentrated with tropical fruit, toasted notes, and surprising complexity.",
+   "tags": [
+    "Rich",
+    "Tropical",
+    "Complex",
+    "Toasty",
+    "Concentrated"
+   ],
+   "foodPairing": "Grilled lobster, coq au vin, aged cheddar, risotto with truffle",
+   "priceRange": "$$$",
+   "producers": [
+    "Guffens-Heynen",
+    "Château Fuissé",
+    "Daniel Barraud"
+   ],
+   "note": "The new Premier Cru status is a game-changer. Top examples rival mid-range Côte de Beaune at better prices, but that window is closing.",
+   "flavor": {
+    "mineral": 40,
+    "citrus": 35,
+    "oak": 55,
+    "body": 75,
+    "floral": 30
+   },
+   "quiz": {
+    "style": [
+     0,
+     3,
+     2
+    ],
+    "budget": [
+     1,
+     3,
+     1
+    ],
+    "food": [
+     1,
+     3,
+     2,
+     1
+    ],
+    "level": [
+     1,
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "id": "saint-veran",
+   "name": "Saint-Véran",
+   "region": "maconnais",
+   "levels": [
+    "village"
+   ],
+   "topLevel": "village",
+   "grape": "Chardonnay",
+   "style": "Sunny, fruit-forward, and generous. Think ripe peach, white flowers, and a touch of honey. The friendly face of southern Burgundy.",
+   "tags": [
+    "Fruity",
+    "Sunny",
+    "Peach",
+    "Honeyed",
+    "Easygoing"
+   ],
+   "foodPairing": "Thai cuisine, grilled vegetables, pizza margherita, brunch",
+   "priceRange": "$$",
+   "producers": [
+    "Domaine des Deux Roches",
+    "Verget",
+    "Rijckaert"
+   ],
+   "note": "One of the best introductions to Burgundy whites. Open a bottle on a warm evening with simple food and you’ll understand immediately.",
+   "flavor": {
+    "mineral": 25,
+    "citrus": 50,
+    "oak": 15,
+    "body": 55,
+    "floral": 60
+   },
+   "quiz": {
+    "style": [
+     0,
+     2,
+     1
+    ],
+    "budget": [
+     3,
+     1,
+     0
+    ],
+    "food": [
+     1,
+     1,
+     0,
+     2
+    ],
+    "level": [
+     3,
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "id": "vire-clesse",
+   "name": "Viré-Clessé",
+   "region": "maconnais",
+   "levels": [
+    "village"
+   ],
+   "topLevel": "village",
+   "grape": "Chardonnay",
+   "style": "Ripe and rounded with orchard fruit and floral notes. A step up from basic Mâcon with more concentration and a touch of elegance from the best sites.",
+   "tags": [
+    "Ripe",
+    "Rounded",
+    "Floral",
+    "Orchard Fruit",
+    "Elegant"
+   ],
+   "foodPairing": "Roast pork, creamy pasta, Brie, lighter curries",
+   "priceRange": "$$",
+   "producers": [
+    "Rijckaert",
+    "Guillemot-Michel",
+    "Domaine de la Bongran (Thévenet)"
+   ],
+   "note": "Jean Thévenet’s old-vine cuvées, made by his son Gautier since 2000, show what this appellation is truly capable of. Burgundy depth, Mâconnais warmth.",
+   "flavor": {
+    "mineral": 30,
+    "citrus": 45,
+    "oak": 25,
+    "body": 60,
+    "floral": 55
+   },
+   "quiz": {
+    "style": [
+     0,
+     2,
+     2
+    ],
+    "budget": [
+     3,
+     1,
+     0
+    ],
+    "food": [
+     0,
+     2,
+     1,
+     1
+    ],
+    "level": [
+     2,
+     2,
+     0
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,513 @@
+/* ==========================================================================
+   Plate III: the climate (js/climate.js)
+   Chart series colours are --clim-site-* custom properties: blue (Chablis), violet
+   (Meursault), teal (Rully) and raspberry (Fuissé). None of them is an appellation
+   level hue, so a site never reads as a level. Each sits at least 20 degrees of
+   OKLCH hue and OKLab dE 10 away from every --lvl-* colour of its theme.
+   Checked with the dataviz palette validator on every pair (lines cross), against
+   --paper, --surface and the inverse tooltip ground (--ink of the other theme):
+     light  #026096 #9d6bd5 #01948a #9a255e   worst CVD dE 11.2, normal dE 16.7, all >= 3:1
+     dark   #0867c0 #af75de #03999d #974f73   worst CVD dE 9.1, normal dE 16.9, all >= 3:1
+   The stripes diverge from --cool through a neutral paper tone to --warm.
+   ========================================================================== */
+
+/* Site colours live on :root, namespaced, because the shared tooltip (util.tip)
+   is appended to <body>, outside .clim, and its line keys use them too. */
+:root {
+  --clim-site-chablis: #026096;
+  --clim-site-meursault: #9d6bd5;
+  --clim-site-rully: #01948a;
+  --clim-site-fuisse: #9a255e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --clim-site-chablis: #0867c0;
+    --clim-site-meursault: #af75de;
+    --clim-site-rully: #03999d;
+    --clim-site-fuisse: #974f73;
+  }
+}
+:root[data-theme="dark"] {
+  --clim-site-chablis: #0867c0;
+  --clim-site-meursault: #af75de;
+  --clim-site-rully: #03999d;
+  --clim-site-fuisse: #974f73;
+}
+
+.clim {
+  /* Light midpoint sits one step below --paper-2 so near-zero seasons keep the row's edge */
+  --clim-mid: color-mix(in oklab, var(--paper-2) 55%, var(--rule));
+  --clim-band: rgba(31, 27, 22, 0.045);
+  display: grid;
+  gap: clamp(64px, 8vw, 112px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .clim {
+    --clim-mid: var(--surface-2);
+    --clim-band: rgba(237, 230, 217, 0.045);
+  }
+}
+:root[data-theme="dark"] .clim {
+  --clim-mid: var(--surface-2);
+  --clim-band: rgba(237, 230, 217, 0.045);
+}
+
+.clim-block { min-width: 0; }
+
+/* ---------- Figure heads ---------- */
+/* The shared .fig-head, laid out like .plate-head. The figure number and its rule run across
+   the full width, with the heading and caption below and Fig. III.1's colour key beside them. */
+.clim-fighead {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px clamp(24px, 5vw, 64px);
+  align-items: end;
+  margin-bottom: clamp(20px, 3vw, 30px);
+}
+.clim-fighead .fig-no { grid-column: 1 / -1; }
+.clim-fighead h3 { font-size: clamp(1.6rem, 1.15rem + 1.3vw, 2.25rem); line-height: 1.08; }
+.clim-figcap { margin-top: 10px; max-width: 72ch; }
+.clim-figcap-sm { margin-top: 10px; font-size: var(--fs-xs); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.clim-source { font-size: var(--fs-xs); color: var(--muted); margin-top: 14px; max-width: none; }
+.clim-attrib { white-space: nowrap; }
+
+.clim-linekey {
+  display: inline-block; flex: none; width: 14px; height: 3px; border-radius: 2px;
+  vertical-align: middle; margin-right: 6px; transform: translateY(-1px);
+}
+
+/* ---------- Fig. III.1 Stripes ---------- */
+.clim-key { width: min(360px, 100%); padding: 0 12px 4px; }
+.clim-key-title { font-size: var(--fs-xs); color: var(--muted); margin: 0 -12px 8px; }
+.clim-key-bar {
+  height: 10px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--cool), var(--clim-mid), var(--warm));
+  background: linear-gradient(in oklab 90deg, var(--cool), var(--clim-mid), var(--warm));
+}
+.clim-key-ticks { position: relative; height: 22px; }
+.clim-key-tick {
+  position: absolute; top: 6px; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: var(--fs-tick); color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.clim-key-tick::before {
+  content: ""; position: absolute; left: 50%; top: -6px; width: 1px; height: 4px; background: var(--rule-strong);
+}
+
+.clim-sfig { --name-w: 172px; --end-w: 128px; --col-gap: 18px; }
+.clim-stripes { display: grid; row-gap: 10px; }
+.clim-srow, .clim-sframe {
+  display: grid;
+  grid-template-columns: var(--name-w) minmax(0, 1fr) var(--end-w);
+  column-gap: var(--col-gap);
+  align-items: center;
+}
+.clim-sname { display: grid; gap: 1px; min-width: 0; }
+.clim-sname-n { font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; line-height: 1.05; }
+.clim-sname-r { font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--muted); white-space: nowrap; }
+.clim-scells { position: relative; isolation: isolate; display: grid; height: clamp(36px, 3.6vw, 52px); }
+/* Hairline frame over the row, so pale seasons never dissolve into the page */
+.clim-scells::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+.clim-stripe { position: relative; min-width: 0; cursor: pointer; outline: none; }
+.clim-stripe:hover { box-shadow: inset 0 0 0 1px var(--ink); z-index: 2; }
+.clim-stripe.is-year { box-shadow: inset 1px 0 0 var(--ink), inset -1px 0 0 var(--ink); z-index: 2; }
+/* Two-tone focus ring: a surface ring against the stripe, an ink ring against the page,
+   so one of the two always separates from the hottest and coldest fills in both themes */
+.clim-stripe:focus-visible {
+  outline: 2px solid var(--ink); outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--paper); z-index: 3; border-radius: 1px;
+}
+.clim-send { display: grid; gap: 1px; justify-items: start; }
+.clim-send .v { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.clim-send .k { font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--muted); white-space: nowrap; }
+
+.clim-sframe-mid { position: relative; min-width: 0; }
+.clim-sframe.top .clim-sframe-mid { height: 30px; }
+.clim-sbracket-in {
+  position: absolute; bottom: 5px; height: 7px;
+  border: 1px solid var(--rule-strong); border-bottom: 0;
+}
+.clim-sbracket-in span {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--muted); white-space: nowrap;
+}
+.clim-sframe.bottom .clim-sframe-mid { height: 46px; }
+.clim-saxis-t {
+  position: absolute; top: 10px; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: var(--fs-tick); color: var(--muted);
+}
+.clim-saxis-t::before { content: ""; position: absolute; left: 50%; top: -8px; width: 1px; height: 5px; background: var(--rule-strong); }
+.clim-scaret {
+  position: absolute; top: 1px; transform: translateX(-50%); width: 0; height: 0;
+  border: 4px solid transparent; border-bottom: 5px solid var(--ink); border-top: 0;
+}
+.clim-scaret-label {
+  position: absolute; top: 26px; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: var(--fs-2xs); font-weight: 500; color: var(--ink); white-space: nowrap;
+}
+.clim-scaret-label[data-anchor="end"] { transform: translateX(-100%); }
+.clim-scaret-label[data-anchor="start"] { transform: none; }
+
+.clim-readout {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px;
+  min-height: 1.6em; margin-top: 6px; font-size: var(--fs-sm); color: var(--ink-2); max-width: none;
+}
+.clim-readout .idle { color: var(--muted); }
+.clim-readout .strong { color: var(--ink); font-weight: 500; }
+.clim-readout .swatch-line { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+
+/* Stripes print in, row by row */
+.clim--anim .clim-fig1:not(.is-in) .clim-scells { clip-path: inset(0 100% 0 0); }
+/* backwards, not both: once printed the row carries no clip-path, which would cut off
+   the focus ring of its stripes */
+.clim--anim .clim-fig1.is-in .clim-scells {
+  animation: clim-wipe 1.3s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+@keyframes clim-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+@media (forced-colors: active) {
+  .clim-stripe, .clim-key-bar, .clim-linekey { forced-color-adjust: none; }
+}
+
+@media (max-width: 720px) {
+  .clim-fighead { grid-template-columns: minmax(0, 1fr); }
+  .clim-key { margin-top: 8px; }
+  .clim-srow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name end" "cells cells";
+    row-gap: 6px;
+  }
+  .clim-stripes { row-gap: 16px; }
+  .clim-sname { grid-area: name; align-self: end; }
+  .clim-sname-n { font-size: 1.3rem; }
+  .clim-sname-r { white-space: normal; }
+  .clim-send { grid-area: end; justify-items: end; align-self: end; }
+  .clim-scells { grid-area: cells; height: 34px; }
+  .clim-sframe { grid-template-columns: minmax(0, 1fr); }
+  .clim-sframe > div:first-child, .clim-sframe > div:last-child { display: none; }
+  .clim-saxis-t.minor { display: none; }
+  .clim-key-tick.minor { display: none; }
+}
+
+/* ---------- Fig. III.2 Index chart ---------- */
+.clim-fig2-grid {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: 24px clamp(24px, 3.5vw, 48px);
+  align-items: start;
+}
+.clim-rail { display: grid; border-top: 1px solid var(--rule-strong); }
+.clim-rail-btn {
+  position: relative; display: grid; gap: 2px; text-align: left;
+  padding: 11px 8px 11px 16px; border: 0; border-bottom: 1px solid var(--rule);
+  background: transparent; color: var(--ink-2);
+}
+.clim-rail-btn .l { font-size: var(--fs-sm); font-weight: 500; line-height: 1.3; }
+.clim-rail-btn .m { font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--muted); line-height: 1.4; }
+.clim-rail-btn:hover { background: var(--surface-2); color: var(--ink); }
+.clim-rail-btn[aria-checked="true"] { color: var(--ink); background: var(--surface); }
+/* The selection bar is interface chrome, not data, so it takes the gilt rather than a level colour */
+.clim-rail-btn[aria-checked="true"]::before {
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px; background: var(--gilt);
+}
+.clim-rail-btn:focus-visible { outline-offset: -2px; }
+/* Forced colours drop both the surface fill and the bar's background, so the selected
+   index keeps a system-colour bar and a frame */
+@media (forced-colors: active) {
+  .clim-rail-btn[aria-checked="true"] { outline: 1px solid CanvasText; outline-offset: -1px; }
+  .clim-rail-btn[aria-checked="true"]::before { forced-color-adjust: none; background: Highlight; width: 4px; }
+  .clim-rail-btn:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+}
+.clim-select { display: none; }
+
+.clim-controls {
+  display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between;
+  gap: 12px 20px; margin-bottom: 14px;
+}
+.clim-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.clim-chips-label { font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.clim-chip { padding: 4px 12px; font-size: var(--fs-sm); }
+.clim-chip .clim-linekey { margin-right: 2px; }
+.clim-chip[aria-pressed="false"] { color: var(--muted); border-style: dashed; }
+.clim-chip[aria-pressed="false"] .clim-linekey { opacity: 0.3; }
+
+.clim-figure { margin: 0; min-width: 0; }
+.clim-plot { position: relative; touch-action: pan-y; cursor: crosshair; border-radius: var(--r-sm); }
+.clim-plot:focus-visible { outline-offset: 4px; }
+.clim-svg { overflow: visible; user-select: none; -webkit-user-select: none; }
+.clim-svg .grid { stroke: var(--rule); stroke-width: 1; shape-rendering: crispEdges; }
+.clim-svg .grid.zero { stroke: var(--rule-strong); }
+.clim-svg .axis { stroke: var(--rule-strong); stroke-width: 1; shape-rendering: crispEdges; }
+.clim-svg .tick, .clim-svg .unit, .clim-svg .band-label {
+  font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); font-variant-numeric: tabular-nums;
+}
+.clim-svg .band-label { fill: var(--ink-2); } /* sits on the tinted band, where --muted falls under 4.5:1 */
+.clim-svg .band { fill: var(--clim-band); }
+.clim-svg .raw { fill: none; stroke-width: 1; stroke-opacity: 0.26; stroke-linejoin: round; transition: opacity 0.9s var(--ease) 0.5s; }
+.clim-svg .raw.emph { stroke-opacity: 0.55; }
+/* Smoothed lines stay at full opacity so every series keeps 3:1 against the page.
+   The emphasised series is set apart by weight alone. */
+.clim-svg .smooth { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.clim-svg .smooth.emph { stroke-width: 2.75; }
+.clim-svg .ref { stroke: var(--ink-2); stroke-width: 1; shape-rendering: crispEdges; }
+.clim-svg .ref.baseline { stroke-opacity: 0.8; }
+.clim-svg .ref.target { stroke: var(--ink); }
+.clim-svg .ref-label { font-family: var(--font-ui); font-size: 11px; fill: var(--ink-2); paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; }
+.clim-svg .marker { stroke: var(--ink); stroke-width: 1; stroke-opacity: 0.6; stroke-dasharray: 3 3; shape-rendering: crispEdges; }
+.clim-svg .marker-label { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; fill: var(--ink); }
+.clim-svg .dot, .clim-svg .crossdot { stroke: var(--paper); stroke-width: 2; }
+.clim-svg .crossline { stroke: var(--ink-2); stroke-width: 1; shape-rendering: crispEdges; }
+.clim-svg .leader { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 0 3; stroke-linecap: round; opacity: 0.85; }
+.clim-svg .end-dot { stroke: var(--paper); stroke-width: 2; }
+.clim-svg .end-key { stroke-width: 2.5; stroke-linecap: round; }
+.clim-svg .end-label { font-family: var(--font-ui); font-size: 12px; fill: var(--ink-2); }
+.clim-svg .end-label.emph { fill: var(--ink); font-weight: 600; }
+.clim-svg .end-label.clickable { cursor: pointer; }
+.clim-svg .end-label.clickable:hover { text-decoration: underline; }
+
+/* Lines draw once when the figure first appears */
+.clim--anim .clim-block:not(.is-in) .smooth.draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.clim--anim .clim-block.is-in .smooth.draw { stroke-dasharray: 1; animation: clim-draw 1.6s var(--ease) both; }
+.clim--anim .clim-block:not(.is-in) .raw { opacity: 0; }
+@keyframes clim-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+.clim-legend { gap: 6px 20px; }
+.clim-leg { display: inline-flex; align-items: baseline; gap: 8px; min-width: 0; }
+.clim-legend-raw, .clim-legend-smooth, .clim-legend-band, .clim-legend-ref { display: inline-block; flex: none; transform: translateY(-3px); }
+.clim-legend-raw { width: 18px; height: 1px; background: var(--ink-2); opacity: 0.55; }
+.clim-legend-smooth { width: 18px; height: 3px; border-radius: 2px; background: var(--ink-2); }
+.clim-legend-band { width: 14px; height: 10px; background: var(--clim-band); outline: 1px solid var(--rule); }
+.clim-legend-ref { width: 18px; height: 1px; background: var(--ink-2); }
+.clim-legend-marker { width: 0; height: 12px; border-left: 1px dashed var(--ink); opacity: 0.7; transform: translateY(1px); margin-inline: 4px 3px; }
+.clim-leg[hidden] { display: none; }
+/* The legend's line keys are drawn with a background, which forced colours would blank */
+@media (forced-colors: active) {
+  .clim-legend-raw, .clim-legend-smooth, .clim-legend-ref { forced-color-adjust: none; background: CanvasText; }
+}
+.clim-plot-wrap { position: relative; }
+.clim-plot-wrap.is-empty .clim-svg { opacity: 0.35; }
+.clim-empty {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: max-content; max-width: min(34ch, calc(100% - 32px));
+  padding: 10px 16px; border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+  background: var(--surface); font-size: var(--fs-sm); color: var(--ink-2); text-align: center;
+}
+.clim-empty[hidden] { display: none; }
+
+/* Tooltip content (inside util.tip). The tip is inverse (ink ground), so its line keys
+   take the other theme's site colours, the ones validated against a ground of that tone. */
+.clim-tip {
+  display: grid; gap: 3px;
+  --clim-site-chablis: #0867c0; --clim-site-meursault: #af75de; --clim-site-rully: #03999d; --clim-site-fuisse: #974f73;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .clim-tip {
+    --clim-site-chablis: #026096; --clim-site-meursault: #9d6bd5; --clim-site-rully: #01948a; --clim-site-fuisse: #9a255e;
+  }
+}
+:root[data-theme="dark"] .clim-tip {
+  --clim-site-chablis: #026096; --clim-site-meursault: #9d6bd5; --clim-site-rully: #01948a; --clim-site-fuisse: #9a255e;
+}
+.clim-tip-head { margin-bottom: 2px; }
+.clim-tip-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.clim-tip-row .clim-linekey { margin-right: 0; }
+.clim-tip-mute { opacity: 0.8; }
+.clim-tip .num { font-family: var(--font-mono); font-size: var(--fs-2xs); }
+
+/* Table view, in the shared .disclosure */
+.clim-details { margin-top: 18px; }
+.clim-table-scroll {
+  max-height: 340px; overflow: auto; margin-top: 10px;
+  border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--surface);
+}
+.clim-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.clim-table th, .clim-table td { padding: 6px 12px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.clim-table thead th {
+  font-size: var(--fs-xs); font-weight: 500; color: var(--muted);
+  border-bottom-color: var(--rule-strong); white-space: nowrap;
+}
+.clim-table-scroll thead th { position: sticky; top: 0; z-index: 1; background: var(--surface); }
+.clim-table tbody th { font-weight: 500; }
+.clim-table .num-col { text-align: right; }
+.clim-table .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.clim-table tr.is-year { background: var(--accent-soft); }
+.clim-tcap { caption-side: top; text-align: left; font-size: var(--fs-xs); color: var(--muted); padding-bottom: 10px; }
+
+/* Headline figures */
+.clim-headline {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 28px clamp(28px, 5vw, 72px);
+  margin-top: clamp(32px, 4vw, 48px);
+  padding-top: clamp(22px, 3vw, 32px);
+  border-top: 1px solid var(--rule-strong);
+}
+.clim-headline-text .eyebrow { margin-bottom: 12px; }
+.clim-lead, .clim-analog-lead, .clim-analog-lead2 { font-variant-numeric: lining-nums; }
+.clim-lead {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: clamp(1.5rem, 1.1rem + 1.1vw, 2.05rem); line-height: 1.18; letter-spacing: -0.005em;
+  margin-top: 18px; max-width: 34ch; color: var(--ink);
+}
+.clim-lead-v { font-weight: 700; white-space: nowrap; }
+.clim-lead-sub { font-size: var(--fs-sm); color: var(--ink-2); margin-top: 12px; max-width: 62ch; }
+.clim-facts {
+  align-self: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+.clim-facts dd { font-size: var(--fs-md); }
+.clim-fact-list dd { display: grid; gap: 2px; font-size: var(--fs-sm); }
+.clim-fact-yr { display: flex; justify-content: space-between; gap: 12px; max-width: 150px; }
+.clim-fact-yr .v { color: var(--ink-2); }
+.clim-fact-more { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--muted); }
+
+@media (max-width: 1000px) {
+  .clim-fig2-grid { grid-template-columns: minmax(0, 1fr); }
+  .clim-rail { display: none; }
+  .clim-select { display: grid; width: min(420px, 100%); }
+  .clim-headline { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .clim-chip { padding: 3px 10px; font-size: var(--fs-xs); }
+  .clim-chips-label { display: none; }
+  .clim-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 16px; }
+  .clim-focus button { padding: 6px 10px; }
+}
+
+/* ---------- Fig. III.3 Analogs ---------- */
+.clim-analog-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 36px clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+.clim-analog-lead {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: clamp(1.85rem, 1.25rem + 1.9vw, 2.9rem); line-height: 1.06; letter-spacing: -0.01em; max-width: 18ch;
+}
+.clim-analog-lead2 {
+  font-family: var(--font-display); font-style: italic; font-weight: 500;
+  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.6rem); line-height: 1.28; color: var(--ink-2);
+  margin-top: 16px; max-width: 36ch;
+}
+.clim-analog-list { list-style: none; padding: 0; margin: 10px 0 0; border-top: 1px solid var(--rule-strong); }
+.clim-analog-list li {
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) auto auto minmax(72px, auto);
+  gap: 14px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: var(--fs-sm);
+}
+.clim-analog-list .clim-linekey { margin: 0; }
+.clim-analog-list .n { font-weight: 500; }
+.clim-analog-list .w, .clim-analog-list .v, .clim-analog-list .d { text-align: right; }
+.clim-analog-list .d { color: var(--muted); }
+.clim-analog-list li.miss .n, .clim-analog-list li.miss .w, .clim-analog-list li.miss .v { color: var(--ink-2); }
+.clim-analog-list li.miss .d { font-family: var(--font-ui); font-style: italic; }
+.clim-analog-fig { padding-top: 6px; }
+.clim-analog-table-wrap { margin-top: clamp(32px, 4vw, 48px); }
+.clim-analog-table th[scope="row"] { width: 1%; white-space: nowrap; }
+.clim-analog-table td.num-col { white-space: nowrap; }
+.clim-analog-cell { display: flex; flex-wrap: wrap; gap: 2px 20px; }
+.clim-analog-cap { font-size: var(--fs-xs); color: var(--muted); margin-top: 28px; max-width: 52ch; }
+/* An item wraps between words only when its column is narrower than the item (about 561 to
+   640 px), so the table always fits. Each window with its mean stays on one line. */
+.clim-analog-item .n { color: var(--ink); }
+.clim-analog-item .num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-2); white-space: nowrap; }
+.clim-analog-item.miss .clim-miss-note { color: var(--muted); font-style: italic; }
+.clim-analog-table tr.is-featured { background: var(--surface-2); }
+.clim-feature-btn {
+  display: inline-flex; align-items: center; gap: 2px; padding: 2px 0;
+  border: 0; background: none; font-weight: 600; color: var(--accent);
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em;
+}
+.clim-feature-btn[aria-pressed="true"] { color: var(--ink); text-decoration: none; cursor: default; }
+
+@media (max-width: 900px) {
+  .clim-analog-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .clim-analog-list li { grid-template-columns: 16px minmax(0, 1fr) auto auto; gap: 4px 10px; }
+  .clim-analog-list .d { grid-column: 2 / -1; text-align: left; font-size: var(--fs-xs); }
+  .clim-analog-table thead { display: none; }
+  .clim-analog-table caption { display: block; }
+  .clim-analog-table, .clim-analog-table tbody, .clim-analog-table tr { display: block; }
+  .clim-analog-table tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; border-bottom: 1px solid var(--rule); padding: 6px 0; }
+  .clim-analog-table th, .clim-analog-table td { border: 0; padding: 4px 8px; }
+  .clim-analog-table td.clim-analog-td { grid-column: 1 / -1; }
+  .clim-analog-cell { display: grid; gap: 4px; }
+}
+
+/* ---------- Fig. III.4 Year inspector ---------- */
+.clim-year-ctrl {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px clamp(20px, 4vw, 44px); align-items: center; margin-bottom: 24px;
+}
+.clim-year-big {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(3.4rem, 2.2rem + 4vw, 5.6rem); line-height: 0.85; letter-spacing: -0.02em;
+  min-width: 3.6ch;
+}
+.clim-year-slider { position: relative; padding-bottom: 22px; }
+.clim-year-label { display: block; font-size: var(--fs-xs); color: var(--muted); margin-bottom: 4px; }
+.clim-year-slider input[type="range"] { width: 100%; margin: 0; }
+.clim-year-ticks { position: absolute; left: 8px; right: 8px; bottom: 0; height: 16px; }
+.clim-year-ticks span {
+  position: absolute; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: var(--fs-tick); color: var(--muted);
+}
+.clim-year-ticks span.first { transform: translateX(-8px); }
+.clim-year-ticks span.last { transform: translateX(calc(-100% + 8px)); }
+.clim-year-steps { display: flex; gap: 8px; }
+
+.clim-insp-wrap { border-top: 1px solid var(--rule-strong); }
+.clim-insp th, .clim-insp td { padding: 10px 12px; }
+.clim-insp tbody th { min-width: 200px; }
+.clim-insp-l { display: block; font-size: var(--fs-sm); font-weight: 500; color: var(--ink); line-height: 1.3; }
+.clim-insp-u { display: block; font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--muted); font-weight: 400; margin-top: 2px; }
+.clim-insp td { text-align: right; }
+.clim-insp-v { display: block; font-size: var(--fs-md); color: var(--ink); }
+.clim-insp-r { display: block; font-size: var(--fs-xs); color: var(--muted); margin-top: 1px; }
+.clim-insp td.hi .clim-insp-r, .clim-insp td.lo .clim-insp-r { color: var(--ink); font-weight: 600; }
+.clim-rank { display: block; margin: 6px 0 0 auto; overflow: visible; }
+.clim-rank line { stroke: var(--rule-strong); stroke-width: 1; }
+.clim-rank circle { fill: var(--ink-2); stroke: var(--paper); stroke-width: 1.5; }
+.clim-rank line.tie { stroke: var(--ink-2); stroke-width: 4; stroke-linecap: round; }
+.clim-insp td.hi .clim-rank circle, .clim-insp td.lo .clim-rank circle { fill: var(--ink); }
+.clim-insp td.hi .clim-rank line.tie, .clim-insp td.lo .clim-rank line.tie { stroke: var(--ink); }
+.clim-insp thead th { white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .clim-year-ctrl { grid-template-columns: minmax(0, 1fr) auto; }
+  .clim-year-slider { grid-column: 1 / -1; grid-row: 2; }
+  .clim-year-ticks .minor, .clim-year-ticks .near-end { display: none; }
+  .clim-insp { table-layout: fixed; }
+  .clim-insp th, .clim-insp td { padding: 8px 4px; }
+  .clim-insp thead th:first-child { width: 31%; }
+  .clim-insp thead th { white-space: normal; font-size: var(--fs-2xs); line-height: 1.3; }
+  .clim-insp thead th .clim-linekey { display: block; margin: 0 0 4px auto; }
+  .clim-insp tbody th { min-width: 0; }
+  .clim-insp-l { font-size: var(--fs-xs); }
+  .clim-insp-u { font-size: var(--fs-tick); }
+  .clim-insp-v { font-size: var(--fs-sm); }
+  .clim-insp-r { font-size: var(--fs-2xs); }
+  .clim-rank { width: min(100%, 52px); height: auto; margin-top: 5px; }
+}
+
+/* ---------- Notes: a pointer to Sources and method ---------- */
+.clim-notes {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 10px clamp(24px, 5vw, 72px);
+  align-items: baseline;
+  padding-top: clamp(20px, 2.5vw, 28px);
+  border-top: 1px solid var(--rule-strong);
+}
+.clim-notes-title { font-size: var(--fs-xl); font-weight: 600; }
+.clim-notes-text { font-size: var(--fs-sm); color: var(--ink-2); max-width: 62ch; }
+
+@media (max-width: 860px) {
+  .clim-notes { grid-template-columns: minmax(0, 1fr); }
+}

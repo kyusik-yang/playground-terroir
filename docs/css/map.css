@@ -1,0 +1,590 @@
+/* ==========================================================================
+   Plate I: the atlas map (js/map.js)
+   Uses only the tokens defined in base.css.
+   ========================================================================== */
+
+.atlas { position: relative; }
+/* The framed map runs wider than the page's text column. The toolbar above it and the notes below
+   keep to the column, so their text starts on the same edge as the plate headings. */
+.atlas-bar, .atlas-caveat { max-width: calc(var(--maxw) - 2 * var(--gutter)); margin-inline: auto; }
+
+/* ---------- Toolbar above the plate ---------- */
+.atlas-bar {
+  position: relative; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px 24px; margin-bottom: 16px;
+}
+.atlas-regions-wrap {
+  min-width: 0; max-width: 100%;
+  overflow-x: auto; scrollbar-width: none;
+  border-radius: 999px;
+}
+.atlas-regions-wrap::-webkit-scrollbar { display: none; }
+.atlas-regions { flex-wrap: nowrap; }
+/* scroll cue when the region control is wider than the screen */
+.atlas-regions-wrap.can-l { -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px); mask-image: linear-gradient(90deg, transparent, #000 32px); }
+.atlas-regions-wrap.can-r { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent); }
+.atlas-regions-wrap.can-l.can-r { -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
+
+.atlas-search { flex: 0 1 380px; min-width: 0; }
+.atlas-combo { position: relative; }
+.atlas-q {
+  height: 42px; padding: 0 16px 0 38px; border-radius: 999px;
+  font-size: var(--fs-sm);
+}
+.atlas-q:focus-visible { outline-offset: 1px; }
+.atlas-q::placeholder { color: var(--muted); } /* AA contrast, the shared placeholder colour is decorative */
+.atlas-q-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; display: grid;
+}
+.atlas-q-list {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+  max-height: min(400px, 62vh); overflow-y: auto; overscroll-behavior: contain;
+  list-style: none; margin: 0; padding: 6px;
+  background: var(--surface); border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+  box-shadow: var(--shadow-2);
+}
+.atlas-opt {
+  display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 11px; align-items: baseline;
+  padding: 7px 10px 8px; border-radius: var(--r-sm); cursor: pointer;
+}
+.atlas-opt .swatch { transform: translateY(-1px); }
+.atlas-opt:hover { background: var(--surface-2); }
+.atlas-opt[aria-selected="true"] { background: var(--surface-2); box-shadow: inset 2px 0 0 var(--accent); }
+.o-text { min-width: 0; }
+.o-name {
+  display: block; font-family: var(--font-display); font-size: 1.14rem; font-weight: 600;
+  line-height: 1.15; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.o-name mark {
+  background: none; color: inherit;
+  text-decoration: underline; text-decoration-color: var(--gilt);
+  text-decoration-thickness: 2px; text-underline-offset: 0.14em;
+}
+.o-meta { display: block; font-size: var(--fs-xs); color: var(--muted); margin-top: 1px; }
+.atlas-opt-empty { padding: 10px; font-size: var(--fs-sm); color: var(--muted); }
+
+/* ---------- The plate: neatline, graticule margin, credit line ---------- */
+.atlas-plate {
+  --pl-t: 28px; --pl-r: 30px; --pl-b: 44px; --pl-l: 32px;
+  position: relative;
+  padding: var(--pl-t) var(--pl-r) var(--pl-b) var(--pl-l);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+}
+.atlas-stage {
+  position: relative; isolation: isolate;
+  height: min(78vh, 780px); min-height: 420px;
+  background: var(--paper-2);
+  /* double neatline: ink rule on the map edge, a hairline 4 px outside it */
+  box-shadow: 0 0 0 1px var(--ink), 0 0 0 4px var(--surface), 0 0 0 5px var(--rule-strong);
+}
+.atlas-map {
+  position: absolute; inset: 0;
+  background: var(--paper-2);
+  font-family: var(--font-ui);
+}
+/* base.css caps img, svg and canvas at max-width: 100%. Leaflet panes have no width, so the
+   data canvas and the SVG renderers in custom panes would collapse to nothing without this. */
+.atlas-map .leaflet-pane canvas, .atlas-map .leaflet-pane svg,
+.atlas-sheet-map .leaflet-pane canvas, .atlas-sheet-map .leaflet-pane svg { max-width: none; max-height: none; }
+.atlas-map.leaflet-container:focus { outline: none; }
+.atlas-map.leaflet-container:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.atlas-loading {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  color: var(--muted); font-size: var(--fs-sm);
+}
+
+/* graticule labels in the margin */
+.atlas-grat { position: absolute; pointer-events: none; font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.atlas-grat-top { left: var(--pl-l); right: var(--pl-r); top: 0; height: var(--pl-t); }
+.atlas-grat-left { left: 0; top: var(--pl-t); bottom: var(--pl-b); width: var(--pl-l); }
+.gt {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  display: flex; justify-content: center; align-items: flex-start; padding-top: 5px;
+  white-space: nowrap;
+}
+.gt i { position: absolute; left: 0; bottom: 0; width: 1px; height: 8px; background: var(--ink-2); }
+.gl {
+  position: absolute; left: 0; right: 0; top: 0; height: 0;
+  display: flex; align-items: center; justify-content: flex-start; padding-left: 6px;
+}
+.gl i { position: absolute; right: 0; top: 0; height: 1px; width: 8px; background: var(--ink-2); }
+.gl b { font-weight: 400; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+
+.atlas-foot {
+  position: absolute; left: var(--pl-l); right: var(--pl-r); bottom: 0; height: var(--pl-b);
+  display: flex; align-items: center; gap: 12px 22px;
+  padding-top: 5px;
+}
+.atlas-scale { flex: none; position: relative; min-width: 60px; height: 24px; }
+.sc-bar { display: flex; height: 6px; border: 1px solid var(--ink); box-sizing: content-box; }
+.sc-bar i { flex: 1; }
+.sc-bar i:nth-child(odd) { background: var(--ink); }
+.sc-lbl { position: relative; display: block; height: 14px; font-size: 10.5px; color: var(--ink-2); line-height: 1; }
+.sc-lbl span { position: absolute; top: 4px; left: 0; transform: translateX(-50%); white-space: nowrap; }
+.sc-lbl span:first-child { transform: translateX(-35%); }
+.atlas-coord {
+  font-family: var(--font-mono); font-size: 10.5px; color: var(--muted);
+  white-space: pre; font-variant-numeric: tabular-nums; min-width: 0;
+}
+.atlas-credit { margin-left: auto; min-width: 0; text-align: right; }
+.atlas-credit .leaflet-control-attribution {
+  float: none; clear: none; margin: 0; padding: 0; background: none;
+  font-family: var(--font-mono); font-size: 10.5px; line-height: 1.4; color: var(--muted);
+}
+.atlas-credit .leaflet-control-attribution a { color: var(--muted); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 0.16em; }
+.atlas-credit .leaflet-control-attribution a:hover { color: var(--ink); }
+
+/* ---------- Basemap styling (tile layers only, never the data layers) ----------
+   Leaflet writes opacity: 1 inline on each tile layer once its tiles have faded in, so the
+   opacities below need !important to hold.
+   Relief (main map and index sheets): a label-free hillshade tinted to paper, with water, contours
+   and building footprints drawn quietly over it. */
+.atlas .leaflet-tile-container img, .atlas .leaflet-layer { transition: none; }
+/* The hillshade tiles are grey at half opacity (flat ground near white, shadows darker). Their
+   contrast is raised before they are laid over the paper, so the relief reads at a glance. */
+.atlas .tl-hs { filter: brightness(0.78) contrast(1.8) sepia(0.3); }
+.atlas .tl-contour { filter: grayscale(1) sepia(0.55) brightness(0.9); opacity: 0.42 !important; mix-blend-mode: multiply; }
+.atlas .tl-hydro { filter: saturate(0.55); opacity: 0.75 !important; }
+.atlas .tl-bldg { filter: grayscale(1) contrast(0.55) brightness(1.3); opacity: 0.5 !important; mix-blend-mode: multiply; }
+/* Close in, steep ground and dense contours would outweigh the climats, so both are lightened. */
+.atlas.is-close .atlas-map .tl-hs { filter: brightness(0.86) contrast(1.45) sepia(0.3); }
+.atlas.is-close .atlas-map .tl-contour { opacity: 0.3 !important; }
+.atlas .tl-plan { filter: saturate(0.7) sepia(0.08); }
+/* Cellar theme: the hillshade becomes the dark ground, its shadows darker still, the lines pale. */
+.atlas.is-dark .tl-hs, .atlas.is-dark.is-close .atlas-map .tl-hs { filter: brightness(0.32) contrast(1.45) sepia(0.4); }
+/* inverted, so the white halos around contour heights sink into the dark ground */
+.atlas.is-dark .tl-contour, .atlas.is-dark.is-close .atlas-map .tl-contour { filter: invert(1) grayscale(1) sepia(0.4) brightness(0.95); opacity: 0.34 !important; mix-blend-mode: normal; }
+.atlas.is-dark .tl-hydro { filter: saturate(0.6) brightness(0.85); opacity: 0.6 !important; }
+.atlas.is-dark .tl-bldg { filter: grayscale(1) contrast(0.55) brightness(0.62); opacity: 0.5 !important; mix-blend-mode: normal; }
+.atlas.is-dark .tl-plan { filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(0.9) saturate(0.4) sepia(0.12); }
+.atlas.is-dark .tl-ortho { filter: brightness(0.8) saturate(0.88); }
+/* At fractional zooms Chrome can leave a hairline gap between scaled tiles. A transparent outline
+   makes it rasterise each tile edge as interior, which closes the gap (measured on every basemap). */
+.atlas img.leaflet-tile { outline: 1px solid transparent; }
+.atlas .leaflet-geology-pane { mix-blend-mode: multiply; }
+.atlas.is-dark .leaflet-geology-pane { mix-blend-mode: normal; filter: brightness(0.86); }
+
+/* ---------- Overlaid controls ---------- */
+.atlas-ctl {
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+}
+/* Over photographs the cards are nearly opaque, so muted text keeps AA contrast. */
+.atlas[data-basemap="aerial"] .atlas-ctl { background: color-mix(in srgb, var(--paper) 95%, transparent); }
+.atlas[data-basemap="aerial"] .lg-n, .atlas[data-basemap="aerial"] .lg-where, .atlas[data-basemap="aerial"] .lg-sub { color: var(--ink-2); }
+.atlas-left {
+  position: absolute; z-index: 800; top: 12px; left: 12px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  max-width: calc(100% - 24px);
+}
+.atlas-left [hidden] { display: none; }
+.atlas-layers { padding: 4px; display: grid; gap: 4px; }
+.atlas-layers-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.atlas-layers .seg { border: 0; background: transparent; padding: 0; }
+.atlas-layers .seg button { padding: 5px 11px; font-size: var(--fs-xs); }
+.atlas-geo-btn { border-color: transparent; background: transparent; padding: 4px 10px 4px 8px; font-size: var(--fs-xs); }
+.atlas-geo-btn:hover { border-color: var(--rule-strong); }
+.atlas-geo-dot {
+  width: 11px; height: 11px; border-radius: 2px;
+  border: 1.5px solid currentColor; display: inline-block;
+}
+.atlas-geo-btn[aria-pressed="true"] .atlas-geo-dot {
+  background: currentColor;
+  box-shadow: inset 0 0 0 1.5px var(--surface-2);
+}
+.atlas-geo-extra {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 10px;
+  padding: 4px 8px 6px; border-top: 1px solid var(--rule);
+  max-width: 280px;
+}
+.atlas-geo-extra[hidden] { display: none; }
+.atlas-geo-label { font-size: var(--fs-xs); color: var(--ink-2); }
+.atlas-geo-range { width: 100%; min-width: 120px; }
+.atlas-geo-zoom, .atlas-geo-status { grid-column: 1 / -1; font-size: var(--fs-xs); color: var(--ink-2); line-height: 1.4; }
+.atlas-geo-status { color: var(--ink); border-left: 2px solid var(--accent); padding-left: 8px; }
+.atlas-geo-zoom[hidden], .atlas-geo-status[hidden] { display: none; }
+
+.atlas-zoom { display: flex; flex-direction: column; overflow: hidden; }
+.atlas-zbtn {
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border: 0; background: transparent; color: var(--ink-2);
+}
+.atlas-zbtn + .atlas-zbtn { border-top: 1px solid var(--rule); }
+.atlas-zbtn:hover { background: var(--surface-2); color: var(--ink); }
+.atlas-zbtn:focus-visible { outline-offset: -2px; }
+.atlas-zbtn[aria-disabled="true"] { color: var(--faint); cursor: default; background: transparent; }
+
+/* legend */
+.atlas-legend { position: absolute; z-index: 800; left: 12px; bottom: 12px; width: 244px; max-width: calc(100% - 24px); }
+.atlas-legend-toggle {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  border: 0; background: none; padding: 9px 10px 9px 12px; text-align: left; color: var(--ink);
+  border-radius: var(--r-md);
+}
+.atlas-legend-toggle .eyebrow { color: var(--ink-2); }
+.lg-where { font-size: var(--fs-xs); color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lg-chev { margin-left: auto; display: grid; color: var(--muted); transition: transform 0.2s var(--ease); }
+.atlas-legend.is-open .lg-chev { transform: rotate(180deg); }
+.atlas-legend-body { padding: 0 12px 12px; display: grid; gap: 10px; }
+.atlas-legend-body[hidden] { display: none; }
+.atlas-lg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: var(--fs-sm); }
+.atlas-lg-list li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.atlas-lg-list li[hidden] { display: none; }
+.lg-k { color: var(--ink); line-height: 1.3; }
+.lg-sub { display: block; font-size: var(--fs-xs); color: var(--muted); line-height: 1.35; }
+.lg-sub[hidden] { display: none; }
+.lg-n { font-size: var(--fs-xs); color: var(--muted); }
+.swatch.atlas-sw { width: 16px; height: 11px; border-radius: 2px; border: 1.5px solid; }
+.swatch.atlas-sw[data-level="grand-cru"] { border-color: var(--lvl-gc); background: color-mix(in srgb, var(--lvl-gc) 40%, transparent); }
+.swatch.atlas-sw[data-level="premier-cru"] { border-color: var(--lvl-pc); background: color-mix(in srgb, var(--lvl-pc) 18%, transparent); border-width: 1px; }
+.swatch.atlas-sw[data-level="village"] { border-color: var(--lvl-vl); background: color-mix(in srgb, var(--lvl-vl) 12%, transparent); border-width: 1px; }
+.atlas-lg-list li:has(.lg-sub:not([hidden])) .swatch, .atlas-lg-list li:has(.lg-sub:not([hidden])) .atlas-vdot { align-self: start; margin-top: 4px; }
+.swatch.atlas-sw-red {
+  border: 1px dashed var(--muted);
+  /* the same fine stone hatch the map draws over red-only ground */
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--muted) 55%, transparent) 0 1px, transparent 1px 4px);
+}
+.atlas-vdot, .atlas-vmark span {
+  position: relative; display: block; width: 13px; height: 13px; border-radius: 50%;
+  background: var(--paper); border: 1.5px solid var(--ink);
+}
+.atlas-vdot::after, .atlas-vmark span::after {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--ink);
+}
+.atlas-vdot { margin-left: 1px; }
+.atlas-lg-transect { border-top: 1px solid var(--rule); padding-top: 9px; font-size: var(--fs-xs); color: var(--ink-2); display: grid; gap: 3px; }
+.atlas-lg-transect[hidden] { display: none; }
+.lg-tr-head { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); }
+.atlas-sw-line {
+  width: 18px; height: 4px; flex: none;
+  background: linear-gradient(90deg, var(--lvl-vl) 0 33%, var(--lvl-pc) 33% 66%, var(--lvl-gc) 66% 100%);
+}
+.lg-tr-title { font-family: var(--font-display); font-style: italic; font-size: 1rem; color: var(--ink); line-height: 1.25; }
+/* The title only receives programmatic focus (tabindex -1), as the panel title does. */
+.lg-tr-title:focus { outline: none; }
+.lg-tr-where { color: var(--ink); line-height: 1.4; }
+.lg-tr-where[hidden] { display: none; }
+.lg-tr-where .link-btn { font-size: inherit; }
+.lg-tr-meta { color: var(--muted); line-height: 1.4; }
+.atlas[data-basemap="aerial"] .lg-tr-meta { color: var(--ink-2); }
+.lg-tr-actions { display: flex; gap: 14px; margin-top: 2px; }
+.lg-tr-actions .link-btn { font-size: var(--fs-xs); }
+.atlas-lg-geo { border-top: 1px solid var(--rule); padding-top: 9px; font-size: var(--fs-xs); color: var(--ink-2); line-height: 1.4; }
+.atlas-lg-geo[hidden] { display: none; }
+
+/* hint and status chips */
+.atlas-hint {
+  position: absolute; z-index: 850; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 48px); text-align: center;
+  background: var(--ink); color: var(--paper);
+  font-size: var(--fs-sm); line-height: 1.35; padding: 9px 16px; border-radius: 999px;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.atlas-hint.on { opacity: 0.94; }
+.atlas-busy {
+  position: absolute; z-index: 820; left: 50%; bottom: 14px; transform: translateX(-50%);
+  max-width: calc(100% - 300px);
+  background: var(--surface); color: var(--ink-2); border: 1px solid var(--rule-strong);
+  font-size: var(--fs-xs); padding: 5px 12px; border-radius: 999px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.atlas-busy.on { opacity: 1; }
+.atlas-busy.is-error { white-space: normal; border-radius: var(--r-md); color: var(--ink); border-color: var(--accent); }
+
+/* ---------- Zoomed-out map: region sheets and the veil around them ---------- */
+.leaflet-veil-pane { transition: opacity 0.35s var(--ease); }
+/* Outside the region sheets the ground recedes to paper. */
+.atlas-veil { fill-opacity: 0.9; }
+.atlas.is-dark .atlas-veil { fill-opacity: 0.84; }
+.leaflet-veil-pane.is-off { opacity: 0; }
+.atlas-map.leaflet-container.is-sheet-hot { cursor: pointer; }
+
+/* ---------- Index: the four regions as sheets at one scale ---------- */
+.atlas-index {
+  position: absolute; inset: 0; z-index: 700;
+  background: var(--surface);
+  opacity: 0; transition: opacity 0.3s var(--ease);
+}
+.atlas-index.on { opacity: 1; }
+.atlas-index[hidden] { display: none; }
+.atlas-sheet { position: absolute; left: 0; top: 0; }
+.atlas-sheet-art { pointer-events: none; }
+.atlas-sheet-frame {
+  position: relative; isolation: isolate; z-index: 0;
+  background: var(--paper-2);
+  /* the plate's own double neatline, drawn smaller */
+  box-shadow: 0 0 0 1px var(--ink), 0 0 0 3px var(--surface), 0 0 0 4px var(--rule-strong);
+  transition: box-shadow 0.2s var(--ease);
+}
+.atlas-sheet-map { position: absolute; inset: 0; background: var(--paper-2); }
+.atlas-sheet-map.leaflet-container { font-family: var(--font-ui); }
+.atlas-sheet-cap { display: grid; gap: 2px; margin-top: 10px; padding-left: 1px; }
+.atlas-sheet-name { font: italic 500 1.5rem/1.05 var(--font-display); color: var(--ink); white-space: nowrap; transition: color 0.2s; }
+.atlas-sheet-sub { display: flex; flex-wrap: wrap; font-family: var(--font-mono); font-size: 10.5px; line-height: 16px; color: var(--ink-2); }
+.atlas-sheet-sub span { white-space: nowrap; }
+.atlas-sheet-sub span + span::before { content: "\00a0·\00a0"; }
+.atlas-sheet-cap.is-stacked .atlas-sheet-sub { flex-direction: column; }
+.atlas-sheet-cap.is-stacked .atlas-sheet-sub span + span::before { content: none; }
+.atlas-sheet-cap.is-wrap .atlas-sheet-sub span { white-space: normal; }
+.atlas-sheet-hit {
+  position: absolute; z-index: 1; inset: -8px; border: 0; padding: 0; margin: 0;
+  background: transparent; border-radius: 2px; cursor: pointer;
+}
+.atlas-sheet-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.atlas-sheet.is-hot .atlas-sheet-frame { box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px var(--surface), 0 0 0 5px var(--rule-strong); }
+.atlas-sheet.is-hot .atlas-sheet-name { color: var(--accent); }
+.atlas-vmark.is-static span { width: 10px; height: 10px; border-width: 1.5px; }
+.atlas-vmark.is-static span::after { inset: 2px; }
+/* The index has no shared coordinates, and no zoom. */
+.atlas.is-index .atlas-grat { visibility: hidden; }
+
+/* locator: the sheets in their true positions */
+.atlas-locator { margin: 0; padding: 10px 12px 11px; max-width: 244px; }
+.atlas-locator[hidden] { display: none; }
+.atlas-loc-k { display: block; margin-bottom: 8px; color: var(--ink-2); }
+.atlas-loc-svg { overflow: visible; }
+.loc-box rect { fill: color-mix(in srgb, var(--lvl-vl) 16%, transparent); stroke: var(--ink); stroke-width: 1; transition: fill 0.2s; }
+.loc-box text { font: 400 11px var(--font-ui); fill: var(--ink-2); }
+.loc-box.is-hot rect { fill: var(--ink); }
+.loc-box.is-hot text { fill: var(--ink); font-weight: 600; }
+.loc-bar, .loc-north { fill: none; stroke: var(--ink-2); stroke-width: 1; }
+.loc-bar-t { font: 400 10.5px var(--font-mono); fill: var(--ink-2); }
+.atlas-loc-note { margin-top: 6px; font-size: var(--fs-xs); line-height: 1.4; color: var(--ink-2); max-width: 26ch; }
+
+/* ---------- Map labels ---------- */
+.leaflet-labels-pane.is-hidden { visibility: hidden; }
+.atlas-lbl {
+  position: absolute; left: 0; top: 0; white-space: nowrap; pointer-events: none;
+  color: var(--ink);
+  text-shadow: 0 0 1px var(--paper), 0 0 2px var(--paper), 0 0 3px var(--paper), 0 0 5px var(--paper);
+  will-change: transform;
+}
+.atlas-lbl[hidden] { display: none; }
+.lbl-region {
+  font: italic 500 24px/26px var(--font-display); color: var(--ink);
+  pointer-events: auto; cursor: pointer;
+}
+.lbl-region:hover { color: var(--accent); }
+.lbl-sub {
+  display: block; font: 400 10.5px/14px var(--font-mono); font-style: normal; letter-spacing: 0;
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+}
+.lbl-village {
+  font: 600 10.5px/16px var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+  /* a paper tab so the name stays legible over the basemap */
+  padding: 0 5px; border-radius: 2px; text-shadow: none;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--rule-strong) 70%, transparent);
+}
+.lbl-app { font: italic 600 15px/18px var(--font-display); letter-spacing: 0.01em; color: color-mix(in srgb, var(--lvl-vl) 62%, var(--ink)); }
+.lbl-gc, .lbl-gc-lg { font: 700 14px/17px var(--font-display); letter-spacing: 0.02em; color: color-mix(in srgb, var(--lvl-gc) 56%, var(--ink)); }
+.lbl-gc-lg { font-size: 16.5px; line-height: 19px; }
+.lbl-pc, .lbl-pc-lg { font: italic 600 13px/16px var(--font-display); color: color-mix(in srgb, var(--lvl-pc) 80%, var(--ink)); }
+/* Level-tinted names keep AA contrast on the paper halo: the dark copper needs more of the light ink. */
+.atlas.is-dark .lbl-pc, .atlas.is-dark .lbl-pc-lg { color: color-mix(in srgb, var(--lvl-pc) 55%, var(--ink)); }
+.lbl-pc-lg { font-size: 15px; line-height: 18px; }
+/* names of red-only ground take the muted stone of their dashed outline */
+.atlas-lbl.is-red { color: var(--ink-2); font-weight: 500; }
+
+/* village markers: a 13 px dot inside a larger target */
+.atlas-vmark { background: none; border: 0; display: grid; place-items: center; }
+.atlas-vmark span { transition: transform 0.15s var(--ease); }
+.atlas-vmark:hover span { transform: scale(1.18); }
+.atlas-vmark:focus { outline: none; }
+.atlas-vmark:focus-visible span { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* From afar the markers shrink to small dots, so they do not cover the regions. */
+.atlas.is-far .atlas-map .atlas-vmark span { width: 7px; height: 7px; border: 0; background: var(--ink); box-shadow: 0 0 0 1.5px var(--paper); }
+.atlas.is-far .atlas-map .atlas-vmark span::after { content: none; }
+
+/* transect end labels */
+.leaflet-tooltip.atlas-tt {
+  background: var(--ink); color: var(--paper); border: 0; box-shadow: none;
+  font-family: var(--font-mono); font-size: 10.5px; padding: 1px 6px; border-radius: var(--r-sm);
+}
+.leaflet-tooltip-top.atlas-tt::before { border-top-color: var(--ink); }
+.atlas.ends-off .leaflet-tooltip.atlas-tt { display: none; }
+
+/* ---------- Details panel ---------- */
+.atlas-panel {
+  position: absolute; z-index: 900; top: 12px; right: 12px;
+  width: 348px; max-height: calc(100% - 24px);
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+  box-shadow: var(--shadow-2);
+  padding: 20px 22px 22px;
+  transition: transform 0.35s var(--ease), opacity 0.25s var(--ease), max-height 0.3s var(--ease);
+}
+.atlas-panel[hidden] { display: none; }
+.atlas-panel.is-entering { transform: translateX(18px); opacity: 0; }
+.atlas-panel-grip { display: none; }
+.atlas-close {
+  position: absolute; top: 10px; right: 10px;
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border: 1px solid transparent; border-radius: 50%; background: transparent; color: var(--ink-2);
+}
+.atlas-close:hover { border-color: var(--rule-strong); color: var(--ink); }
+.atlas-p-eyebrow { margin-right: 40px; }
+.atlas-p-title {
+  font-size: clamp(1.9rem, 1.5rem + 1vw, 2.35rem); line-height: 1.02; margin-top: 6px;
+  overflow-wrap: break-word; hyphens: manual;
+}
+/* The title only receives programmatic focus (tabindex -1) so screen readers start there. */
+.atlas-p-title:focus, .atlas-p-title:focus-visible { outline: none; }
+.atlas-p-full { font-family: var(--font-display); font-style: italic; font-size: 1.08rem; color: var(--ink-2); margin-top: 4px; line-height: 1.3; }
+.atlas-p-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 2px; }
+.atlas-p-k { font-size: var(--fs-xs); color: var(--muted); }
+.atlas-red-chip { border-style: dashed; border-color: var(--muted); }
+.atlas-facts { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.atlas-facts > div { display: flex; flex-direction: column; justify-content: space-between; }
+.atlas-facts dd { overflow-wrap: anywhere; }
+.atlas-facts dd:not(.num) { font-family: var(--font-ui); }
+.atlas-panel h4 {
+  font-family: var(--font-mono); font-size: var(--fs-2xs); font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 8px;
+}
+.atlas-p-sec { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.atlas-p-comm { border-top: 0; padding-top: 0; margin-top: 14px; }
+.atlas-p-communes { font-size: var(--fs-sm); color: var(--ink); line-height: 1.5; }
+.atlas-p-communes:focus { outline: none; }
+.atlas-commune { white-space: nowrap; }
+.atlas-p-plain { font-size: var(--fs-sm); color: var(--ink-2); }
+.atlas-p-note { margin-top: 14px; }
+.atlas-p-twin .link-btn { font-size: inherit; }
+.atlas-panel .caption { font-size: var(--fs-xs); margin-top: 6px; }
+
+/* Measured values are set in the data face, as on the other plates. Cormorant is kept for names. */
+.atlas-share-v { font-family: var(--font-mono); font-size: 1.375rem; font-weight: 500; line-height: 1.1; margin-bottom: 8px; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+
+.atlas-elev-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 6px; }
+.atlas-elev-nums dt { font-size: var(--fs-xs); color: var(--muted); }
+.atlas-elev-nums dd { margin: 0; font-size: var(--fs-sm); color: var(--ink); }
+.atlas-elev { width: 100%; height: auto; overflow: visible; }
+.atlas-elev .e-mean { font-family: var(--font-mono); font-size: 11px; fill: var(--ink); }
+.atlas-elev .e-dom { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+.atlas-elev-cap { margin-top: 2px; }
+
+.atlas-terrain { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.atlas-terrain-cell { min-width: 0; }
+.atlas-big { font-family: var(--font-mono); font-size: 1.375rem; font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.atlas-big-sub { font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 400; color: var(--ink-2); white-space: nowrap; }
+.atlas-slope-g { width: 100%; max-width: 120px; height: auto; margin-top: 12px; overflow: visible; }
+.atlas-face { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 500; line-height: 1.3; }
+.atlas-bearing { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-2); white-space: nowrap; margin-top: 3px; }
+.atlas-rose { margin-top: 8px; }
+.atlas-rose .aspect-rose { width: 84px; height: 84px; overflow: visible; }
+
+.atlas-lvlbar { display: flex; height: 12px; gap: 2px; margin: 2px 0 10px; }
+.atlas-lvlbar span { flex-basis: 0; min-width: 3px; }
+.atlas-lvlbar span[data-level="grand-cru"] { background: var(--lvl-gc); }
+.atlas-lvlbar span[data-level="premier-cru"] { background: var(--lvl-pc); }
+.atlas-lvlbar span[data-level="village"] { background: var(--lvl-vl); }
+.atlas-lvltab { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.atlas-lvltab th { text-align: left; font-weight: 400; color: var(--ink); padding: 3px 0; }
+.atlas-lvltab td { text-align: right; padding: 3px 0 3px 12px; color: var(--ink); font-size: var(--fs-xs); white-space: nowrap; }
+.atlas-lvltab td.pct { color: var(--muted); width: 3.5em; }
+.atlas-lvltab td.is-nil { color: var(--muted); font-family: var(--font-ui); }
+.atlas-lvltab tr.tot th, .atlas-lvltab tr.tot td { border-top: 1px solid var(--rule); padding-top: 6px; }
+.atlas-lvltab .swatch { margin-right: 4px; }
+
+.atlas-gclist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.atlas-gcbtn {
+  width: 100%; display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  border: 0; background: transparent; padding: 5px 6px; margin: 0 -6px; border-radius: var(--r-sm);
+  text-align: left; color: var(--ink);
+}
+.atlas-gcbtn:hover { background: var(--surface-2); }
+.atlas-gcbtn.is-static:hover { background: transparent; }
+.atlas-gcbtn .g-n { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: color-mix(in srgb, var(--lvl-gc) 56%, var(--ink)); }
+.atlas-gcbtn .g-a { font-size: var(--fs-xs); color: var(--ink-2); }
+
+.atlas-p-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px; }
+.atlas-p-zoom { font-size: var(--fs-xs); }
+
+/* ---------- Plate notes under the map ---------- */
+.atlas-caveat { margin-top: 18px; display: grid; gap: 12px; }
+.atlas-disclaimer { max-width: 92ch; line-height: 1.5; }
+.atlas-plate-notes {
+  list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid var(--rule);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px clamp(18px, 3vw, 40px);
+}
+.atlas-plate-notes li {
+  display: grid; grid-template-columns: 1.4em minmax(0, 1fr); gap: 0 6px;
+  font-size: var(--fs-xs); line-height: 1.5; color: var(--muted);
+}
+.atlas-note-n { color: var(--ink-2); font-size: var(--fs-2xs); line-height: 1.75; }
+/* The summary is the shared .disclosure control from base.css. */
+.atlas-notes ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 5px; max-width: 86ch; font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; }
+.atlas-notes li { position: relative; padding-left: 14px; }
+.atlas-notes li::before { content: ""; position: absolute; left: 2px; top: 0.66em; width: 4px; height: 4px; background: var(--rule-strong); }
+
+/* ---------- Phones and narrow tablets ---------- */
+@media (max-width: 719px) {
+  .atlas-bar { flex-wrap: wrap; }
+  .atlas-regions-wrap, .atlas-search { flex: 1 1 100%; }
+  .atlas-regions-wrap { display: flex; }
+  .atlas-regions button { padding: 6px 12px; }
+
+  .atlas-plate { --pl-t: 22px; --pl-r: 12px; --pl-b: 52px; --pl-l: 22px; }
+  .atlas-stage { height: 72vh; height: 72svh; min-height: 380px; }
+  .gt { padding-top: 3px; }
+  .gt i { height: 5px; }
+  .gl i { width: 5px; }
+  .gl { padding-left: 3px; }
+  .atlas-foot { flex-wrap: wrap; align-content: center; gap: 2px 14px; }
+  .atlas-coord { display: none; }
+  .atlas-plate-notes { grid-template-columns: 1fr; }
+  .atlas-credit .leaflet-control-attribution { font-size: 10.5px; }
+
+  /* layers on the left, zoom stack on the right, so the top of the view stays clear */
+  .atlas-left {
+    top: 10px; left: 10px; right: 10px; max-width: none;
+    flex-direction: row; justify-content: space-between; gap: 8px;
+    pointer-events: none;
+  }
+  .atlas-left > * { pointer-events: auto; }
+  .atlas-layers .seg button { padding: 5px 9px; }
+  .atlas-zbtn { width: 34px; height: 34px; }
+  .atlas-legend { left: 10px; bottom: 10px; width: auto; }
+  .atlas-legend.is-open { width: 236px; }
+  .atlas-busy { left: auto; right: 10px; bottom: 12px; transform: none; max-width: 52%; }
+
+  .atlas-sheet-name { font-size: 1.19rem; }
+  /* small sheets: the profiled villages as plain dots, so they do not cover the vineyards */
+  .atlas-vmark.is-static span { width: 6px; height: 6px; border: 0; background: var(--ink); box-shadow: 0 0 0 1.5px var(--paper); }
+  .atlas-vmark.is-static span::after { content: none; }
+
+  /* The details open as a bottom sheet at a little under half the map. The grip grows it. */
+  .atlas-panel {
+    top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 46%;
+    border-radius: var(--r-lg) var(--r-lg) 0 0; border-width: 1px 0 0;
+    padding: 0 18px 22px;
+  }
+  .atlas-panel.is-tall { max-height: 88%; }
+  .atlas-panel.is-entering { transform: translateY(28px); }
+  .atlas-panel-grip {
+    display: grid; place-items: center; position: sticky; top: 0; z-index: 2;
+    width: calc(100% + 36px); height: 28px; margin: 0 -18px 4px;
+    border: 0; padding: 0; background: var(--surface); cursor: pointer;
+  }
+  .atlas-panel-grip span { display: block; width: 38px; height: 4px; border-radius: 2px; background: var(--rule-strong); }
+  .atlas-panel-grip:focus-visible { outline-offset: -3px; }
+  .atlas-close { top: 22px; right: 10px; z-index: 3; }
+  .atlas-p-title { font-size: 1.85rem; }
+}
+
+/* Forced colours leave the map's fills as they are, so the key that explains them keeps its colours too. */
+@media (forced-colors: active) {
+  .swatch.atlas-sw, .atlas-sw-line, .atlas .swatch, .atlas-lvlbar span { forced-color-adjust: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-panel, .atlas-vmark span, .lg-chev, .atlas-index, .atlas-sheet-frame { transition: none; }
+}

@@ -5,4 +5,6 @@
 .idea/
 .vscode/
 node_modules/
-data/
+/data/
+.venv/
+__pycache__/

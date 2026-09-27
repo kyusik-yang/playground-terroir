@@ -1,0 +1,941 @@
+{
+ "_comment": "Colour rules per appellation. First checked against INAO draft cahiers (source_url, quote), then re-checked on 2026-09-25 against the homologated cahiers des charges in force (in_force). 50 rules were verified against texts in force and all agree with the drafts. For Saint-Bris, Côte de Nuits-Villages, Ladoix and Musigny the text in force could not be opened (Musigny: only a superseded text), so their flags follow the drafts and the Bourgogne wine board sheets (in_force.verified = false).",
+ "accessed": "2026-09-25T02:12Z",
+ "appellations": [
+  {
+   "app": "Chablis",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCChablis.pdf",
+   "quote": "L’appellation d’origine contrôlée « Chablis » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 10 septembre 2025 (NOR AGRT2523052A) publié au JORF n°0212 du 12 septembre 2025 (texte n°26); cahier publié au BO du MASA du 18 septembre 2025",
+    "text_date": "2025-09-10",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-567c3bd8-0c51-425b-a397-05e3b4b23cf0/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Chablis » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III of the homologated BO text. The BO Agri host (info.agriculture.gouv.fr) timed out from this network (curl, Chrome and WebFetch all failed), so the PDF was read from the Wayback capture https://web.archive.org/web/20251027175301id_/https://info.agriculture.gouv.fr/boagri/document_administratif-567c3bd8-0c51-425b-a397-05e3b4b23cf0/telechargement. Its SHA-1 matched the archive digest, and the PDF header reads 'homologué par l’arrêté du 10 septembre 2025 publié au JORF du 12 septembre 2025'. Article 1 of the arrêté on Legifrance (JORFTEXT000052235330, read in browser) points to this BO document. A Legifrance JORF title search found no later Chablis homologation. The CDC-Chablis-250623-PNO.pdf file linked by INAO is the June 2025 draft of this text.",
+    "spot_check": "The official BO PDF was opened from Wayback capture 20251027175301. Its SHA-1 matches the CDX digest 2MIMRUKVZVXFARKASRJRVQGOSVFZHTMQ. The header reads 'Publié au BO du MASA du jeudi 18 septembre 2025' and 'homologué par l'arrêté du 10 septembre 2025'. The quote is in Section III, character for character. The INAO product page (inao.gouv.fr/produit/chablis-23041) lists the 10 Sept 2025 arrêté and BO n°38 of 18 Sept 2025 as the current cahier, with no later homologation. The only later item is EU OJ C/2026/744 (5 Feb 2026, ref PDO-FR-A0736-AM02), which I read from the Publications Office cellar. It is the EU notice of the 2025 amendment itself. Its changes cover only the geographic area and the area of immediate proximity (code officiel géographique 2025), which match the 2025 text. The CAVB list also points to the 2025 text. The text says white only, so white=true and red=false."
+   }
+  },
+  {
+   "app": "Petit Chablis",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCPetitChablis.pdf",
+   "quote": "L’appellation d’origine contrôlée « Petit Chablis » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 11 décembre 2023 (NOR AGRT2331215A) publié au JORF n°0295 du 21 décembre 2023 (texte n°34); cahier publié au BO Agri du 11 janvier 2024",
+    "text_date": "2023-12-11",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-580ac589-2817-4f2f-85ee-35292c4b5057/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Petit Chablis » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Read from the Wayback capture https://web.archive.org/web/20250703101129id_/https://info.agriculture.gouv.fr/boagri/document_administratif-580ac589-2817-4f2f-85ee-35292c4b5057/telechargement. The SHA-1 matched the archive digest (the BO host was unreachable from this network). Legifrance arrêté JORFTEXT000048621124, Article 1, cites this BO document. No later Petit Chablis homologation was found in a Legifrance JORF title search.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Saint-Bris",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCSaint-Bris.pdf",
+   "quote": "L’appellation d’origine contrôlée « Saint-Bris » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": false,
+    "text_status": "In-force text NOT opened: cahier homologué par arrêté du 8 juin 2026 (NOR AGRT2610196A), JORF n°0135 du 11 juin 2026, BO n°26 du 25 juin 2026. Quote taken from the INAO PNO draft (Comité national des 11 et 12 juin 2025, avis JORF 19 juillet 2025), which says it does not prejudge the final text",
+    "text_date": "2026-06-08",
+    "source_url": "https://extranet.inao.gouv.fr/fichier/pno-cdc-AOC-Saint-Bris-cn250612.pdf",
+    "quote": "L’appellation d’origine contrôlée « Saint-Bris » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The homologated 2026 text is at https://info.agriculture.gouv.fr/boagri/document_administratif-9753b9fd-cc2c-48f4-bfb5-b6178e3c9113/telechargement (cited by Legifrance JORFTEXT000054228994, Article 1). The BO host timed out from this network and the Wayback Machine has no capture. The PNO draft opened here gives the sentence quoted above. The previously in-force 2011 text (décret n° 2011-1570, BIVB-hosted copy at bourgogne-wines.com .../19990/20262.pdf) has the identical sentence. White-only is therefore very likely unchanged, but it is not confirmed against the 2026 text. Note that the 2026 arrêté calls it an 'appellation d'origine protégée'.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Vézelay",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCAOCVezelay.pdf",
+   "quote": "L’appellation d’origine contrôlée « Vézelay » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 30 octobre 2017 (JORF n°0262 du 9 novembre 2017), publié au BO-Agri du 16 novembre 2017; modifié par arrêté du 26 octobre 2021 (JORF n°0261 du 9 novembre 2021), consolidated version in BO n°48 du 25 novembre 2021 (not opened)",
+    "text_date": "2017-10-30",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-44689656-b883-4ec2-81d5-be59a9fe0478/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Vézelay » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Quote from the 2017 homologated BO text, read via Wayback https://web.archive.org/web/20241203054812id_/https://info.agriculture.gouv.fr/boagri/document_administratif-44689656-b883-4ec2-81d5-be59a9fe0478/telechargement (SHA-1 matched). The 2021 arrêté (Legifrance JORFTEXT000044300520, read in full) changes only chapter I section X and chapter III section II. Chapter I section III (colour) is untouched. The 2021 consolidated BO file (document_administratif-e788615d-...) has no archived PDF and was not opened.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Marsannay",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Marsannay.pdf",
+   "quote": "L’appellation d’origine contrôlée « Marsannay » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par décret n° 2011-1348 du 24 octobre 2011 (JORF 26 octobre 2011), modifié par arrêté du 26 novembre 2019 (JORF n°0281 du 4 décembre 2019); consolidated version publié au BO Agri le 28 mai 2020",
+    "text_date": "2019-11-26",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-8fa6b7fc-47fa-4091-8d6c-4610b85767b5/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Marsannay » est réservée aux vins tranquilles blancs, rouges ou rosés.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Read via Wayback https://web.archive.org/web/20260107073221id_/https://info.agriculture.gouv.fr/boagri/document_administratif-8fa6b7fc-47fa-4091-8d6c-4610b85767b5/telechargement (SHA-1 matched). The white and red flags match, but the wording does not. The in-force sentence adds rosés, while the previous PNO-based quote read 'blancs ou rouges' with a separate rosé sentence. The 2011 BO bundle text (BO n°43, document 302391de) has the same 'blancs, rouges ou rosés' sentence. The 2019 arrêté (Legifrance JORFTEXT000039447026) changes only chapter I section IV and chapter III section II. No later text was found.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Fixin",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Fixin.pdf",
+   "quote": "L’appellation d’origine contrôlée « Fixin » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 19 novembre 2024 (NOR AGRT2429483A) publié au JORF n°0275 du 21 novembre 2024 (texte n°32); cahier publié au BO Agri du MASAF du 28 novembre 2024",
+    "text_date": "2024-11-19",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-5ae322f4-9fc0-4255-8b45-7f40385e17f6/telechargement",
+    "quote": "AOC « Fixin » Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III in the in-force text is a table, not a sentence. The quote is the first table row, with its two cells joined by one space. The premier cru and climat row also reads 'Vins tranquilles blancs ou rouges'. Read via Wayback https://web.archive.org/web/20251212010857id_/https://info.agriculture.gouv.fr/boagri/document_administratif-5ae322f4-9fc0-4255-8b45-7f40385e17f6/telechargement (SHA-1 matched). No later homologation was found on Legifrance.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Morey-Saint-Denis",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-MoreySaintDenis.pdf",
+   "quote": "L’appellation d’origine contrôlée « Morey-Saint-Denis » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par décret n° 2011-1803 du 6 décembre 2011 (JORF n°0284 du 8 décembre 2011); publié au BO Agri n°49 du 9 décembre 2011 (multi-AOC bundle)",
+    "text_date": "2011-12-06",
+    "source_url": "https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-6d8683b3-0d77-4bd6-b1c3-8ae16e2331fa/telechargement",
+    "quote": "AOC « Morey-Saint-Denis » Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III in the in-force text is a table. The quote is the first row, with its cells joined by one space, and the premier cru and climat row also reads 'Vins tranquilles blancs ou rouges'. The previous record quoted a sentence form from the PNO draft. The flags are the same. Read via Wayback https://web.archive.org/web/20250813074803id_/https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-6d8683b3-0d77-4bd6-b1c3-8ae16e2331fa/telechargement (SHA-1 matched). No later text was found on Legifrance.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Vougeot",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCVougeot.pdf",
+   "quote": "L’appellation d’origine contrôlée « Vougeot » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par décret n° 2011-1456 du 4 novembre 2011 (JORF n°0259 du 8 novembre 2011); publié au BO Agri n°46 du 17 novembre 2011 (multi-AOC bundle)",
+    "text_date": "2011-11-04",
+    "source_url": "https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-79ea026e-4653-4237-b6d3-7d5ce4572023/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Vougeot » est réservée aux vins tranquilles blancs ou rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Read via Wayback https://web.archive.org/web/20250319162104id_/https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-79ea026e-4653-4237-b6d3-7d5ce4572023/telechargement (SHA-1 matched). The 2026 Legifrance arrêtés with 'Vougeot' in the title concern Clos de Vougeot only. No later Vougeot text was found.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Nuits-Saint-Georges",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCNuitsSaintGeorges.pdf",
+   "quote": "L’appellation d’origine contrôlée « Nuits-Saint-Georges » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 24 décembre 2024 (NOR AGRT2429484A) publié au JORF n°0002 du 3 janvier 2025 (texte n°14); PDF header 'Publié au BO du MASA du 27 février 2025' (INAO page lists BO n°10 du 6 mars 2025)",
+    "text_date": "2024-12-24",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-b1623bde-4ee9-46cb-806e-556ec29a84a4/telechargement",
+    "quote": "AOC « Nuits-Saint-Georges » Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III in the in-force text is a table. The quote is the first row, with its cells joined by one space, and the premier cru and climat row also reads 'Vins tranquilles blancs ou rouges'. Read via Wayback https://web.archive.org/web/20251211094157id_/https://info.agriculture.gouv.fr/boagri/document_administratif-b1623bde-4ee9-46cb-806e-556ec29a84a4/telechargement (SHA-1 matched). This text supersedes décret 2011-1762 and the 2013 décret 2013-1100. No later text was found.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Côte de Nuits-Villages ou Vins fins de la Côte de Nuits",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCCoteDeNuits-Villages.pdf",
+   "quote": "L’appellation d’origine contrôlée « Côte de Nuits-Villages » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": false,
+    "text_status": "In-force text NOT opened: cahier homologué par arrêté du 2 septembre 2026 (NOR AGRT2617739A), JORF n°0207 du 5 septembre 2026 (texte n°12), BO n°38 du 17 septembre 2026. Quote taken from the INAO PNO draft (Comité national du 27 novembre 2025, avis JORF 15 janvier 2026), which says it does not prejudge the final text",
+    "text_date": "2026-09-02",
+    "source_url": "https://extranet.inao.gouv.fr/fichier/pno-cdc-c%C3%B4tedeNuits-villages-ou-vinsfinsdelac%C3%B4tedeNuits-cn251127.pdf",
+    "quote": "L’appellation d’origine contrôlée « Côte de Nuits-Villages » ou « Vins fins de la Côte de Nuits » est réservée aux vins tranquilles blancs ou rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The homologated text is at https://info.agriculture.gouv.fr/boagri/document_administratif-98aae6b4-7bd9-478d-803a-01fffb18ccfa/telechargement (cited by Legifrance JORFTEXT000054796712). The BO host was unreachable and the Wayback Machine has no capture. The previously in-force 2011 text (décret n° 2011-1350, BO n°43 bundle document 302391de, read via Wayback 20260111004058, SHA-1 matched) has the identical sentence. The 2026 arrêté title names only « Côte de Nuits-Villages » as an 'appellation d'origine protégée'. Whether the final text keeps the alternative name 'Vins fins de la Côte de Nuits' is unverified.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Ladoix",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCLadoix.pdf",
+   "quote": "L’appellation d’origine contrôlée « Ladoix » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": false,
+    "text_status": "In-force text NOT opened: cahier homologué par arrêté du 2 septembre 2026 (NOR AGRT2617933A), JORF n°0207 du 5 septembre 2026 (texte n°13), BO n°37 du 10 septembre 2026. Quote taken from the INAO PNO draft (Comité national du 12 février 2026, avis JORF 22 février 2026), which says it does not prejudge the final text",
+    "text_date": "2026-09-02",
+    "source_url": "https://extranet.inao.gouv.fr/fichier/pno-CDC-Ladoix-cn260212.pdf",
+    "quote": "AOC « Ladoix » Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The homologated text is at https://info.agriculture.gouv.fr/boagri/document_administratif-c9465758-7a75-4e31-ba2e-a7943003508d/telechargement (cited by Legifrance JORFTEXT000054796725). The BO host was unreachable and the Wayback Machine has no capture. Section III is a table, and the quote is its first row with the cells joined by one space. Some premier cru climats are one colour only. Bois Roussot, Les Buis and Les Joyeuses are red only. En Naget, Le Rognet et Corton and Les Grêchons et Foutrières are white only. The 'Côte de Beaune' suffix is red only. The previously in-force 2011 text (décret 2011-1559, BIVB copy .../19990/20234.pdf) has the same first row.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Aloxe-Corton",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCAloxeCorton.pdf",
+   "quote": "L’appellation d’origine contrôlée « Aloxe-Corton » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par décret n° 2011-1369 du 24 octobre 2011 (JORF n°0250 du 27 octobre 2011); publié au BO Agri n°43 du 28 octobre 2011 (multi-AOC bundle)",
+    "text_date": "2011-10-24",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-302391de-0e09-4b5c-95d4-ddadcaf4ebeb/telechargement",
+    "quote": "AOC « Aloxe-Corton » Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III in the in-force text is a table. The quote is the first row, with its cells joined by one space, and the premier cru and climat row also reads 'Vins tranquilles blancs ou rouges'. The previous record quoted a sentence form from the PNO draft. The flags are the same. Read via Wayback https://web.archive.org/web/20260111004058id_/https://info.agriculture.gouv.fr/boagri/document_administratif-302391de-0e09-4b5c-95d4-ddadcaf4ebeb/telechargement (SHA-1 matched, 284 pages). No later homologation or modification was found on Legifrance.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Pernand-Vergelesses",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCPernand-Vergelesses.pdf",
+   "quote": "L’appellation d’origine contrôlée « Pernand-Vergelesses » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1790 du 5 décembre 2011, JORF n°0283 du 7 décembre 2011 (CDC published in BO Agri n°49 du 9 décembre 2011). Légifrance shows the decree 'en vigueur au 25 septembre 2026', last updated 08/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-05",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20249.pdf",
+    "quote": "AOC « Pernand-Vergelesses » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, with the two cells joined by ' | ' (my separator), PDF p.1. The DGC 'Côte de Beaune' row reads 'Vins tranquilles rouges'. Two premier cru climats are white only: Clos Berthet and Sous Frétille. No later homologation act was found on Légifrance (title searches for contrôlée and protégée) or on the INAO product page. The official BO Agri copy could not be read because info.agriculture.gouv.fr refused the connection or timed out, and this item is not in the Wayback Machine. The rule matches scope.json, but the old PNO sentence quoted there does not appear word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Savigny-lès-Beaune",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCSavigny-les-Beaune.pdf",
+   "quote": "L’appellation d’origine contrôlée « Savigny-lès-Beaune » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1792 du 5 décembre 2011, JORF n°0283 du 7 décembre 2011 (BO Agri n°49 du 9 décembre 2011). Légifrance shows the decree in force on 25 Sept 2026, last updated 08/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-05",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20266.pdf",
+    "quote": "AOC « Savigny-lès-Beaune » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | ', PDF p.1. Premier cru is also 'blancs ou rouges'. The DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. BO Agri is unreachable and this item is not archived. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Chorey-lès-Beaune",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCChorey-les-Beaune.pdf",
+   "quote": "L’appellation d’origine contrôlée « Chorey-lès-Beaune » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1821 du 7 décembre 2011, JORF n°0284 du 8 décembre 2011 (BO Agri n°49 du 9 décembre 2011 per INAO). Légifrance shows the decree in force on 25 Sept 2026, last updated 09/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-07",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20210.pdf",
+    "quote": "L’appellation d’origine contrôlée « Chorey-lès-Beaune » est réservée aux vins tranquilles blancs ou rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III, 1°, PDF p.1. Section III 2° reserves the DGC 'Côte de Beaune' for 'vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. The official BO copy is unreachable and not archived. The sentence is the same as the one in scope.json.",
+    "spot_check": "The quote appears in the BIVB PDF, Section III 1°. The only differences are a line break and a leading '1°- ' marker. The PDF is headed as homologated by décret n° 2011-1821 of 7 Dec 2011. Section III 2° reserves the DGC 'Côte de Beaune' for red wines. The INAO page (chorey-les-beaune-7686) lists nothing after the 2011 decree, and CAVB lists the 2011 text. One correction to the entry, which says the official BO copy is 'not archived'. The INAO-linked BO item 6d8683b3 is on Wayback (digest ECPFUFMMGHJIALCNN7OZH7BECGROLG2W, which matched). I opened it, and it holds Pouilly-Loché through Côtes de Bordeaux but not the Chorey cahier, so that does not change the verdict. The text says white or red, so both flags are true."
+   }
+  },
+  {
+   "app": "Beaune",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Beaune.pdf",
+   "quote": "L’appellation d’origine contrôlée « Beaune » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1751 du 2 décembre 2011, JORF n°0282 du 6 décembre 2011 (BO Agri n°49 du 9 décembre 2011 per INAO). Légifrance shows the decree in force on 25 Sept 2026, last updated 07/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-02",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20191.pdf",
+    "quote": "AOC « Beaune » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | ', PDF p.2. Premier cru is also 'blancs ou rouges'. This CDC has no Côte de Beaune DGC row. No later act was found on Légifrance or on the INAO page. BO Agri is unreachable and this item is not archived. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Côte de Beaune",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-CoteDeBeaune.pdf",
+   "quote": "L’appellation d’origine contrôlée « Côte de Beaune » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1686 du 28 novembre 2011, JORF n°0277 du 30 novembre 2011, published in BO Agri n°48 du 2 décembre 2011. Légifrance shows the decree in force on 25 Sept 2026, last updated 01/12/2011. The official BO text was read from a Wayback Machine capture.",
+    "text_date": "2011-11-28",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-dc895811-a5ae-47c2-93be-bbeaf8a96f50/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Côte de Beaune » est réservée aux vins tranquilles blancs ou rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "BO n°48 compilation, 96 pp. The Côte de Beaune CDC is at p.27. Source was Wayback capture 20260111015216, SHA-1 digest checked against the CDX record. The BIVB copy (19990/20218.pdf) has the same sentence. No later act was found on Légifrance or on the INAO page. The sentence is the same as the one in scope.json.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Monthélie",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Monthelie.pdf",
+   "quote": "L’appellation d’origine contrôlée « Monthélie » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1827 du 7 décembre 2011, JORF n°0284 du 8 décembre 2011 (BO Agri n°49 du 9 décembre 2011 per INAO). Légifrance shows the decree in force on 25 Sept 2026, last updated 09/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-07",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20244.pdf",
+    "quote": "AOC « Monthélie » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | ', PDF p.1. Premier cru is 'blancs ou rouges' and the DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. BO Agri is unreachable and this item is not archived. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Auxey-Duresses",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Auxey-Duresses.pdf",
+   "quote": "L’appellation d’origine contrôlée « Auxey-Duresses » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1776 du 5 décembre 2011, JORF n°0283 du 7 décembre 2011 (BO Agri n°49 du 9 décembre 2011). Légifrance shows the decree in force on 25 Sept 2026, last updated 08/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-05",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20189.pdf",
+    "quote": "AOC « Auxey-Duresses » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | ', PDF p.1. Premier cru is 'blancs ou rouges' and the DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. BO Agri is unreachable and this item is not archived. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Saint-Romain",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCSaint-Romain.pdf",
+   "quote": "L’appellation d’origine contrôlée « Saint-Romain » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par l’arrêté du 10 décembre 2024 publié au JORF n°0293 du 12 décembre 2024, BO du MASA n°7 du 13 février 2025. Légifrance marks the old décret n° 2011-1402 as 'abrogée depuis le 13/12/2024'. The official BO text was read from a Wayback Machine capture.",
+    "text_date": "2024-12-10",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-7393d810-0711-48d8-89be-ed50752a6aa4/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Saint-Romain » est réservée aux vins tranquilles blancs ou rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III, 1°, PDF p.1. Section III 2° reserves the DGC 'Côte de Beaune' for 'vins tranquilles rouges'. Source was Wayback capture 20251219040618, digest checked. That file is byte-identical to the CAVB copy (cavb.fr/wp-content/uploads/2025/02/CDC_Saint-Romain.pdf). The in-force text is the 2024 arrêté, not the 2011 decree. The rule and the sentence are the same as in scope.json.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Meursault",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Meursault.pdf",
+   "quote": "L’appellation d’origine contrôlée « Meursault » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 4 juin 2026 (NOR AGRT2610194A), publié au JORF n°0132 du 7 juin 2026, BO Agri du MAASA n°24 du 11 juin 2026. Article 2 of the arrêté repeals décret n° 2011-1689. The official BO text was read from a Wayback Machine capture.",
+    "text_date": "2026-06-04",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-f14f68d0-cb2a-49ca-9fa5-edd6b2828624/telechargement",
+    "quote": "AOC « Meursault » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is now a table. The quote is its first row, cells joined by ' | ', PDF p.1. Source was Wayback capture 20260611124655, digest checked. The CAVB copy has 99.96% identical text. Other rows restrict some wines. Wines from parcels in the Blagny aire parcellaire are 'Vins tranquilles blancs'. Several named climats are white only. The DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. The arrêté cites a CNAOV proposal of 27 November 2025, which follows the June 2025 PNO. The 2010 PNO sentence quoted in scope.json no longer appears in the in-force text. The rule is unchanged.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Puligny-Montrachet",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCPuligny-Montrachet.pdf",
+   "quote": "L’appellation d’origine contrôlée « Puligny-Montrachet » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1298 du 12 octobre 2011, JORF n°0239 du 14 octobre 2011, published in BO Agri n°42 du 21 octobre 2011. Légifrance shows the decree in force on 25 Sept 2026, last updated 15/10/2011. The official BO text was read from a Wayback Machine capture.",
+    "text_date": "2011-10-12",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-437a4e9a-13eb-4d74-8d07-9711118e5d41/telechargement",
+    "quote": "AOC « Puligny-Montrachet » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | '. It is at p.116 of the 131-page BO n°42 compilation. Source was Wayback capture 20260111015154, digest checked. Other rows: wines from parcels in the Blagny aire parcellaire are 'Vins tranquilles blancs'. The climats Hameau de Blagny, La Garenne and Sous le Puits are white only. The DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Chassagne-Montrachet",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Chassagne-Montrachet.pdf",
+   "quote": "L’appellation d’origine contrôlée « Chassagne-Montrachet » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1753 du 2 décembre 2011, JORF n°0282 du 6 décembre 2011 (BO Agri n°49 du 9 décembre 2011 per INAO). Légifrance shows the decree in force on 25 Sept 2026, last updated 07/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-02",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20208.pdf",
+    "quote": "AOC « Chassagne-Montrachet » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | ', PDF p.2. Premier cru is 'blancs ou rouges' and the DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. BO Agri is unreachable and this item is not archived. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Saint-Aubin",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCSaint-Aubin.pdf",
+   "quote": "L’appellation d’origine contrôlée « Saint-Aubin » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1764 du 2 décembre 2011 (JORF 6 décembre 2011), modifié par le décret n° 2013-1111 du 2 décembre 2013 (JORF n°0282 du 5 décembre 2013, BO n°49 du 6 décembre 2013). Légifrance shows the 2011 decree in force on 25 Sept 2026, last updated 06/12/2013. The consolidated 2013 BO text could not be opened. The quote comes from the BIVB copy of the 2011 homologated text.",
+    "text_date": "2013-12-02",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20261.pdf",
+    "quote": "AOC « Saint-Aubin » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "I read the 2013 decree on Légifrance. Its Article 1 only replaces '3° du X du chapitre Ier' of the CDC (interactions causales). Section III on colour is therefore unchanged from the 2011 text. The quote is the first row of the section III table, cells joined by ' | ', PDF p.1. The DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. The consolidated 2013 BO copy could not be read. Its INAO link (agriculture.gouv.fr/telecharger/59750) returns 404, BO Agri doc ebbf3fef is unreachable, and neither is archived. The CAVB copy is the 2011 file with broken font encoding. text_date is the date of the latest amending act.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Santenay",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCSantenay.pdf",
+   "quote": "L’appellation d’origine contrôlée « Santenay » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1765 du 2 décembre 2011, JORF n°0282 du 6 décembre 2011 (BO Agri n°49 du 9 décembre 2011 per INAO). Légifrance shows the decree in force on 25 Sept 2026, last updated 07/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-12-02",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20265.pdf",
+    "quote": "AOC « Santenay » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | ', PDF p.1. Premier cru is 'blancs ou rouges' and the DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. BO Agri is unreachable and this item is not archived. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Maranges",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Maranges.pdf",
+   "quote": "L’appellation d’origine contrôlée « Maranges » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1703 du 30 novembre 2011, JORF n°0279 du 2 décembre 2011 (BO Agri n°49 du 9 décembre 2011). Légifrance shows the decree in force on 25 Sept 2026, last updated 03/12/2011. Text read from the BIVB-hosted copy of the homologated CDC.",
+    "text_date": "2011-11-30",
+    "source_url": "https://www.vins-bourgogne.fr/nos-vins-nos-terroirs/la-bourgogne-et-ses-appellations/gallery_files/site/321/19990/20237.pdf",
+    "quote": "AOC « Maranges » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III is a table. The quote is its first row, cells joined by ' | ', PDF p.1. Premier cru is 'blancs ou rouges' and the DGC 'Côte de Beaune' is 'Vins tranquilles rouges'. No later act was found on Légifrance or on the INAO page. BO Agri is unreachable and this item is not archived. The previous PNO sentence is not word for word in the in-force text.",
+    "spot_check": "Section III of the BIVB PDF (décret n° 2011-1703) is a table. Its first row has the cells 'AOC « Maranges »' and 'Vins tranquilles blancs ou rouges', and both appear word for word on the same row. The ' | ' in the quote is the entry's way of marking the cell boundary and is not text in the PDF. The premier cru row reads 'blancs ou rouges', and the DGC 'Côte de Beaune' row reads 'Vins tranquilles rouges'. The INAO page (maranges-7691) lists nothing after the 2011 decree, and CAVB lists the 2011 text. The source is an unofficial copy, since the official BO was not opened. The text says white or red, so both flags are true."
+   }
+  },
+  {
+   "app": "Bouzeron",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Bouzeron.pdf",
+   "quote": "L’appellation d’origine contrôlée « Bouzeron » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1496 du 9 novembre 2011, JORF n°0262 du 11 novembre 2011, published in BO Agri n°46 du 17 novembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-11-09",
+    "source_url": "https://web.archive.org/web/20251219043712id_/https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-1fbaf2c5-d402-4eae-87ac-c9f35fdd144a/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Bouzeron » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The BO bundle was opened from the Wayback capture of 2025-12-19 because the BO host was unreachable. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Rully",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Rully.pdf",
+   "quote": "L’appellation d’origine contrôlée « Rully » est réservée aux vins tranquilles blancs et rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1704 du 30 novembre 2011, JORF n°0279 du 2 décembre 2011 (BO Agri n°49 du 9 décembre 2011 per INAO). Text opened from a BIVB-hosted copy carrying that homologation header, not from the BO itself",
+    "text_date": "2011-11-30",
+    "source_url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/gallery_files/site/321/19990/20260.pdf",
+    "quote": "AOC « Rully » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The in-force text has no colour sentence. Section III is a table, and \" | \" marks the cell boundary in the quote. The second row, for premier cru and climat names, also reads \"Vins tranquilles blancs ou rouges\". The previous PNO sentence (\"blancs et rouges\") is not in the in-force text, but the rule is the same. The BO host was unreachable, and the INAO page gives only a generic BO link. The CAVB copy (CdC-Rully-02-12-2011.pdf) would not extract because of broken font encoding. Légifrance title search shows no later version.",
+    "spot_check": "Section III of the BIVB PDF (décret n° 2011-1704) is a table. The row 'AOC « Rully »' has the cell 'Vins tranquilles blancs ou rouges', and the premier cru and climat row has the same wording. The ' | ' in the quote only marks the cell boundary. The INAO page (rully-blanc-7740) lists nothing after the 2011 decree, and CAVB lists the 2011 text. The CAVB copy has broken font encoding, which confirms the entry's note. The source is an unofficial copy, since the official BO was not opened. The text says white or red, so both flags are true."
+   }
+  },
+  {
+   "app": "Mercurey",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Mercurey.pdf",
+   "quote": "L’appellation d’origine contrôlée « Mercurey » est réservée aux vins tranquilles blancs et rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par l’arrêté du 1er septembre 2025, JORF n°0204 du 3 septembre 2025 texte n°30, published in BO Agri n°37 du 11 septembre 2025 (document 84e3b2df). Text opened from the CAVB-hosted copy stamped \"Publié au BO du MASA le 11 septembre 2025\"",
+    "text_date": "2025-09-01",
+    "source_url": "https://www.cavb.fr/wp-content/uploads/2026/05/CDC-MERCUREY-01-09-2025.pdf",
+    "quote": "AOC « Mercurey » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "This replaces the 2011 décret text. I read Article 1 of the arrêté on Légifrance (JORFTEXT000052180580), and it points to the BO document 84e3b2df. The BO host was unreachable and has no Wayback capture, so the text came from the CAVB copy. Section III is a table, and \" | \" marks the cell boundary. I confirmed it by rendering pages 1 and 2. The premier cru and climat row also reads \"Vins tranquilles blancs ou rouges\". The previous PNO sentence is not in the in-force text, but the rule is the same.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Givry",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Givry.pdf",
+   "quote": "L’appellation d’origine contrôlée « Givry » est réservée aux vins tranquilles blancs et rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1497 du 9 novembre 2011, JORF n°0262 du 11 novembre 2011, published in BO Agri n°46 du 17 novembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-11-09",
+    "source_url": "https://web.archive.org/web/20251219043712id_/https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-1fbaf2c5-d402-4eae-87ac-c9f35fdd144a/telechargement",
+    "quote": "AOC « Givry » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The in-force text has no colour sentence. Section III is a table, and \" | \" marks the cell boundary. The premier cru and climat row also reads \"Vins tranquilles blancs ou rouges\". The previous PNO sentence (\"blancs et rouges\") is not in the in-force text, but the rule is the same. The BO bundle was opened from the Wayback capture of 2025-12-19.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Montagny",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Montagny.pdf",
+   "quote": "L’appellation d’origine contrôlée « Montagny » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1530 du 14 novembre 2011, JORF n°0265 du 16 novembre 2011, published in BO Agri n°47 du 25 novembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-11-14",
+    "source_url": "https://web.archive.org/web/20251219232116id_/https://info.agriculture.gouv.fr/boagri/document_administratif-a6d08a6a-3210-42d2-8c23-0869f0c8fd25/telechargement",
+    "quote": "AOC « Montagny » | Vins tranquilles blancs",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The in-force text has no colour sentence. Section III is a table, and \" | \" marks the cell boundary. The premier cru and climat row also reads \"Vins tranquilles blancs\". The previous PNO sentence is not in the in-force text, but the rule is the same. The BO bundle was opened from the Wayback capture of 2025-12-19. The BIVB copy (20243.pdf) has the same header.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Pouilly-Fuissé",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Pouilly-Fuisse.pdf",
+   "quote": "L’appellation d’origine contrôlée « Pouilly-Fuissé » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par l’arrêté du 5 novembre 2020, JORF n°0282 du 21 novembre 2020 texte n°41, published in BO Agri n°48 du 26 novembre 2020. No later homologation found on Légifrance or the CAVB list",
+    "text_date": "2020-11-05",
+    "source_url": "https://web.archive.org/web/20240530231648id_/https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-4cfb89bd-e375-438d-90ff-d88fb1a54e0a/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Pouilly-Fuissé » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "This replaces the 2011 décret text. The BO PDF was opened from the Wayback capture of 2024-05-30. It is stamped \"Publié au BO agri le 26/11/2020\", and its header omits the year after \"5 novembre\". The INAO page also lists a July 2021 EU communication approving the standard amendment, which is not a new national text. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Pouilly-Loché",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Pouilly-Loche.pdf",
+   "quote": "L’appellation d’origine contrôlée « Pouilly-Loché » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges de l’AOP homologué par l’arrêté du 18 novembre 2024, JORF n°0275 du 21 novembre 2024 texte n°21, published in BO Agri n°48 du 28 novembre 2024 (document e3cbcf4c). Text opened from the CAVB-hosted copy stamped \"Publié au Bulletin Officiel du MASAF du 28 novembre 2024\"",
+    "text_date": "2024-11-18",
+    "source_url": "https://www.cavb.fr/wp-content/uploads/2024/12/CDC_Pouilly_Loche_cn240625.pdf",
+    "quote": "L’appellation d’origine protégée « Pouilly-Loché » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "This replaces the 2011 décret text and adds premiers crus. The BO host was unreachable, and Wayback has only the HTML page for this BO document, so the text came from the CAVB copy. The rule is the same as before, but the wording now says \"protégée\" where the previous PNO quote said \"contrôlée\", so the quote differs.",
+    "spot_check": "The quote appears exactly in the CAVB PDF, which is stamped 'Publié au Bulletin Officiel du MASAF du 28 novembre 2024' and 'homologué par l'arrêté du 18 novembre 2024 publié au JORF du 21 novembre 2024'. The INAO page (pouilly-loche-18185) confirms that arrêté and BO n°48 of 28 Nov 2024 (document e3cbcf4c) as current, with nothing later. The only Wayback capture of the BO item is a 21 Nov 2024 page that says 'en cours de publication', so the official PDF was not opened. The text says white only, so white=true and red=false. The quote says 'protégée' where the earlier text said 'contrôlée', as the entry notes."
+   }
+  },
+  {
+   "app": "Pouilly-Vinzelles",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCPouilly-Vinzelles.pdf",
+   "quote": "L’appellation d’origine contrôlée « Pouilly-Vinzelles » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges de l’AOP homologué par l’arrêté du 18 novembre 2024, JORF n°0274 du 20 novembre 2024 texte n°51, published in BO Agri n°48 du 28 novembre 2024",
+    "text_date": "2024-11-18",
+    "source_url": "https://web.archive.org/web/20260316103355id_/https://info.agriculture.gouv.fr/boagri/document_administratif-5a8ac97a-e1f0-44bd-87fd-3e0602b468d2/telechargement",
+    "quote": "L’appellation d’origine protégée « Pouilly-Vinzelles » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "This replaces the 2011 décret text and adds a premier cru. The BO download is a .docx, opened from the Wayback capture of 2026-03-16. The CAVB PDF copy (CDC_Pouilly_Vinzelles_cn240625.pdf) has an identical sentence. The rule is the same as before, but the wording now says \"protégée\" where the previous PNO quote said \"contrôlée\", so the quote differs.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Saint-Véran",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Saint-Veran.pdf",
+   "quote": "L’appellation d’origine contrôlée « Saint-Véran » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par l’arrêté du 29 novembre 2021, JORF n°0283 du 5 décembre 2021 texte n°74, published in BO Agri n°2 du 6 janvier 2022 (document 3347bbb6). Text opened from the CAVB-hosted copy stamped \"Publié au BO du MAA du 6 janvier 2022\"",
+    "text_date": "2021-11-29",
+    "source_url": "https://www.cavb.fr/wp-content/uploads/2022/01/Cahier-des-charges-AOC-Saint-Veran-Homologue-29-novembre-2021.pdf",
+    "quote": "L’appellation d’origine contrôlée « Saint-Véran » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "This replaces the 2011 décret text. A later arrêté of 23 November 2022 only sets exceptional provisions and is not a new cahier. The BO host was unreachable and Wayback has no PDF capture, so the text came from the CAVB copy. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Viré-Clessé",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Vire-Clesse.pdf",
+   "quote": "L’appellation d’origine contrôlée « Viré-Clessé » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par l’arrêté du 27 juillet 2026, JORF n°0176 du 30 juillet 2026 texte n°24 (BO document 2b209636 per Article 1). Text opened from the CAVB-hosted copy stamped \"Publié au BO Agri du MAASA le 13 août 2026\"",
+    "text_date": "2026-07-27",
+    "source_url": "https://www.cavb.fr/wp-content/uploads/2026/08/CDC-_Vire-Clesse_26.pdf",
+    "quote": "L’appellation d’origine contrôlée « Viré-Clessé » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "This replaces the 2011 décret text and its 2018 amendment. I read Article 1 of the arrêté on Légifrance (JORFTEXT000054555275). The arrêté title says \"appellation d’origine protégée\", while the cahier text says \"contrôlée\". The BO host was unreachable, so the text came from the CAVB copy. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Irancy",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Irancy.pdf",
+   "quote": "L’appellation d’origine contrôlée « Irancy » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par décret n° 2011-1758 du 2 décembre 2011 (JORF n°0282 du 6 décembre 2011); quote read from a BIVB-hosted copy of that text, not from the official BO Agri file",
+    "text_date": "2011-12-02",
+    "source_url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/gallery_files/site/321/19990/20230.pdf",
+    "quote": "L’appellation d’origine contrôlée « Irancy » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The decree text on Legifrance (JORFTEXT000024924038) says only that the cahier is published in the BO Agri. It gives no document link and carries no annex. The INAO product page's BO link (AOC-SOMM49-01122011-1-CDC-Bellet.pdf) was opened and does not contain Irancy. The BIVB PDF is headed 'homologué par le décret n° 2011-1758 du 2 décembre 2011, JORF du 6 décembre 2011' (PDF created January 2012). A Legifrance title search found no later homologation or cahier modification. The only later texts are the 2018 and 2022 arrêtés 'portant dispositions exceptionnelles'.",
+    "spot_check": "The quote appears exactly in the BIVB PDF, headed 'homologué par le décret n° 2011-1758 du 2 décembre 2011, JORF du 6 décembre 2011' (PDF created 9 Jan 2012). The INAO product page (irancy-7698) names that decree as the current cahier. The only later texts it lists are the arrêtés of 12 July 2018 and 14 April 2022 'portant dispositions exceptionnelles', and neither is a new cahier. The CAVB list also gives the 2011 text as current. I opened the INAO-linked BO file AOC-SOMM49-01122011-1-CDC-Bellet.pdf, and it has no Irancy text, as the entry says. The source is an interprofession copy, not the official BO file. Légifrance was behind a Cloudflare check and was not used. The text says red only, so white=false and red=true."
+   }
+  },
+  {
+   "app": "Gevrey-Chambertin",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCGevreyChambertin.pdf",
+   "quote": "L’appellation d’origine contrôlée « Gevrey-Chambertin » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par décret n° 2011-1381 du 25 octobre 2011 (JORF n°0251 du 28 octobre 2011); publié au BO Agri n°44 du 4 novembre 2011 (multi-AOC bundle)",
+    "text_date": "2011-10-25",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-b0de3df4-2bfa-4b92-8e50-9fe5d7d24d73/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Gevrey-Chambertin » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The Gevrey-Chambertin cahier sits inside a 304-page BO bundle (Fitou through Crémant d'Alsace). It was read via Wayback https://web.archive.org/web/20250905205953id_/https://info.agriculture.gouv.fr/boagri/document_administratif-b0de3df4-2bfa-4b92-8e50-9fe5d7d24d73/telechargement (SHA-1 matched). Neither Legifrance nor the INAO product page shows any later homologation or modification.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Chambolle-Musigny",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Chambolle-Musigny.pdf",
+   "quote": "L’appellation d’origine contrôlée « Chambolle-Musigny » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par décret n° 2011-1545 du 14 novembre 2011 (JORF n°0266 du 17 novembre 2011); quote read from a BIVB-hosted copy of that text, not from the official BO Agri file",
+    "text_date": "2011-11-14",
+    "source_url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/gallery_files/site/321/19990/20204.pdf",
+    "quote": "L’appellation d’origine contrôlée « Chambolle-Musigny » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The official BO document the INAO page names (BO n°47 du 25 novembre 2011, document_administratif-e86a7a8a-...) was opened via Wayback (SHA-1 matched). Its PDF contains only the first five cahiers (Cassis to Pommard), so Chambolle-Musigny is not in it. The BIVB PDF is headed 'homologué par le décret n° 2011-1545 du 14 novembre 2011, JORF du 17 novembre 2011' (PDF created January 2012). The Legifrance decree has no annex, and a title search found no later homologation or modification.",
+    "spot_check": "The quote appears exactly in the BIVB PDF, headed as homologated by décret n° 2011-1545 (PDF created 6 Jan 2012). The INAO page (chambolle-musigny-7683) lists no text after the 2011 decree, and CAVB also lists the 2011 text as current. I opened the INAO-linked BO bundle e86a7a8a from Wayback, and its SHA-1 matches the CDX digest. It holds Cassis, Crozes-Hermitage, Gigondas, Languedoc, Lirac and Pommard, which is six cahiers, not five as the entry says. Chambolle-Musigny is not in it, so the source is an unofficial copy of the in-force text. The text says red only, so white=false and red=true."
+   }
+  },
+  {
+   "app": "Vosne-Romanée",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCVosne-Romanee.pdf",
+   "quote": "L’appellation d’origine contrôlée « Vosne-Romanée » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 24 décembre 2024 (NOR AGRT2430968A) publié au JORF n°0001 du 1er janvier 2025 (texte n°69); cahier publié au BO Agri du MASA du 27 mars 2025",
+    "text_date": "2024-12-24",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-aa3dec41-6530-42d2-b806-f02074478fba/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Vosne-Romanée » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Read via Wayback https://web.archive.org/web/20251207051137id_/https://info.agriculture.gouv.fr/boagri/document_administratif-aa3dec41-6530-42d2-b806-f02074478fba/telechargement (SHA-1 matched). No later homologation was found on Legifrance.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Pommard",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCPommard.pdf",
+   "quote": "L’appellation d’origine contrôlée « Pommard » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1510 du 10 novembre 2011, JORF n°0264 du 15 novembre 2011, published in BO Agri n°47 du 25 novembre 2011. Légifrance shows the decree in force on 25 Sept 2026, last updated 16/11/2011. The official BO text was read from a Wayback Machine capture.",
+    "text_date": "2011-11-10",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-e86a7a8a-07ef-470c-b050-7de95dcd5da4/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Pommard » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "BO n°47 compilation, 120 pp. The quote is at p.106. Source was Wayback capture 20251212110201, digest checked. The BIVB copy (19990/20251.pdf) has the same sentence. No later act was found on Légifrance or on the INAO page. The sentence is the same as the one in scope.json.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Volnay",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Volnay.pdf",
+   "quote": "L’appellation d’origine contrôlée « Volnay » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 20 février 2026 (NOR AGRT2605003A), publié au JORF n°0048 du 25 février 2026, BO Agri n°09 du 5 mars 2026. Légifrance marks the old décret n° 2011-1535 as 'abrogée depuis le 26/02/2026'. Text read from the CAVB-hosted copy, which carries the header 'Publié au BO AGRI du MASA du jeudi 5 mars 2026'.",
+    "text_date": "2026-02-20",
+    "source_url": "https://www.cavb.fr/wp-content/uploads/2026/03/CDC_Volnay_cn250910.pdf",
+    "quote": "L'appellation d'origine contrôlée « Volnay » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III, PDF p.1. The in-force text is the 2026 arrêté, not the 2011 decree. The official BO PDF (info.agriculture.gouv.fr/boagri/document_administratif-3c0ee7f6-d1d2-4a6f-b5ef-592027ddaf01/telechargement) could not be reached, and only its landing page is archived (Wayback 20260612232214). That landing page confirms the title, the arrêté and the 05-03-2026 publication date. The text uses straight apostrophes, while the curly-apostrophe sentence in scope.json came from the 2010 PNO. The rule is unchanged.",
+    "spot_check": "The quote appears exactly in the CAVB PDF, with straight apostrophes. The PDF is stamped 'Publié au BO AGRI du MASA du jeudi 5 mars 2026' and 'homologué par arrêté du 20 février 2026, publié au JORF du 25 février 2026'. The INAO page (volnay-24736) confirms the arrêté of 20 Feb 2026 and BO n°09 of 5 March 2026 as the current cahier. I read the archived BO landing page (Wayback 20260612232214). It gives the same title and date and states that the document 'n'est modifié par aucun autre document administratif'. The official PDF (about 210 KB) is a different file from the CAVB copy (158 KB) and was not opened. The CAVB list also points to the 2026 text. The text says red only, so white=false and red=true."
+   }
+  },
+  {
+   "app": "Blagny",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Blagny.pdf",
+   "quote": "L’appellation d’origine contrôlée « Blagny » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par l’arrêté du 8 juin 2026 (NOR AGRT2610195A), publié au JORF n°0135 du 11 juin 2026, BO Agri du MAASA n°26 du 25 juin 2026. Légifrance marks the old décret n° 2011-1690 as 'abrogée depuis le 12/06/2026'. The official BO text was read from a Wayback Machine capture.",
+    "text_date": "2026-06-08",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-8014d4a0-f691-4399-b6d4-ca4ad830e24e/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Blagny » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Section III, PDF p.1. Source was Wayback capture 20260826152557, digest checked. The CAVB copy (2026/06/CDC_Blagny_2026-.pdf) has the same sentence. The Légifrance title calls it an 'appellation d'origine protégée'. White wines from the Blagny area are sold under Meursault or Puligny-Montrachet. The in-force text is the 2026 arrêté. The rule and the sentence are the same as in scope.json.",
+    "spot_check": "The official BO PDF was opened from Wayback capture 20260826152557. Its SHA-1 matches the CDX digest 7WG5DCECHAJEMVH3FZERZXLK72F5K7PK. The header reads 'Publié au BO AGRI du MAASA du 25 juin 2026' and 'Homologué par l'arrêté du 8 juin 2026, publié au JORF du 11 juin 2026'. The quote is exact in Section III. The CAVB copy (CDC_Blagny_2026-.pdf) has the same sentence. The INAO page (blagny-ou-blagny-cote-de-beaune-23153) lists this arrêté and BO n°26 of 25 June 2026 as current, with nothing later. The text says red only, so white=false and red=true."
+   }
+  },
+  {
+   "app": "Côte de Beaune-Villages",
+   "white_allowed": false,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCCoteDeBeaune-Villages.pdf",
+   "quote": "L’appellation d’origine contrôlée « Côte de Beaune-Villages » est réservée aux vins tranquilles rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1584 du 17 novembre 2011, JORF n°0269 du 20 novembre 2011, published in BO Agri n°47 du 25 novembre 2011. Légifrance shows the decree in force on 25 Sept 2026, last updated 21/11/2011. The official BO text was read from a Wayback Machine capture.",
+    "text_date": "2011-11-17",
+    "source_url": "https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-a7483330-14bc-43ce-8ecf-73c452b19a11/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Côte de Beaune-Villages » est réservée aux vins tranquilles rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "This is the document linked as 'Cahier des charges du 17/11/2011' on the INAO product page. It is a 66-page BO compilation and the quote is at p.16. Source was Wayback capture 20220808004049, digest checked. The BIVB copy (19990/20219.pdf) has the same sentence. No later act was found on Légifrance or on the INAO page. The sentence is the same as the one in scope.json.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Montrachet",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCMontrachet.pdf",
+   "quote": "L’appellation d’origine contrôlée « Montrachet » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1531 du 14 novembre 2011, JORF n°0265 du 16 novembre 2011, published in BO Agri n°47 du 25 novembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-11-14",
+    "source_url": "https://web.archive.org/web/20251219232116id_/https://info.agriculture.gouv.fr/boagri/document_administratif-a6d08a6a-3210-42d2-8c23-0869f0c8fd25/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Montrachet » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The BO bundle, which also covers Montagny, was opened from the Wayback capture of 2025-12-19 because the BO host was unreachable. The BIVB-hosted copy (gallery_files/site/321/19990/20245.pdf) has the same sentence. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Chevalier-Montrachet",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Chevalier-Montrachet.pdf",
+   "quote": "L’appellation d’origine contrôlée « Chevalier-Montrachet » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1493 du 9 novembre 2011, JORF n°0262 du 11 novembre 2011, published in BO Agri n°46 du 17 novembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-11-09",
+    "source_url": "https://web.archive.org/web/20251219043712id_/https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-1fbaf2c5-d402-4eae-87ac-c9f35fdd144a/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Chevalier-Montrachet » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The BO bundle, which also covers Bouzeron and Givry, was opened from the Wayback capture of 2025-12-19 because the BO host was unreachable. The sentence is identical to the previous record.",
+    "spot_check": "The BO bundle was opened from the source URL on Wayback (capture 20251219043712). Its SHA-1 matches the CDX digest QFZUPCOTLAL3N32MNCW54ALEGPATDRAV. The bundle is 99 pages and covers Bourgogne mousseux, Chevalier-Montrachet, Bouzeron, Givry, Listrac-Médoc and others. The Chevalier-Montrachet cahier is headed 'homologué par le décret n° 2011-1493 du 9 novembre 2011', and the quote is exact in its Section III. The INAO page (chevalier-montrachet-7678) lists nothing after the 2011 decree and links this BO item. CAVB also lists the 2011 text. The text says white only, so white=true and red=false."
+   }
+  },
+  {
+   "app": "Bâtard-Montrachet",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCBatard-Montrachet.pdf",
+   "quote": "L’appellation d’origine contrôlée « Bâtard-Montrachet » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1724 du 30 novembre 2011, JORF n°0280 du 3 décembre 2011 (BO Agri n°49 du 9 décembre 2011 per INAO). Text opened from a BIVB-hosted copy carrying that homologation header, not from the BO itself",
+    "text_date": "2011-11-30",
+    "source_url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/gallery_files/site/321/19990/20190.pdf",
+    "quote": "L’appellation d’origine contrôlée « Bâtard-Montrachet » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The official BO copy could not be opened. The BO host was unreachable, the INAO page gives only a generic BO link for this bundle, and no Wayback capture of that bundle was found. The copy used is the one linked from the BIVB appellation page. Its header reads \"homologué par le décret n° 2011-1724 du 30 novembre 2011, JORF du 3 décembre 2011\". For Montrachet, the BIVB copy matches the BO text word for word, which supports its fidelity here. Légifrance title search and the CAVB list show no later version. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Bienvenues-Bâtard-Montrachet",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCBienvenues-Batard-Montrachet.pdf",
+   "quote": "L’appellation d’origine contrôlée « Bienvenues-Bâtard-Montrachet » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1822 du 7 décembre 2011, JORF n°0284 du 8 décembre 2011. Text opened from a BIVB-hosted copy carrying that homologation header, not from the BO itself",
+    "text_date": "2011-12-07",
+    "source_url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/gallery_files/site/321/19990/20192.pdf",
+    "quote": "L’appellation d’origine contrôlée « Bienvenues-Bâtard-Montrachet » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The INAO product page links a BO n°49 bundle (document 6d8683b3). I opened its Wayback copy and it does not contain Bienvenues-Bâtard-Montrachet. The BO host itself was unreachable. The copy used is BIVB-hosted, and its header reads \"homologué par le décret n° 2011-1822 du 7 décembre 2011, JORF du 8 décembre 2011\". The header has a typo (\"BIENBENUES\"), but the body sentence is correct. In the PDF the sentence breaks across two lines, and the quote joins them with one space. Légifrance title search and the CAVB list show no later version.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Criots-Bâtard-Montrachet",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Criots-Batard-Montrachet.pdf",
+   "quote": "L’appellation d’origine contrôlée « Criots-Bâtard-Montrachet » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1687 du 28 novembre 2011, JORF n°0277 du 30 novembre 2011, published in BO Agri n°48 du 2 décembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-11-28",
+    "source_url": "https://web.archive.org/web/20260111015216id_/https://info.agriculture.gouv.fr/boagri/document_administratif-dc895811-a5ae-47c2-93be-bbeaf8a96f50/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Criots-Bâtard-Montrachet » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The BO bundle (the same one as Charlemagne) was opened from the Wayback capture of 2026-01-11. In the PDF the sentence breaks after \"tranquilles\", and the quote joins the two lines with one space. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Corton-Charlemagne",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCCorton-Charlemagne.pdf",
+   "quote": "L’appellation d’origine contrôlée « Corton-Charlemagne » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1380 du 25 octobre 2011, JORF n°0251 du 28 octobre 2011, published in BO Agri n°44 du 4 novembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-10-25",
+    "source_url": "https://web.archive.org/web/20250905205953id_/https://info.agriculture.gouv.fr/boagri/document_administratif-b0de3df4-2bfa-4b92-8e50-9fe5d7d24d73/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Corton-Charlemagne » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The BO Agri bundle was opened from the Wayback capture of 2025-09-05 because the BO host was unreachable. Its header reads \"homologué par le décret n° 2011-1380 du 25 octobre 2011, JORF du 28 octobre 2011\". The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Charlemagne",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCCharlemagne.pdf",
+   "quote": "L’appellation d’origine contrôlée «Charlemagne» est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1688 du 28 novembre 2011, JORF n°0277 du 30 novembre 2011, published in BO Agri n°48 du 2 décembre 2011. No later homologation found (INAO page, Légifrance title search, CAVB list)",
+    "text_date": "2011-11-28",
+    "source_url": "https://web.archive.org/web/20260111015216id_/https://info.agriculture.gouv.fr/boagri/document_administratif-dc895811-a5ae-47c2-93be-bbeaf8a96f50/telechargement",
+    "quote": "L’appellation d’origine contrôlée «Charlemagne» est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The BO bundle was opened from the Wayback capture of 2026-01-11 because the BO host was unreachable. In the source there is no space inside the guillemets. The sentence is identical to the previous record.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Corton",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCCorton.pdf",
+   "quote": "L’appellation d’origine contrôlée « Corton » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par le décret n° 2011-1390 du 26 octobre 2011, JORF n°0252 du 29 octobre 2011, published in BO Agri n°44 du 4 novembre 2011. No later homologation or modification found (INAO product page, Légifrance JORF title search, CAVB list)",
+    "text_date": "2011-10-26",
+    "source_url": "https://web.archive.org/web/20260110142938id_/https://info.agriculture.gouv.fr/boagri/document_administratif-7b3c14e3-4105-489a-91a6-3e8b7ee78017/telechargement",
+    "quote": "AOC « Corton » | Vins tranquilles blancs ou rouges",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The in-force text has no colour sentence. Section III is a two-column table, and \" | \" marks the cell boundary in the quote. Confirmed by rendering page 12 of the BO PDF. The second row reads \"AOC « Corton » suivie du nom d’un des climats visés au point II | Vins tranquilles rouges\", so a Corton labelled with a climat name must be red and white Corton can only use the bare name. The previous PNO sentence does not appear in the in-force text. The official BO Agri host info.agriculture.gouv.fr could not be reached on 2026-09-25 (TCP timeout from this machine and ECONNREFUSED through WebFetch), so the BO PDF was opened from the Wayback Machine capture of 2026-01-10.",
+    "spot_check": null
+   }
+  },
+  {
+   "app": "Musigny",
+   "white_allowed": true,
+   "red_allowed": true,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCMusigny.pdf",
+   "quote": "L’appellation d’origine contrôlée « Musigny » est réservée aux vins tranquilles blancs ou rouges.",
+   "in_force": {
+    "verified": false,
+    "text_status": "cahier des charges homologué par décret n° 2011-1438 du 3 novembre 2011 (JORF n°0257 du 5 novembre 2011), modifié par décret n° 2013-1084 du 28 novembre 2013 (JORF 1er décembre 2013); quote read from a BIVB-hosted copy of the 2011 text, not from the official BO Agri file",
+    "text_date": "2011-11-03",
+    "source_url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/gallery_files/site/321/19990/20247.pdf",
+    "quote": "L’appellation d’origine contrôlée « Musigny » est réservée aux vins tranquilles blancs ou rouges.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "The 2013 decree (Legifrance JORFTEXT000028254232, read in full) replaces only chapter I section X 3° (interactions causales) and orders republication in the BO. The colour section is untouched. That consolidated 2013 BO text was not opened. The BIVB PDF is headed 'homologué par le décret n° 2011-1438 du 3 novembre 2011, JORF du 5 novembre 2011'. No later text was found on Legifrance.",
+    "spot_check": "The quote appears exactly in the BIVB PDF, but that PDF is the original 2011 text (décret n° 2011-1438, PDF created 6 Jan 2012). The INAO page (musigny-rouge-8368) shows a newer homologated cahier, 'homologué par décret n°2013-1084 du 28 novembre 2013', republished in BO n°49 of 6 Dec 2013. That makes the source a superseded version. I could not open the 2013 text. The INAO link (agriculture.gouv.fr/telecharger/59744) returns 404 and has no Wayback capture. The 2013 PNO draft (PNOCDCAOCMusigny.pdf) returns 404 and is not archived. Légifrance was behind a Cloudflare check, so I could not check the entry's claim that the 2013 decree changed only X 3°. The colour rule is supported, because INAO lists separate current products 'Musigny blanc' and 'Musigny rouge'. Still, the quote has not been checked against the text in force."
+   }
+  },
+  {
+   "app": "Chablis Grand Cru",
+   "white_allowed": true,
+   "red_allowed": false,
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCChablisGrandCru.pdf",
+   "quote": "L’appellation d’origine contrôlée « Chablis Grand Cru » est réservée aux vins tranquilles blancs.",
+   "in_force": {
+    "verified": true,
+    "text_status": "cahier des charges homologué par arrêté du 24 octobre 2024 (NOR AGRT2416569A) publié au JORF n°0266 du 9 novembre 2024 (texte n°39); cahier publié au BO du MASA le 13 février 2025",
+    "text_date": "2024-10-24",
+    "source_url": "https://info.agriculture.gouv.fr/boagri/document_administratif-f26dd8c5-103a-488e-9bd8-069c6053f605/telechargement",
+    "quote": "L’appellation d’origine contrôlée « Chablis grand cru » est réservée aux vins tranquilles blancs.",
+    "accessed": "2026-09-25T16:55Z",
+    "note": "Read from the Wayback capture https://web.archive.org/web/20250703102018id_/https://info.agriculture.gouv.fr/boagri/document_administratif-f26dd8c5-103a-488e-9bd8-069c6053f605/telechargement, with the SHA-1 matching the archive digest. The in-force text writes 'grand cru' in lower case, while the previous PNO-based quote had 'Grand Cru'. The colour rule is unchanged. No later homologation was found on Legifrance.",
+    "spot_check": null
+   }
+  }
+ ],
+ "special_rules": [
+  {
+   "appellation": "Meursault",
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Meursault.pdf",
+   "quote": "Toutefois, pour les vins issus des parcelles incluses dans l’aire de production de l’appellation d’origine contrôlée « Blagny » l’appellation d’origine contrôlée « Meursault » est réservée aux seuls vins tranquilles blancs."
+  },
+  {
+   "appellation": "Puligny-Montrachet",
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDCPuligny-Montrachet.pdf",
+   "quote": "Toutefois pour les vins issus des parcelles incluses dans l’aire de production de l’appellation d’origine contrôlée « Blagny », l’appellation d’origine contrôlée « Puligny-Montrachet » est réservée au seuls vins blancs."
+  },
+  {
+   "appellation": "Chassagne-Montrachet (the same 'Côte de Beaune' suffix sentence appears in the Auxey-Duresses, Chorey-lès-Beaune, Ladoix, Maranges, Meursault, Monthélie, Pernand-Vergelesses, Puligny-Montrachet, Saint-Aubin, Saint-Romain and Santenay cahiers)",
+   "source_url": "https://extranet.inao.gouv.fr/fichier/PNOCDC-Chassagne-Montrachet.pdf",
+   "quote": "La dénomination géographique « Côte de Beaune » est réservée aux vins tranquilles rouges."
+  }
+ ]
+}

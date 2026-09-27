@@ -1,0 +1,571 @@
+[
+ {
+  "id": "inao",
+  "group": "data",
+  "short": "INAO parcels",
+  "title": "Délimitation Parcellaire des AOC Viticoles de l’INAO",
+  "publisher": "Institut national de l’origine et de la qualité (INAO), on data.gouv.fr",
+  "url": "https://www.data.gouv.fr/datasets/delimitation-parcellaire-des-aoc-viticoles-de-linao",
+  "licence": "Licence Ouverte / Open Licence",
+  "licence_url": "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Open_Licence.pdf",
+  "accessed": "2026-09-25",
+  "updated": "2026-09-21",
+  "version": "2026-09-21-delim-parcellaire-aoc-shp.zip",
+  "used_for": "Boundaries of the village appellations, the named premier cru climats and the grand crus. Every area and level figure in the atlas is computed from these parcel polygons, and the height, slope and aspect of each shape are read inside them.",
+  "quote": "Attribute the « Information » by acknowledging its source (at least the name of the « Producer ») and the date on which it was last updated.",
+  "quote_source": "https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Open_Licence.pdf",
+  "quote_lang": "en",
+  "attribution": "INAO, Délimitation Parcellaire des AOC Viticoles, file of 21 September 2026",
+  "notes": [
+   {
+    "label": "Licence as listed",
+    "text": "The data.gouv.fr API lists this dataset under the licence id fr-lo, titled Licence Ouverte / Open Licence.",
+    "source": "https://www.data.gouv.fr/api/1/datasets/delimitation-parcellaire-des-aoc-viticoles-de-linao/"
+   },
+   {
+    "label": "INAO notice",
+    "quote": "Les données communiquées ici ne le sont qu’à titre informatif. Les délimitations parcellaires officielles sont celles consultables sur les plans déposés en mairie ou auprès des services de l’INAO. A noter également que l’ensemble des délimitations parcellaires des AOC viticoles ne sont pas encore représentées, le travail de dématérialisation étant en cours.",
+    "lang": "fr",
+    "translation": "The data published here are for information only. The official parcel delimitations are the plans filed in town halls or held by INAO. Not every parcel delimitation of the wine appellations is shown yet, because digitisation is still under way.",
+    "source": "https://www.data.gouv.fr/datasets/delimitation-parcellaire-des-aoc-viticoles-de-linao"
+   }
+  ],
+  "feeds": [
+   "terroir",
+   "index",
+   "transects",
+   "villages",
+   "hero"
+  ],
+  "scripts": [
+   "01_inao.py",
+   "03_export.py",
+   "05_transects.py",
+   "06_villages.py",
+   "07_hero_art.py"
+  ],
+  "download": "https://static.data.gouv.fr/resources/delimitation-parcellaire-des-aoc-viticoles-de-linao/20260921-213954/2026-09-21-delim-parcellaire-aoc-shp.zip",
+  "download_bytes": 267322044
+ },
+ {
+  "id": "rge-alti",
+  "group": "data",
+  "short": "RGE ALTI",
+  "title": "RGE ALTI, digital terrain model",
+  "publisher": "Institut national de l’information géographique et forestière (IGN), Géoplateforme WMS-Raster",
+  "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_RGE-ALTI",
+  "service": "https://data.geopf.fr/wms-r?SERVICE=WMS&REQUEST=GetCapabilities",
+  "layer": "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES",
+  "licence": "Licence Ouverte / Open Licence 2.0",
+  "licence_url": "https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf",
+  "accessed": "2026-09-25",
+  "updated": "2026-09-10",
+  "used_for": "The elevation grid behind every height, slope and aspect figure, the cross-sections and the contour lines of the opening artwork.",
+  "quote": "Licence Ouverte / Open License (compatible ODC-BY, CC-BY 2.0)",
+  "quote_source": "https://data.geopf.fr/csw?REQUEST=GetRecordById&SERVICE=CSW&VERSION=2.0.2&OUTPUTSCHEMA=http://standards.iso.org/iso/19115/-3/mdb/2.0&elementSetName=full&ID=IGNF_RGE-ALTI",
+  "quote_lang": "fr",
+  "attribution": "IGN, RGE ALTI, revision of 10 September 2026",
+  "notes": [
+   {
+    "label": "Licence terms",
+    "quote": "its source (at least, the name of the “Grantor”) and the date of the most recent update of the reused “Information”.",
+    "lang": "en",
+    "source": "https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf"
+   },
+   {
+    "label": "IGN description",
+    "quote": "Le RGE ALTI® est un Modèle Numérique de Terrain (MNT) aux pas de 1 m et 5m décrivant la forme et l’altitude normale du sol.",
+    "lang": "fr",
+    "translation": "RGE ALTI is a digital terrain model at 1 m and 5 m spacing that describes the shape and normal height of the ground.",
+    "source": "https://data.geopf.fr/csw?REQUEST=GetRecordById&SERVICE=CSW&VERSION=2.0.2&OUTPUTSCHEMA=http://standards.iso.org/iso/19115/-3/mdb/2.0&elementSetName=full&ID=IGNF_RGE-ALTI"
+   }
+  ],
+  "feeds": [
+   "terroir",
+   "index",
+   "transects",
+   "villages",
+   "hero"
+  ],
+  "scripts": [
+   "02_terrain.py",
+   "05_transects.py",
+   "06_villages.py",
+   "07_hero_art.py"
+  ]
+ },
+ {
+  "id": "ign-basemaps",
+  "group": "data",
+  "short": "IGN basemaps",
+  "title": "Plan IGN, relief layers and aerial photographs",
+  "publisher": "IGN, Géoplateforme WMTS",
+  "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_PLAN-IGN",
+  "service": "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetCapabilities",
+  "licence": "Licence Ouverte / Open Licence 2.0",
+  "licence_url": "https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf",
+  "accessed": "2026-09-26",
+  "used_for": "The three basemaps of the interactive map, requested live from the Géoplateforme. Relief stacks the hillshade and the hydrography, with contour lines and then building footprints on closer views. Plan is Plan IGN. Aerial shows the BD ORTHO photographs, which also lie under the locator map of the cross-sections.",
+  "parts": [
+   {
+    "name": "Plan IGN v2",
+    "layer": "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
+    "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_PLAN-IGN"
+   },
+   {
+    "name": "High-resolution hillshade from the RGE ALTI",
+    "layer": "IGNF_ELEVATION.ELEVATIONGRIDCOVERAGE.SHADOW",
+    "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_RGE-ALTI"
+   },
+   {
+    "name": "Contour lines (Courbes de niveau)",
+    "layer": "ELEVATION.CONTOUR.LINE",
+    "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_COURBES-DE-NIVEAU"
+   },
+   {
+    "name": "Hydrography, from BD TOPO",
+    "layer": "HYDROGRAPHY.HYDROGRAPHY",
+    "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_BD-TOPO"
+   },
+   {
+    "name": "Buildings, from BD TOPO",
+    "layer": "BUILDINGS.BUILDINGS",
+    "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_BD-TOPO"
+   },
+   {
+    "name": "Aerial photographs (BD ORTHO)",
+    "layer": "ORTHOIMAGERY.ORTHOPHOTOS",
+    "url": "https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_BD-ORTHO"
+   }
+  ],
+  "quote": "Licence Ouverte / Open License (compatible ODC-BY, CC-BY 2.0)",
+  "quote_source": "https://data.geopf.fr/csw?REQUEST=GetRecordById&SERVICE=CSW&VERSION=2.0.2&OUTPUTSCHEMA=http://standards.iso.org/iso/19115/-3/mdb/2.0&elementSetName=full&ID=IGNF_PLAN-IGN",
+  "quote_lang": "fr",
+  "attribution": "IGN, Plan IGN, RGE ALTI hillshade, contour lines, BD TOPO and BD ORTHO via the Géoplateforme",
+  "notes": [
+   {
+    "label": "Same licence for every layer",
+    "text": "The WMTS capabilities link the other layers to the IGN metadata records of RGE ALTI, the contour lines, BD TOPO and BD ORTHO. Each of those records carries the same licence line and links to the same licence document.",
+    "source": "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+   },
+   {
+    "label": "About the hillshade",
+    "quote": "Ombrage calculé à partir du RGEAlti avec gdal : gdaldem hillshade -alt 80 -az 315 -z 2",
+    "lang": "fr",
+    "translation": "Shading computed from the RGE ALTI with gdal, using the command gdaldem hillshade -alt 80 -az 315 -z 2.",
+    "source": "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetCapabilities"
+   },
+   {
+    "label": "Display only",
+    "text": "The hillshade is a background image. The height, slope and aspect figures of the appellations, climats and grand crus are computed by the build from the RGE ALTI grid, not read from the hillshade."
+   }
+  ],
+  "feeds": [
+   "live"
+  ],
+  "scripts": []
+ },
+ {
+  "id": "brgm",
+  "group": "data",
+  "short": "BRGM geology",
+  "title": "Geological map of France at 1:50,000",
+  "publisher": "Bureau de recherches géologiques et minières (BRGM), GéoServices WMS",
+  "url": "https://infoterre.brgm.fr/page/cartes-geologiques",
+  "service": "https://geoservices.brgm.fr/geologie?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0",
+  "layer": "SCAN_D_GEOL50",
+  "licence": "Licence Ouverte / Open Licence 2.0",
+  "licence_url": "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf",
+  "accessed": "2026-09-26",
+  "used_for": "The geology layer on the interactive map, requested live as map images.",
+  "quote": "Les Données disponibles sur le site InfoTerre (infoterre.brgm.fr) sont soumises à la licence Ouverte / Open Licence Etalab Version 2.0 ci-dessous.",
+  "quote_source": "https://infoterre.brgm.fr/page/conditions-dutilisation-donnees",
+  "quote_lang": "fr",
+  "quote_translation": "The data available on the InfoTerre site (infoterre.brgm.fr) are subject to the Licence Ouverte / Open Licence Etalab Version 2.0 below.",
+  "attribution": "BRGM, geological map of France at 1:50,000",
+  "notes": [
+   {
+    "label": "Layer as listed",
+    "text": "The InfoTerre page of OGC services lists the layer SCAN_D_GEOL50 as “Cartes géologiques 1/50 000ième papier”, the paper geological maps at 1:50,000.",
+    "source": "https://infoterre.brgm.fr/page/geoservices-ogc"
+   },
+   {
+    "label": "Credit required",
+    "quote": "à la condition de citer la source (BRGM) et la date de dernière mise à jour.",
+    "lang": "fr",
+    "translation": "on condition that the source (BRGM) and the date of the last update are cited.",
+    "source": "https://infoterre.brgm.fr/page/conditions-dutilisation-donnees"
+   },
+   {
+    "label": "Scale warning",
+    "quote": "Les utilisateurs sont mis particulièrement en garde contre toute interprétation, utilisation ou présentation des données à une échelle plus grande que celle indiquée dans les métadonnées, par exemple à une échelle cadastrale pour un donnée numérisée à 1:25000.",
+    "lang": "fr",
+    "translation": "Users are specifically warned against interpreting, using or presenting the data at a larger scale than the one stated in the metadata, for example at cadastral scale for data digitised at 1:25,000.",
+    "source": "https://infoterre.brgm.fr/page/geoservices-ogc"
+   }
+  ],
+  "feeds": [
+   "live"
+  ],
+  "scripts": []
+ },
+ {
+  "id": "open-meteo",
+  "group": "data",
+  "short": "Open-Meteo",
+  "title": "Historical Weather API",
+  "publisher": "Open-Meteo",
+  "url": "https://open-meteo.com/en/docs/historical-weather-api",
+  "licence": "CC BY 4.0",
+  "licence_url": "https://open-meteo.com/en/licence",
+  "accessed": "2026-09-25",
+  "used_for": "Daily temperature and precipitation at the climate sites, from which every yearly climate index is computed.",
+  "quote": "API data are offered under Attribution 4.0 International (CC BY 4.0)",
+  "quote_source": "https://open-meteo.com/en/licence",
+  "quote_lang": "en",
+  "attribution": "Weather data by Open-Meteo.com",
+  "attribution_url": "https://open-meteo.com/",
+  "notes": [
+   {
+    "label": "Credit required",
+    "quote": "You must include a link next to any location Open-Meteo data are displayed",
+    "lang": "en",
+    "source": "https://open-meteo.com/en/licence"
+   },
+   {
+    "label": "Datasets served",
+    "quote": "Gap-free and consistent historical weather data using weather reanalysis from ERA5 (0.25°, from 1940) and ERA5-Land (0.1°, from 1950)",
+    "lang": "en",
+    "source": "https://open-meteo.com/en/docs/historical-weather-api"
+   },
+   {
+    "label": "Suggested citation for ERA5-Land",
+    "quote": "Muñoz Sabater, J. (2019). ERA5-Land hourly data from 2001 to present [Data set]. ECMWF. https://doi.org/10.24381/CDS.E2161BAC",
+    "lang": "en",
+    "source": "https://open-meteo.com/en/docs/historical-weather-api"
+   }
+  ],
+  "feeds": [
+   "climate"
+  ],
+  "scripts": [
+   "04_climate.py"
+  ]
+ },
+ {
+  "id": "era5",
+  "group": "data",
+  "short": "ERA5 and ERA5-Land",
+  "title": "ERA5-Land and ERA5 reanalysis",
+  "publisher": "Copernicus Climate Change Service (C3S), ECMWF",
+  "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land",
+  "licence": "CC BY 4.0",
+  "licence_url": "https://spdx.org/licenses/CC-BY-4.0.html",
+  "accessed": "2026-09-25",
+  "used_for": "The reanalysis behind the climate plate, served through Open-Meteo. ERA5-Land gives the temperatures and ERA5 the precipitation.",
+  "parts": [
+   {
+    "name": "ERA5-Land hourly data from 1950 to present",
+    "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land",
+    "doi": "10.24381/cds.e2161bac"
+   },
+   {
+    "name": "ERA5 hourly data on single levels from 1940 to present",
+    "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels",
+    "doi": "10.24381/cds.adbb2d47"
+   }
+  ],
+  "quote": "CC-BY licence",
+  "quote_source": "https://cds.climate.copernicus.eu/api/catalogue/v1/collections/reanalysis-era5-land",
+  "quote_lang": "en",
+  "notes": [
+   {
+    "label": "Licence as listed",
+    "text": "The Climate Data Store catalogue lists the licence of both datasets as CC-BY-4.0 (SPDX identifier).",
+    "source": "https://cds.climate.copernicus.eu/api/catalogue/v1/collections/reanalysis-era5-single-levels"
+   },
+   {
+    "label": "Title of record",
+    "text": "The Climate Data Store catalogue and the DataCite record of doi:10.24381/cds.e2161bac both title this dataset ERA5-Land hourly data from 1950 to present.",
+    "source": "https://api.datacite.org/dois/10.24381/cds.e2161bac"
+   }
+  ],
+  "feeds": [
+   "climate"
+  ],
+  "scripts": [
+   "04_climate.py"
+  ]
+ },
+ {
+  "id": "geo-api",
+  "group": "data",
+  "short": "geo.api.gouv.fr",
+  "title": "API Découpage administratif (geo.api.gouv.fr)",
+  "publisher": "DINUM and data.gouv.fr",
+  "url": "https://geo.api.gouv.fr/decoupage-administratif",
+  "licence": "Licence Ouverte",
+  "licence_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence",
+  "accessed": "2026-09-25",
+  "used_for": "Commune names on the map and in the village profiles, and the commune centres used as climate sites.",
+  "quote": "Données : Licence Ouverte",
+  "quote_source": "https://github.com/datagouv/decoupage-administratif",
+  "quote_lang": "fr",
+  "quote_translation": "Data under the Licence Ouverte.",
+  "notes": [
+   {
+    "label": "Service record",
+    "quote": "Toutes les données utilisées sont sous licences Open Data.",
+    "lang": "fr",
+    "translation": "All the data used are under open data licences.",
+    "source": "https://www.data.gouv.fr/dataservices/api-decoupage-administratif-api-geo"
+   },
+   {
+    "label": "Why this data package",
+    "text": "The code behind geo.api.gouv.fr (datagouv/api-geo) depends on the package @etalab/decoupage-administratif, whose README states the data licence quoted above.",
+    "source": "https://github.com/datagouv/api-geo"
+   }
+  ],
+  "feeds": [
+   "terroir",
+   "villages",
+   "climate"
+  ],
+  "scripts": [
+   "03_export.py",
+   "04_climate.py",
+   "06_villages.py"
+  ]
+ },
+ {
+  "id": "osm",
+  "group": "data",
+  "short": "OSM Nominatim",
+  "title": "Nominatim search on OpenStreetMap data",
+  "publisher": "OpenStreetMap Foundation and OpenStreetMap contributors",
+  "url": "https://nominatim.org/",
+  "licence": "ODbL 1.0",
+  "licence_url": "https://www.openstreetmap.org/copyright",
+  "accessed": "2026-09-25",
+  "used_for": "Positions of the village markers placed by a place-name search.",
+  "quote": "OpenStreetMap is open data, licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).",
+  "quote_source": "https://www.openstreetmap.org/copyright",
+  "quote_lang": "en",
+  "attribution": "© OpenStreetMap contributors",
+  "attribution_url": "https://www.openstreetmap.org/copyright",
+  "notes": [
+   {
+    "label": "Attribution wording",
+    "quote": "The historical forms of attribution “© OpenStreetMap contributors” or “© OpenStreetMap” are acceptable.",
+    "lang": "en",
+    "source": "https://osmfoundation.org/wiki/Licence/Attribution_Guidelines"
+   },
+   {
+    "label": "Usage policy",
+    "quote": "No heavy uses (an absolute maximum of 1 request per second ).",
+    "lang": "en",
+    "source": "https://operations.osmfoundation.org/policies/nominatim/"
+   }
+  ],
+  "feeds": [
+   "villages"
+  ],
+  "scripts": [
+   "06_villages.py"
+  ]
+ },
+ {
+  "id": "inao-cdc",
+  "group": "check",
+  "short": "INAO draft cahiers",
+  "title": "Draft cahiers des charges of the appellations, national opposition procedure",
+  "publisher": "Institut national de l’origine et de la qualité (INAO), files served from extranet.inao.gouv.fr",
+  "url": "https://www.inao.gouv.fr/rechercher-un-produit",
+  "licence": "Licence Ouverte 2.0 (etalab-2.0), as stated for inao.gouv.fr",
+  "licence_url": "https://github.com/etalab/licence-ouverte/blob/master/LO.md",
+  "accessed": "2026-09-25",
+  "used_for": "The white-wine flag on every mapped shape. A first pass read the colour rule in the draft cahier des charges of each appellation in scope, which INAO published for a national opposition procedure. A second pass read the homologated texts in force (Journal officiel and Bulletin officiel of the agriculture ministry) for 50 of the 54 appellations, and every colour rule agreed with the drafts.",
+  "quote": "Sauf mention contraire, tous les contenus de ce site sont sous licence etalab-2.0",
+  "quote_source": "https://www.inao.gouv.fr/mentions-legales",
+  "quote_lang": "fr",
+  "quote_translation": "Unless stated otherwise, all the content of this site is under the etalab-2.0 licence.",
+  "attribution": "INAO, cahiers des charges of the controlled appellations of origin",
+  "fact_check": {
+   "record": "content/scope.json",
+   "checked": "2026-09-25T02:12Z",
+   "rechecked": "2026-09-25T10:37Z",
+   "appellations": 54,
+   "white_only": 19,
+   "white_and_red": 27,
+   "red_only": 8,
+   "special_rules": 3,
+   "quotes": 57,
+   "quotes_found": 57,
+   "files": 54,
+   "drafts": 54,
+   "drafts_2010": 53,
+   "drafts_2016": 1,
+   "in_force": {
+    "checked": "2026-09-25T17:19Z",
+    "pages": 54,
+    "later_text_listed": 54,
+    "first_year": 2011,
+    "last_year": 2026,
+    "rules_checked": 50,
+    "source": "https://www.inao.gouv.fr/rechercher-un-produit",
+    "rules_agree": 50,
+    "rechecked": "2026-09-25T16:55Z",
+    "not_verified": [
+     "Saint-Bris",
+     "Côte de Nuits-Villages",
+     "Ladoix",
+     "Musigny"
+    ]
+   }
+  },
+  "notes": [
+   {
+    "label": "An example rule",
+    "quote": "L’appellation d’origine contrôlée « Chablis » est réservée aux vins tranquilles blancs.",
+    "lang": "fr",
+    "translation": "The controlled appellation of origin Chablis is reserved for still white wines.",
+    "source": "https://extranet.inao.gouv.fr/fichier/PNOCDCChablis.pdf"
+   },
+   {
+    "label": "Draft status",
+    "quote": "Cette modification du cahier des charges ne saurait préjuger de la rédaction finale qui sera retenue après instruction par le comité national des appellations d’origine relatives aux vins et aux boissons alcoolisées, et des eaux-de-vie de l’INAO, sur la base notamment des résultats de la procédure nationale d’opposition.",
+    "lang": "fr",
+    "translation": "This amendment of the specification does not prejudge the final wording, which will be settled after review by INAO’s national committee for the appellations of origin of wines, alcoholic drinks and spirits, based in particular on the results of the national opposition procedure.",
+    "source": "https://extranet.inao.gouv.fr/fichier/PNOCDCChablis.pdf"
+   },
+   {
+    "label": "A text in force",
+    "quote": "Arrêté du 10 septembre 2025 homologuant le cahier des charges de l'appellation d'origine contrôlée Chablis",
+    "lang": "fr",
+    "translation": "Order (arrêté) of 10 September 2025 approving the cahier des charges of the controlled appellation of origin Chablis.",
+    "source": "https://www.inao.gouv.fr/produit/chablis-23041"
+   },
+   {
+    "label": "Legal value",
+    "quote": "Seuls les textes publiés au JO ont une valeur juridique.",
+    "lang": "fr",
+    "translation": "Only the texts published in the Journal officiel have legal value.",
+    "source": "https://www.inao.gouv.fr/produit/chablis-23041"
+   },
+   {
+    "label": "Licence scope",
+    "text": "The footer of inao.gouv.fr states this licence for the content of that site. The cahier files are PDFs served from extranet.inao.gouv.fr.",
+    "source": "https://www.inao.gouv.fr/mentions-legales"
+   },
+   {
+    "label": "Texts in force",
+    "text": "The texts in force could not be opened for Saint-Bris, Côte de Nuits-Villages and Ladoix. For Musigny only the 2011 text could be read, not the version homologated in 2013. The flags of these four follow the drafts and the Bourgogne wine board sheets. None of the four belongs to the fifteen village profiles.",
+    "source": "https://www.legifrance.gouv.fr/"
+   }
+  ],
+  "feeds": [
+   "terroir",
+   "index"
+  ],
+  "scripts": [
+   "06_villages.py"
+  ]
+ },
+ {
+  "id": "bivb",
+  "group": "check",
+  "short": "BIVB",
+  "title": "Chablis and Chablis Premier Cru, appellation page",
+  "publisher": "Bureau Interprofessionnel des Vins de Bourgogne (BIVB), bourgogne-wines.com",
+  "url": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/chablis-and-chablis-premier-cru,2458,9253.html?&args=Y29tcF9pZD0yMjc4JmFjdGlvbj12aWV3RmljaGUmaWQ9MjU5Jnw%3D",
+  "licence": "© BIVB, reproduction for personal use only",
+  "licence_url": "https://www.bourgogne-wines.com/legal-notice/legal-notice,2542,9500.html",
+  "accessed": "2026-09-25",
+  "used_for": "A second count of premier cru climats in a village profile, shown next to the count from INAO’s digital delimitation with its source and a link.",
+  "quote": "The Bourgogne Wine Board (BIVB) is the exclusive holder of the copyright of the material on its websites.",
+  "quote_source": "https://www.bourgogne-wines.com/legal-notice/legal-notice,2542,9500.html",
+  "quote_lang": "en",
+  "notes": [
+   {
+    "label": "The count cited",
+    "quote": "This appellation comprises 40 Premier Cru Climats (named plots of vinegrowing land).",
+    "lang": "en",
+    "source": "https://www.bourgogne-wines.com/wine-and-terroir/bourgogne-and-its-appellations/chablis-and-chablis-premier-cru,2458,9253.html?&args=Y29tcF9pZD0yMjc4JmFjdGlvbj12aWV3RmljaGUmaWQ9MjU5Jnw%3D"
+   },
+   {
+    "label": "Reuse terms",
+    "quote": "The reproduction of documents on these websites is only authorized for private and personal use.",
+    "lang": "en",
+    "source": "https://www.bourgogne-wines.com/legal-notice/legal-notice,2542,9500.html"
+   }
+  ],
+  "feeds": [
+   "villages"
+  ],
+  "scripts": [
+   "06_villages.py"
+  ]
+ },
+ {
+  "id": "leaflet",
+  "group": "software",
+  "short": "Leaflet",
+  "title": "Leaflet 1.9.4",
+  "publisher": "Volodymyr Agafonkin and Leaflet contributors",
+  "url": "https://leafletjs.com/",
+  "licence": "BSD-2-Clause",
+  "licence_url": "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/LICENSE",
+  "accessed": "2026-09-25",
+  "used_for": "The interactive map and the locator map of the cross-sections, loaded from the jsDelivr CDN.",
+  "quote": "Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met",
+  "quote_source": "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/LICENSE",
+  "quote_lang": "en",
+  "feeds": [
+   "live"
+  ],
+  "scripts": []
+ },
+ {
+  "id": "fonts",
+  "group": "software",
+  "short": "Google Fonts",
+  "title": "Cormorant, Instrument Sans and IBM Plex Mono",
+  "publisher": "Google Fonts",
+  "url": "https://fonts.google.com/",
+  "licence": "SIL Open Font License 1.1",
+  "licence_url": "https://openfontlicense.org/",
+  "accessed": "2026-09-25",
+  "used_for": "The three typefaces of the atlas. Cormorant sets the display type, Instrument Sans the text and IBM Plex Mono the data.",
+  "parts": [
+   {
+    "name": "Cormorant",
+    "designer": "Christian Thalmann",
+    "url": "https://fonts.google.com/specimen/Cormorant/license"
+   },
+   {
+    "name": "Instrument Sans",
+    "designer": "Rodrigo Fuenzalida, Jordan Egstad",
+    "url": "https://fonts.google.com/specimen/Instrument+Sans/license"
+   },
+   {
+    "name": "IBM Plex Mono",
+    "designer": "Mike Abbink, Bold Monday",
+    "url": "https://fonts.google.com/specimen/IBM+Plex+Mono/license"
+   }
+  ],
+  "quote": "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
+  "quote_source": "https://fonts.google.com/specimen/Cormorant/license",
+  "quote_lang": "en",
+  "notes": [
+   {
+    "label": "All three families",
+    "text": "The Google Fonts licence pages of Instrument Sans and IBM Plex Mono carry the same sentence, and so do the OFL.txt files of all three families in the google/fonts repository.",
+    "source": "https://github.com/google/fonts/tree/main/ofl"
+   }
+  ],
+  "feeds": [
+   "live"
+  ],
+  "scripts": []
+ }
+]

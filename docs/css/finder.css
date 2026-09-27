@@ -1,0 +1,493 @@
+/* ==========================================================================
+   Plate V: the village finder (#finder-app). Uses base.css tokens only.
+   ========================================================================== */
+
+.fd {
+  --fd-point: var(--slate);
+  --fd-cur-fill: color-mix(in srgb, var(--slate) 16%, transparent);
+  --fd-notch: color-mix(in srgb, var(--paper) 62%, transparent);
+  --fd-notch-cur: color-mix(in srgb, var(--slate) 55%, transparent);
+  --fd-empty: var(--paper-2);
+  --fd-empty-line: var(--rule);
+  --u: 10px;             /* one point in the tally */
+  --g: 2px;              /* surface gap between points and between runs */
+  --slot: calc(var(--u) + var(--g));
+  position: relative;
+}
+:root[data-theme="dark"] .fd { --fd-empty: var(--surface-2); --fd-empty-line: var(--rule-strong); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .fd { --fd-empty: var(--surface-2); --fd-empty-line: var(--rule-strong); }
+}
+
+/* A shared ?finder= link whose answers could not be read */
+.fd-link-note { margin-bottom: 20px; }
+
+/* ---------- Progress ledger ---------- */
+.fd-steps {
+  list-style: none; padding: 0;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--rule-strong);
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+.fd-step { position: relative; min-width: 0; }
+.fd-step + .fd-step { border-left: 1px solid var(--rule); }
+.fd-step::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px;
+  background: transparent; transition: background 0.25s var(--ease);
+}
+.fd-step.is-done::before { background: var(--rule-strong); }
+/* The current step's rail is chrome, so it takes the accent, like the nav's current link. */
+.fd-step[aria-current="step"]::before { background: var(--accent); }
+.fd-step-btn {
+  display: grid; gap: 2px; width: 100%; height: 100%; align-content: start;
+  padding: 14px 16px 4px; text-align: left;
+  background: none; border: 0; color: inherit; border-radius: 0;
+}
+/* The first column's text sits on the container edge. Its button reaches into the gutter
+   so the focus ring clears the text. */
+.fd-step:first-child .fd-step-btn { padding-left: 10px; margin-left: -10px; width: calc(100% + 10px); }
+button.fd-step-btn:hover .fd-step-answer { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+button.fd-step-btn:focus-visible { outline-offset: -2px; }
+.fd-step-no { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--muted); letter-spacing: 0.06em; }
+.fd-step-no .fd-check { display: none; }
+.fd-step-label { font-size: var(--fs-xs); color: var(--muted); letter-spacing: 0.02em; }
+.fd-step-no + .fd-step-label { margin-top: -1px; }
+.fd-step-answer {
+  font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; line-height: 1.2; color: var(--ink);
+  overflow-wrap: anywhere; min-height: 1.75rem;
+}
+.fd-step-answer.is-empty { font-family: var(--font-ui); font-weight: 400; font-size: var(--fs-sm); line-height: 1.75rem; color: var(--muted); }
+.fd-step-price { font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 400; color: var(--ink-2); white-space: nowrap; }
+.fd-step[aria-current="step"] .fd-step-label { color: var(--ink); font-weight: 600; }
+.fd-amp { font-style: italic; font-weight: 500; padding: 0 0.04em; }
+
+/* ---------- Stage: question and tally ---------- */
+.fd-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: clamp(32px, 5.5vw, 80px);
+  align-items: start;
+}
+.fd-stage[hidden], .fd-results[hidden] { display: none; }
+
+.fd-form { animation: fd-in 0.45s var(--ease) both; }
+@keyframes fd-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.fd-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.fd-legend { padding: 0; margin-bottom: 22px; float: left; width: 100%; }
+.fd-legend + * { clear: both; }
+.fd-q-no { display: block; margin-bottom: 10px; }
+.fd-q {
+  font-size: clamp(1.75rem, 1.2rem + 1.7vw, 2.5rem);
+  line-height: 1.04; max-width: 20ch; text-wrap: balance;
+}
+.fd-q:focus, .fd-q:focus-visible { outline: none; }
+
+/* Option cards: real radios, visually hidden, card carries state */
+.fd-options { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.fd-options[data-count="4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fd-opt {
+  position: relative;
+  display: flex; flex-direction: column; gap: 6px;
+  min-height: 156px;
+  padding: 14px 18px 18px;
+  border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.25s var(--ease);
+}
+.fd-options[data-count="4"] .fd-opt { min-height: 128px; }
+.fd-opt:hover { border-color: var(--ink-2); transform: translateY(-1px); }
+.fd-opt.is-checked, .fd-opt:has(.fd-radio:checked) {
+  border-color: var(--ink); background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.fd-opt:has(.fd-radio:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+.fd-radio {
+  position: absolute; top: 16px; right: 18px; width: 16px; height: 16px; margin: 0;
+  opacity: 0; pointer-events: none;
+}
+.fd-opt-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.fd-opt-key {
+  font-family: var(--font-mono); font-size: var(--fs-xs); line-height: 1; color: var(--muted);
+  min-width: 20px; padding: 3px 5px; text-align: center;
+  border: 1px solid var(--rule); border-radius: 3px;
+}
+.fd-opt.is-checked .fd-opt-key, .fd-opt:has(.fd-radio:checked) .fd-opt-key { color: var(--ink); border-color: var(--rule-strong); }
+.fd-opt-mark {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1.5px solid var(--rule-strong); background: var(--surface);
+  display: grid; place-items: center;
+  transition: border-color 0.2s;
+}
+.fd-opt-mark::after {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink);
+  transform: scale(0); transition: transform 0.2s var(--ease);
+}
+.fd-opt:hover .fd-opt-mark { border-color: var(--ink-2); }
+.fd-opt.is-checked .fd-opt-mark, .fd-opt:has(.fd-radio:checked) .fd-opt-mark { border-color: var(--ink); }
+.fd-opt.is-checked .fd-opt-mark::after, .fd-opt:has(.fd-radio:checked) .fd-opt-mark::after { transform: scale(1); }
+.fd-opt-label {
+  font-family: var(--font-display); font-weight: 600; font-size: 1.55rem; line-height: 1.02;
+  letter-spacing: -0.01em; color: var(--ink);
+}
+.fd-opt-price { font-size: var(--fs-sm); color: var(--ink); }
+.fd-opt-desc { font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.45; margin-top: auto; padding-top: 4px; }
+
+.fd-keys { margin-top: 14px; }
+.fd-keys kbd {
+  font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--ink-2);
+  padding: 0 5px; border: 1px solid var(--rule-strong); border-radius: 3px; background: var(--surface);
+}
+@media (hover: none) { .fd-keys { display: none; } }
+
+.fd-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 22px; }
+.fd-nav .fd-next { margin-left: auto; }
+.fd-nav .fd-back[hidden] { display: none; }
+.fd-howto { margin-top: clamp(28px, 4vw, 44px); max-width: 52ch; color: var(--ink-2); border-left-color: var(--rule-strong); }
+.fd-nav .btn span[aria-hidden] { font-family: var(--font-ui); }
+.fd-next[aria-disabled="true"] { opacity: 0.5; }
+.fd-next[aria-disabled="true"]:hover { transform: none; }
+/* The hint takes its own line under the buttons, so Back and Next never move. */
+.fd-hint { order: 9; flex-basis: 100%; text-align: right; font-size: var(--fs-sm); color: var(--accent); margin: 0; }
+.fd-hint:empty { display: none; }
+.fd-to-results { font-size: var(--fs-sm); }
+
+/* ---------- Running tally ----------
+   One row per village on a fixed scale of MAX points. Each answered question is one
+   run of points, runs sit in question order and are separated by a surface gap.
+   Hairline notches inside a run count its points. */
+/* The figure head's numbered rule (base .fig-head) tops the tally, level with the question's eyebrow. */
+.fd-tally { margin: 0; }
+.fd-tally figcaption { margin-bottom: 4px; }
+.fd-tally .fig-head { margin-bottom: 8px; }
+.fd-tally-cap { max-width: 46ch; }
+.fd-tally-key { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: var(--fs-xs); color: var(--ink-2); }
+.fd-k { display: inline-flex; align-items: center; gap: 7px; }
+.fd-k-mark { display: inline-block; height: var(--u); border-radius: 2px; }
+.fd-k-on, .fd-k-cur {
+  width: calc(2 * var(--slot) - var(--g));
+  background-image: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) + 0.5px), var(--fd-notch) 0 calc(var(--u) + 1.5px), transparent 0 var(--slot));
+}
+.fd-k-on { background-color: var(--fd-point); }
+.fd-k-cur {
+  background-color: var(--fd-cur-fill); box-shadow: inset 0 0 0 1.5px var(--fd-point);
+  background-image: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) + 0.5px), var(--fd-notch-cur) 0 calc(var(--u) + 1.5px), transparent 0 var(--slot));
+}
+.fd-k-empty { width: var(--u); background: var(--fd-empty); box-shadow: inset 0 0 0 1px var(--fd-empty-line); }
+
+/* Padding rather than margin, so both tally columns start level when the list is set in two. */
+.fd-tally-group { padding-top: 16px; break-inside: avoid; }
+.fd-tally-region {
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); padding-bottom: 4px; border-bottom: 1px solid var(--rule); margin-bottom: 2px;
+}
+.fd-tally-list { list-style: none; padding: 0; }
+.fd-t-row {
+  display: grid; grid-template-columns: 14px minmax(0, 1fr) auto 22px;
+  align-items: center; gap: 10px;
+  min-height: 25px; padding-block: 2px; font-size: var(--fs-sm); line-height: 1.25; color: var(--ink-2);
+}
+.fd-t-row:hover { color: var(--ink); }
+.fd-t-rank { font-size: var(--fs-xs); color: var(--ink); text-align: right; }
+.fd-t-name { overflow-wrap: break-word; min-width: 0; }
+.fd-t-row.is-top .fd-t-name { color: var(--ink); font-weight: 600; }
+.fd-t-total { text-align: right; font-size: var(--fs-sm); color: var(--ink); }
+
+.fd-track { position: relative; display: flex; gap: var(--g); }
+.fd-cell {
+  flex: none; width: var(--u); height: var(--u); border-radius: 2px;
+  background: var(--fd-empty); box-shadow: inset 0 0 0 1px var(--fd-empty-line);
+}
+.fd-seg {
+  position: absolute; top: 0; height: var(--u); border-radius: 2px;
+  left: calc(var(--a, 0) * var(--slot));
+  width: max(0px, calc(var(--n, 0) * var(--slot) - var(--g)));
+  background-color: var(--fd-point);
+  background-image: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) + 0.5px), var(--fd-notch) 0 calc(var(--u) + 1.5px), transparent 0 var(--slot));
+  opacity: 0;
+  transition: left 0.35s var(--ease), width 0.35s var(--ease), opacity 0.2s, background-color 0.2s;
+}
+.fd-seg.is-on { opacity: 1; }
+.fd-seg.is-cur {
+  background-color: var(--fd-cur-fill);
+  box-shadow: inset 0 0 0 1.5px var(--fd-point);
+  background-image: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) + 0.5px), var(--fd-notch-cur) 0 calc(var(--u) + 1.5px), transparent 0 var(--slot));
+}
+.fd-tally-foot { margin-top: 14px; max-width: 52ch; }
+
+/* ---------- Results ---------- */
+.fd-results { animation: fd-in 0.5s var(--ease) both; }
+.fd-res-head {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 18px 32px; margin-bottom: 22px;
+}
+.fd-res-title { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.25rem); margin-top: 8px; }
+.fd-res-title:focus, .fd-res-title:focus-visible { outline: none; }
+.fd-res-sub { margin-top: 6px; }
+.fd-res-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fd-copy-icon { display: inline-flex; }
+.fd-icon { flex: none; }
+.fd-copy-fallback { flex-basis: 100%; display: grid; gap: 6px; max-width: 420px; }
+.fd-copy-fallback[hidden] { display: none; }
+.fd-copy-input { font-family: var(--font-mono); font-size: var(--fs-xs); }
+
+/* Three cards share row tracks (subgrid), so breakdowns, tie notes, radars and
+   buttons line up across the row even when one tie note runs longer. */
+.fd-cards {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+}
+.fd-card {
+  display: grid; grid-row: span 7; grid-template-rows: subgrid; row-gap: 16px;
+  align-content: start; padding: 20px 28px 26px; min-width: 0;
+}
+.fd-card + .fd-card { border-left: 1px solid var(--rule); }
+.fd-card:first-child { padding-left: 0; }
+.fd-card:last-child { padding-right: 0; }
+.fd-card-col { display: contents; }
+.fd-card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.fd-score { display: flex; align-items: baseline; gap: 6px; margin: 0; }
+.fd-score-v {
+  font-family: var(--font-display); font-weight: 600; font-size: 2.6rem; line-height: 0.9; color: var(--ink);
+  font-variant-numeric: lining-nums proportional-nums;
+}
+.fd-score-k { font-size: var(--fs-xs); color: var(--muted); }
+.fd-card-name {
+  font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em;
+  font-size: clamp(1.9rem, 1.4rem + 1.3vw, 2.5rem); line-height: 1; margin-top: -4px;
+}
+.fd-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; padding-block: 12px; border-block: 1px solid var(--rule); }
+.fd-facts dd { overflow-wrap: anywhere; }
+/* Words (region, grape, level) are set like text elsewhere in the atlas. Numbers and bands stay in mono. */
+.fd-facts dd.is-text { font-family: var(--font-ui); font-variant-numeric: normal; }
+.fd-facts .fd-level { display: flex; align-items: center; gap: 7px; }
+.fd-level .swatch { flex: none; }
+
+.fd-break { list-style: none; padding: 0; display: grid; gap: 4px; max-width: 380px; align-self: start; }
+.fd-break-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 28px; align-items: center; gap: 12px; font-size: var(--fs-sm); }
+.fd-break-k { color: var(--ink-2); }
+.fd-break-v { text-align: right; color: var(--ink); }
+.fd-pips { display: flex; gap: 3px; }
+.fd-pip { width: 12px; height: 12px; border-radius: 2px; background: var(--fd-empty); box-shadow: inset 0 0 0 1px var(--fd-empty-line); }
+.fd-pip.on { background: var(--fd-point); box-shadow: none; }
+.fd-tie { line-height: 1.5; align-self: start; }
+
+.fd-radar { margin: 0; display: grid; justify-items: center; align-content: start; gap: 6px; }
+.fd-radar-svg { width: 100%; max-width: 280px; height: auto; overflow: visible; }
+.fd-r-ring { fill: none; stroke: var(--rule); stroke-width: 1; }
+.fd-r-axis { stroke: var(--rule); stroke-width: 1; }
+/* Same stroke, fill strength and markers as the comparison radar on Plate IV, in the finder's slate. */
+.fd-r-village { fill: var(--fd-point); fill-opacity: 0.1; stroke: var(--fd-point); stroke-width: 2; stroke-linejoin: round; }
+.fd-r-target { fill: none; stroke: var(--ink); stroke-width: 1.25; stroke-dasharray: 4 3; stroke-linejoin: round; stroke-linecap: butt; }
+.fd-r-tmark { fill: var(--paper); stroke: var(--ink); stroke-width: 1.25; }
+.fd-r-dot { fill: var(--fd-point); stroke: var(--paper); stroke-width: 2; paint-order: stroke; }
+.fd-r-label { font-family: var(--font-ui); font-size: 12px; fill: var(--ink-2); }
+.fd-r-val { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink); }
+.fd-radar-cap { display: grid; justify-items: center; gap: 4px; font-size: var(--fs-xs); color: var(--muted); text-align: center; }
+.fd-radar-keys { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; color: var(--ink-2); }
+.fd-radar-note { color: var(--muted); }
+.fd-key { display: inline-flex; align-items: center; gap: 6px; }
+.fd-key-fill {
+  flex: none; width: 12px; height: 10px; border-radius: 2px;
+  border: 2px solid var(--fd-point); background: color-mix(in srgb, var(--fd-point) 10%, transparent);
+}
+.fd-key-line {
+  flex: none; width: 18px; height: 1.25px; position: relative;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 4px, transparent 4px 7px);
+}
+.fd-key-line::after {
+  content: ""; position: absolute; left: 50%; top: -2.9px; width: 7px; height: 7px; margin-left: -3.5px;
+  border-radius: 50%; border: 1.25px solid var(--ink); background: var(--paper);
+}
+
+.fd-card-actions { display: flex; flex-wrap: wrap; gap: 8px; align-self: end; padding-top: 4px; }
+
+.fd-cards-foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px;
+  padding-top: 18px; border-top: 1px solid var(--rule);
+}
+.fd-compare { flex: none; }
+.fd-band-note { flex: 1 1 360px; max-width: 78ch; }
+
+/* Method */
+.fd-method {
+  margin-top: clamp(28px, 4vw, 44px);
+  padding-top: 18px; border-top: 1px solid var(--rule-strong);
+}
+.fd-method-title { font-family: var(--font-display); font-size: var(--fs-xl); font-weight: 600; letter-spacing: -0.005em; margin-bottom: 12px; }
+.fd-method-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px clamp(24px, 4vw, 56px); }
+.fd-method-cols p { font-size: var(--fs-sm); color: var(--ink-2); }
+.fd-method-cols p + p { margin-top: 10px; }
+.fd-method-targets { list-style: none; padding: 0; display: grid; gap: 6px; margin-bottom: 12px; }
+.fd-method-targets li { font-size: var(--fs-sm); color: var(--ink-2); padding-left: 14px; border-left: 2px solid var(--rule); }
+.fd-method-targets li.is-yours { border-left-color: var(--accent); color: var(--ink); }
+.fd-m-opt { font-weight: 600; color: var(--ink); }
+.fd-m-opt .fd-amp { font-style: inherit; font-weight: inherit; padding: 0; }
+.fd-m-you {
+  display: inline-block; margin-left: 8px; vertical-align: 1px;
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-2); border: 1px solid var(--rule-strong); border-radius: var(--r-sm); padding: 0 6px; line-height: 1.6;
+}
+
+/* One answer away */
+.fd-away {
+  margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--rule-strong);
+  display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 14px clamp(24px, 4vw, 56px); align-items: start;
+}
+.fd-away-head .fd-method-title { margin-bottom: 8px; }
+.fd-away-head .caption { max-width: 40ch; }
+.fd-away-list { list-style: none; padding: 0; margin-top: -10px; }
+.fd-away-row {
+  width: 100%; display: grid; grid-template-columns: 92px minmax(0, 1fr) 18px minmax(0, 1.1fr);
+  align-items: baseline; gap: 12px; text-align: left;
+  padding: 10px 8px 10px 0; background: none; border: 0; border-bottom: 1px solid var(--rule); border-radius: 0;
+  color: var(--ink-2); font-size: var(--fs-sm);
+  transition: background 0.2s, padding 0.25s var(--ease);
+}
+.fd-away-row:hover { background: var(--surface-2); padding-left: 8px; color: var(--ink); }
+.fd-away-row:focus-visible { outline-offset: -2px; }
+.fd-away-q { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0.06em; color: var(--muted); }
+.fd-away-o { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--ink); line-height: 1.1; }
+.fd-away-arrow { color: var(--muted); }
+.fd-away-name { color: var(--ink); font-weight: 600; }
+.fd-away-pts { color: var(--muted); white-space: nowrap; }
+
+/* Full ranking. The shared .disclosure gives the marker, chevron, cursor and hover colour. The summary
+   is set at the size of the section titles above it ("One answer away", "How the score works"). */
+.fd-all { margin-top: 26px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.fd-all > summary {
+  align-items: baseline; gap: 14px; padding: 14px 0;
+  font-family: var(--font-display); font-size: var(--fs-xl); font-weight: 600; color: var(--ink);
+}
+.fd-all > summary::before { align-self: center; margin-right: 2px; }
+.fd-sum-hint { font-family: var(--font-ui); font-size: var(--fs-xs); font-weight: 400; color: var(--muted); }
+.fd-all[open] .fd-sum-hint { display: none; }
+.fd-table-wrap { overflow-x: auto; padding-bottom: 18px; }
+.fd-table-wrap:focus-visible { outline-offset: 4px; }
+.fd-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.fd-table caption { text-align: left; padding-bottom: 10px; }
+.fd-table th, .fd-table td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+.fd-table thead th { font-size: var(--fs-xs); font-weight: 500; color: var(--muted); border-bottom-color: var(--rule-strong); white-space: nowrap; }
+.fd-table .fd-c-rank { width: 3ch; padding-left: 0; color: var(--muted); }
+.fd-table .fd-c-pt, .fd-table .fd-c-dist { text-align: right; }
+.fd-table thead .fd-c-pt, .fd-table thead .fd-c-dist, .fd-table thead .fd-c-total { text-align: right; }
+.fd-table .fd-c-total { text-align: right; white-space: nowrap; font-weight: 500; color: var(--ink); }
+.fd-table .fd-c-dist { color: var(--ink-2); padding-right: 0; }
+.fd-table tbody th { font-weight: 400; }
+.fd-t-vname { color: var(--ink); }
+.fd-t-vregion { display: block; font-size: var(--fs-xs); color: var(--muted); }
+.fd-table tr.is-top .fd-t-vname { font-weight: 600; }
+.fd-table tr.is-top .fd-c-rank { color: var(--ink); }
+.fd-bar { display: inline-block; width: 64px; height: 6px; border-radius: 2px; background: var(--fd-empty); margin-right: 8px; vertical-align: 1px; overflow: hidden; }
+.fd-bar span { display: block; height: 100%; background: var(--fd-point); border-radius: 0 2px 2px 0; }
+.fd-th-short { display: none; text-decoration: none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  /* The question takes the full width and the tally follows it, in two columns. */
+  .fd-stage { grid-template-columns: 1fr; gap: clamp(36px, 6vw, 56px); }
+  .fd-tally-body { columns: 2; column-gap: 40px; }
+
+  .fd-cards { grid-template-columns: 1fr; }
+  .fd-card, .fd-card:first-child, .fd-card:last-child { padding: 22px 0 28px; }
+  .fd-card {
+    grid-row: auto; grid-template-rows: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+    grid-template-areas: "top top" "name name" "facts facts" "col radar" "actions radar";
+    column-gap: 40px;
+  }
+  .fd-card + .fd-card { border-left: 0; border-top: 1px solid var(--rule); }
+  .fd-card-top { grid-area: top; }
+  .fd-card-name { grid-area: name; }
+  .fd-facts { grid-area: facts; grid-template-columns: repeat(4, minmax(0, auto)); justify-content: start; gap: 10px 32px; }
+  .fd-card-col { grid-area: col; display: grid; gap: 14px; align-content: start; }
+  .fd-radar { grid-area: radar; }
+  .fd-card-actions { grid-area: actions; }
+}
+@media (max-width: 900px) {
+  .fd-method-cols { grid-template-columns: 1fr; }
+  .fd-away { grid-template-columns: 1fr; }
+  .fd-away-list { margin-top: 0; border-top: 1px solid var(--rule); }
+}
+@media (max-width: 720px) {
+  .fd-options, .fd-options[data-count="4"] { grid-template-columns: 1fr; }
+  .fd-opt, .fd-options[data-count="4"] .fd-opt { min-height: 0; padding: 14px 16px 16px; }
+  .fd-opt-top { position: absolute; top: 14px; right: 16px; margin: 0; }
+  .fd-opt-key, .fd-keys { display: none; }
+  .fd-opt-label { font-size: 1.4rem; padding-right: 28px; }
+  .fd-opt-desc { margin-top: 0; }
+  .fd-tally-body { columns: 1; }
+  .fd-card { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "name" "facts" "col" "radar" "actions"; }
+  .fd-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .fd { --u: 8px; }
+  .fd-step-btn { padding: 12px 8px 4px; }
+  .fd-step-label { display: none; }
+  .fd-step-answer { font-size: 1rem; min-height: 1.5rem; }
+  .fd-step-answer.is-empty { line-height: 1.5rem; }
+  /* In the quiz the four columns are too narrow for answers. Show the label and a check,
+     and keep the answer for screen readers. */
+  .fd[data-view="quiz"] .fd-step-label { display: block; }
+  .fd[data-view="quiz"] .fd-step-answer {
+    position: absolute; width: 1px; height: 1px; min-height: 0; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .fd[data-view="quiz"] .fd-step.is-done .fd-step-no { color: var(--ink); }
+  .fd[data-view="quiz"] .fd-step.is-done .fd-check { display: block; }
+  .fd[data-view="quiz"] .fd-step.is-done .fd-step-label { color: var(--ink-2); }
+  .fd[data-view="results"] .fd-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fd[data-view="results"] .fd-step:nth-child(3) { border-left: 0; }
+  .fd[data-view="results"] .fd-step:nth-child(n+3) { border-top: 1px solid var(--rule); }
+  .fd[data-view="results"] .fd-step:nth-child(3) .fd-step-btn { padding-left: 10px; margin-left: -10px; width: calc(100% + 10px); }
+  .fd-step-price { display: none; }
+  .fd-t-row { gap: 8px; }
+  .fd-sum-hint { display: none; }
+  .fd-away-row { grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; }
+  .fd-away-q { grid-column: 1 / -1; }
+  .fd-away-arrow { display: none; }
+  .fd-away-v { grid-column: 1 / -1; }
+  .fd-nav .btn { padding: 10px 16px; }
+  .fd-hint { text-align: left; }
+  /* Primary result actions get full-size, thumb-friendly buttons on phones. */
+  .fd-res-actions { width: 100%; }
+  .fd-res-actions .btn, .fd-card-actions .btn, .fd-cards-foot .btn {
+    min-height: 44px; padding: 10px 16px; font-size: var(--fs-sm); justify-content: center; flex: 1 1 0;
+  }
+  .fd-card-actions .btn { flex-basis: 140px; }
+  .fd-cards-foot .btn { flex-basis: 100%; }
+  .fd-th-long { display: none; }
+  .fd-th-short { display: inline; }
+  .fd-t-vregion { display: none; }
+  .fd-table th, .fd-table td { padding: 7px 6px; }
+  .fd-bar { display: none; }
+}
+@media (max-width: 400px) {
+  .fd-step-btn { padding-inline: 6px; }
+}
+
+/* ---------- Forced colours (Windows high contrast) ----------
+   Backgrounds and shadows are forced away there, which blanks the radio dot, the tally runs
+   and their key. Redraw them in system colours: earned points in CanvasText, the question
+   being answered and the chosen card in Highlight, empty slots as GrayText outlines. */
+@media (forced-colors: active) {
+  .fd-opt.is-checked, .fd-opt:has(.fd-radio:checked) {
+    border: 2px solid Highlight; margin: -1px; /* the extra pixel grows outwards, so nothing inside moves */
+  }
+  .fd-opt.is-checked .fd-opt-mark, .fd-opt:has(.fd-radio:checked) .fd-opt-mark { border-color: Highlight; }
+  .fd-opt-mark::after { forced-color-adjust: none; background: Highlight; }
+
+  .fd-track, .fd-k-mark, .fd-pips, .fd-bar, .fd .swatch { forced-color-adjust: none; }
+  .fd-cell, .fd-k-empty, .fd-pip, .fd-bar { background: Canvas; box-shadow: inset 0 0 0 1px GrayText; }
+  .fd-seg, .fd-k-on {
+    background-color: CanvasText;
+    background-image: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) + 0.5px), Canvas 0 calc(var(--u) + 1.5px), transparent 0 var(--slot));
+  }
+  .fd-seg.is-cur, .fd-k-cur {
+    background-color: Canvas; box-shadow: inset 0 0 0 1.5px Highlight;
+    background-image: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) + 0.5px), Highlight 0 calc(var(--u) + 1.5px), transparent 0 var(--slot));
+  }
+  .fd-pip.on, .fd-bar span { background: CanvasText; box-shadow: none; }
+  .fd-key-line { forced-color-adjust: none; background: repeating-linear-gradient(90deg, CanvasText 0 4px, transparent 4px 7px); }
+  .fd-key-line::after { border-color: CanvasText; background: Canvas; }
+}

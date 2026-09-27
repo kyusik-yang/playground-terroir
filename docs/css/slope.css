@@ -1,0 +1,352 @@
+/* ==========================================================================
+   Plate II: slope cross-sections (js/slope.js)
+   Uses only the tokens from base.css. Level colours reach SVG and Leaflet paths
+   through --c, set by the .sl-l-* classes, so a theme switch needs no redraw
+   (the locator map included, its overlays are styled by class).
+   ========================================================================== */
+
+.sl-l-gc { --c: var(--lvl-gc); }
+.sl-l-pc { --c: var(--lvl-pc); }
+.sl-l-vl { --c: var(--lvl-vl); }
+.sl-l-rg { --c: var(--lvl-rg); --k: 1.2; }
+.sl-l-none { --c: var(--lvl-none); }
+
+/* Ground wash strength. Over the cellar paper the same tint turns murky, so the dark theme
+   gets its own, stronger steps. The village outlines on the aerial photograph are quieter there. */
+.sl {
+  display: grid; gap: clamp(22px, 3vw, 34px);
+  --wa: 0.2; --wa-sel: 0.34; --wa-dim: 0.1; --wa-hot: 0.48;
+  --vl-so: 0.95; --vl-sw: 1px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .sl { --wa: 0.3; --wa-sel: 0.44; --wa-dim: 0.15; --wa-hot: 0.58; --vl-so: 0.45; --vl-sw: 0.75px; }
+}
+:root[data-theme="dark"] .sl { --wa: 0.3; --wa-sel: 0.44; --wa-dim: 0.15; --wa-hot: 0.58; --vl-so: 0.45; --vl-sw: 0.75px; }
+
+.sl-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ---------- Section selector: small multiples on one shared scale ---------- */
+.sl-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr));
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule);
+}
+.sl-tab {
+  position: relative;
+  display: grid; grid-template-rows: auto 1fr auto auto; gap: 6px;
+  min-width: 0; text-align: left;
+  padding: 14px 16px;
+  background: transparent; border: 0; border-left: 1px solid var(--rule);
+  color: var(--ink-2);
+  transition: background 0.2s var(--ease), color 0.2s;
+}
+.sl-tab:first-child { border-left: 0; }
+/* The selection rail is interface chrome, so it takes the accent, as on the other plates. */
+.sl-tab::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 3px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.35s var(--ease);
+}
+.sl-tab:hover { background: var(--surface-2); color: var(--ink); }
+.sl-tab[aria-selected="true"] { color: var(--ink); }
+.sl-tab[aria-selected="true"]::before { transform: none; }
+.sl-tab:focus-visible { outline-offset: -3px; }
+.sl-tab-no { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
+.sl-tab-letter {
+  font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; line-height: 1; color: var(--ink);
+}
+.sl-tab-region {
+  min-width: 0;
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sl-tab-title {
+  font-family: var(--font-display); font-size: 1.14rem; font-weight: 600; line-height: 1.12;
+  letter-spacing: -0.005em;
+}
+.sl-spark { width: 100%; height: 40px; margin-top: 6px; overflow: visible; }
+.sl-sp-fill { fill: var(--c); fill-opacity: 0.85; }
+.sl-sp-fill.sl-l-none { fill: var(--lvl-none); fill-opacity: 1; }
+.sl-sp-line { fill: none; stroke: var(--ink); stroke-width: 1.1; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.sl-sp-base { stroke: var(--rule-strong); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sl-tab[aria-selected="false"] .sl-spark { opacity: 0.6; transition: opacity 0.2s; }
+.sl-tab:hover .sl-spark { opacity: 1; }
+.sl-tab-meta {
+  font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Five columns need about 1000 px. Below that the strip scrolls sideways inside itself. */
+@media (max-width: 1000px) {
+  .sl-tabs {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(210px, 36%);
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+    /* Cards snap just past the left edge fade, so the one in front is never faded. */
+    scroll-padding-inline: 28px;
+  }
+  .sl-tab { scroll-snap-align: start; }
+}
+/* Scroll cue, as on the map's region control: an edge fades where more cards wait (slope.js sets the classes). */
+.sl-tabs.can-l { -webkit-mask-image: linear-gradient(90deg, transparent, #000 28px); mask-image: linear-gradient(90deg, transparent, #000 28px); }
+.sl-tabs.can-r { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent); }
+.sl-tabs.can-l.can-r { -webkit-mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 44px), transparent); }
+
+/* Forced colours flatten the selected tab's ink bar, so it is drawn in Highlight and the tab is outlined. */
+@media (forced-colors: active) {
+  .sl-tab[aria-selected="true"]::before { forced-color-adjust: none; background: Highlight; }
+  .sl-tab[aria-selected="true"] { outline: 2px solid CanvasText; outline-offset: -2px; }
+}
+
+/* ---------- Panel head ----------
+   The shared .fig-head (base.css) on a fixed two-column grid, so changing the vertical scale
+   never re-wraps the title. The figure number and its rule run across both columns. */
+.sl-head {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end;
+  gap: 8px clamp(24px, 3.2vw, 44px); margin-bottom: 0;
+}
+.sl-head .fig-no { grid-column: 1 / -1; }
+.sl-head-text { min-width: 0; max-width: 62ch; }
+@media (max-width: 960px) {
+  .sl-head { grid-template-columns: minmax(0, 1fr); }
+  .sl-head-ctrl { margin-top: 6px; }
+}
+.sl-meta { margin-top: 8px; font-size: var(--fs-sm); color: var(--ink-2); }
+.sl-head .btn svg { flex: none; }
+.sl-head-ctrl { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding-bottom: 2px; }
+
+/* ---------- Body grid: chart dominant, locator and selection beside it ---------- */
+.sl-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  grid-template-areas: "chart map" "cap sel";
+  gap: clamp(22px, 3vw, 34px) clamp(24px, 3.2vw, 44px);
+  margin-top: clamp(18px, 2.4vw, 26px);
+}
+.sl-chart { grid-area: chart; min-width: 0; }
+.sl-mapbox { grid-area: map; position: relative; min-height: 300px; }
+.sl-sel { grid-area: sel; align-self: start; }
+.sl-cap { grid-area: cap; min-width: 0; }
+@media (max-width: 960px) {
+  .sl-body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "chart" "map" "sel" "cap"; }
+  .sl-mapbox { min-height: 0; height: clamp(240px, 62vw, 340px); }
+}
+
+/* ---------- Toolbar: legend with each level's share of the line ---------- */
+.sl-toolbar { padding-bottom: 12px; margin-bottom: 4px; border-bottom: 1px solid var(--rule); }
+.sl-legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: var(--fs-xs); color: var(--ink-2); }
+.sl-legend li { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.sl-share { color: var(--muted); font-variant-numeric: tabular-nums; }
+/* The key is a piece of the classification band, as tall as that level's band */
+.sl-sw { display: inline-block; flex: none; overflow: visible; vertical-align: -1px; }
+.sl-sw-r { fill: var(--c); stroke: var(--c); stroke-width: 1; }
+.sl-sw-r.sl-l-none { fill: url(#sl-hatch-fine); stroke: var(--rule-strong); }
+.sl-ve { display: flex; align-items: center; gap: 10px; font-size: var(--fs-xs); color: var(--muted); }
+.sl-ve-val { color: var(--ink-2); min-width: 16ch; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 960px) { .sl-ve-val { min-width: 0; text-align: left; } }
+.sl-ve-seg button { padding: 4px 11px; font-size: var(--fs-xs); }
+
+/* ---------- The plot ---------- */
+.sl-plot {
+  position: relative;
+  touch-action: pan-y;
+  cursor: crosshair;
+  user-select: none; -webkit-user-select: none;
+  border-radius: var(--r-sm);
+  outline-offset: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.sl-svg { width: 100%; height: auto; overflow: visible; }
+.sl-svg text { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+.sl-gridline { stroke: var(--rule); stroke-width: 1; shape-rendering: crispEdges; }
+.sl-baseline { stroke: var(--rule-strong); stroke-width: 1; shape-rendering: crispEdges; }
+.sl-xtick { stroke: var(--rule-strong); stroke-width: 1; shape-rendering: crispEdges; }
+.sl-svg .sl-tick { font-variant-numeric: tabular-nums; }
+.sl-svg .sl-end { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; fill: var(--muted); }
+.sl-svg .sl-end-mid { letter-spacing: 0.08em; text-transform: none; }
+
+.sl-wash { fill: var(--c); fill-opacity: calc(var(--wa) * var(--k, 1)); transition: fill-opacity 0.18s; }
+.sl-wash.sl-l-none { fill: url(#sl-hatch); fill-opacity: 1; }
+.sl-hatch-bg { fill: var(--paper); }
+.sl-hatch-ln { stroke: var(--rule-strong); stroke-width: 1; }
+.sl-skin { fill: var(--c); }
+.sl-sep { stroke: var(--paper); stroke-width: 1; }
+.sl-profile { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.sl-rib { fill: var(--c); }
+.sl-rib.sl-l-none { fill: url(#sl-hatch-fine); stroke: var(--rule-strong); stroke-width: 1; }
+
+/* Highlight: the hovered stretch lifts, the rest recede, the selected stretch stays a step up. */
+.sl-wash.is-sel { fill-opacity: calc(var(--wa-sel) * var(--k, 1)); }
+.sl-svg.has-hot .sl-wash:not(.is-hot):not(.sl-l-none) { fill-opacity: calc(var(--wa-dim) * var(--k, 1)); }
+.sl-svg.has-hot .sl-wash.is-sel:not(.is-hot) { fill-opacity: calc(var(--wa) * var(--k, 1)); }
+.sl-wash.is-hot { fill-opacity: calc(var(--wa-hot) * var(--k, 1)); }
+.sl-svg.has-hot .sl-wash.sl-l-none:not(.is-hot) { opacity: 0.6; }
+.sl-rib.is-sel, .sl-rib.is-hot { stroke: var(--ink); stroke-width: 1; }
+
+.sl-label { cursor: pointer; }
+.sl-lab-hit { fill: transparent; }
+.sl-svg .sl-lab {
+  font-family: var(--font-display); fill: var(--ink);
+  paint-order: stroke fill; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round;
+  letter-spacing: 0;
+}
+.sl-svg .sl-lab-gc { font-weight: 600; }
+.sl-svg .sl-lab-pc { font-style: italic; font-weight: 500; fill: var(--ink-2); }
+.sl-svg .sl-lab-in { stroke-width: 3px; }
+.sl-leader { stroke: var(--muted); stroke-width: 1; }
+.sl-foot { fill: var(--c); stroke: var(--paper); stroke-width: 1.5; }
+/* Hover darkens the leader. Selection is marked on the ground: an ink leader and a ringed foot. */
+.sl-label.is-hot .sl-lab, .sl-label.is-sel .sl-lab { fill: var(--ink); }
+.sl-label.is-hot .sl-leader { stroke: var(--ink); }
+.sl-label.is-sel .sl-leader { stroke: var(--ink); stroke-width: 1.5; }
+.sl-label.is-sel .sl-foot { r: 4px; stroke: var(--ink); stroke-width: 1.5; }
+.sl-svg .sl-letter {
+  font-family: var(--font-display); font-weight: 600; fill: var(--ink);
+  paint-order: stroke fill; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round;
+}
+
+.sl-cross-line { stroke: var(--ink); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
+.sl-cross-dot { fill: var(--c, var(--ink)); stroke: var(--paper); stroke-width: 2; pointer-events: none; }
+
+/* Keyboard readout: the shared .tip look, anchored inside the plot */
+.sl-kbtip { position: absolute; left: 0; top: 0; }
+
+/* The section waits hidden until its first pixel is in view, then draws itself.
+   It draws again on every change of section. */
+.sl-plot.is-pending .sl-drawn { clip-path: inset(-40px 100% -80px 0); }
+.sl-plot.is-pending .sl-labels { opacity: 0; }
+.sl-drawn.is-wipe { animation: sl-wipe 1.1s var(--ease) both; }
+.sl-labels.is-wipe { animation: sl-fade 0.6s 0.55s var(--ease) both; }
+@keyframes sl-wipe { from { clip-path: inset(-40px 100% -80px 0); } to { clip-path: inset(-40px 0 -80px 0); } }
+@keyframes sl-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .sl-drawn.is-wipe, .sl-labels.is-wipe { animation: none; }
+  .sl-plot.is-pending .sl-drawn { clip-path: none; }
+  .sl-plot.is-pending .sl-labels { opacity: 1; }
+}
+@media print {
+  .sl-plot.is-pending .sl-drawn { clip-path: none; }
+  .sl-plot.is-pending .sl-labels { opacity: 1; }
+}
+
+.sl-hint { margin-top: 10px; font-size: var(--fs-xs); color: var(--muted); max-width: 80ch; }
+
+/* Tooltip body (inside the shared .tip) */
+.sl-tipc { display: grid; gap: 2px; }
+.sl-tipc b { font-weight: 600; }
+.sl-tip-top b { font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.sl-tip-lvl { display: flex; align-items: center; gap: 7px; }
+.sl-key { display: inline-block; width: 14px; height: 3px; border-radius: 2px; background: var(--c); flex: none; }
+.sl-key.sl-l-none { background: var(--faint); }
+.sl-tip-name { font-family: var(--font-display); font-size: 1rem; line-height: 1.2; }
+.sl-tip-sub { opacity: 0.8; }
+
+/* ---------- Selected stretch ---------- */
+.sl-sel { padding: 18px 20px 20px; }
+.sl-sel-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* The level colour stays on the dot. The text is ink, which clears AA on every level's tint. */
+.sl-sel .badge { color: var(--ink-2); }
+.sl-sel .badge::before { background: var(--c, currentColor); }
+.sl-sel-nav { display: flex; align-items: center; gap: 6px; }
+.sl-sel-count { font-size: var(--fs-xs); color: var(--muted); margin-right: 4px; }
+.sl-navbtn {
+  width: 32px; height: 32px; display: grid; place-items: center;
+  border: 1px solid var(--rule); border-radius: 50%; background: transparent; color: var(--ink-2);
+}
+.sl-navbtn:hover { border-color: var(--rule-strong); color: var(--ink); }
+.sl-sel-name {
+  font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; line-height: 1.08;
+  letter-spacing: -0.01em; margin-top: 14px;
+}
+.sl-sel-full { margin-top: 4px; font-size: var(--fs-xs); color: var(--muted); }
+.sl-sel-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 16px 0 18px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.sl-sel-action .caveat { margin-top: 10px; }
+.sl-sel-action .caveat:first-child { margin-top: 0; }
+
+/* ---------- Locator map ---------- */
+.sl-minimap {
+  position: absolute; inset: 0;
+  border: 1px solid var(--rule); border-radius: var(--r-md); overflow: hidden;
+  background: var(--paper-2);
+}
+.sl-map-loading { padding: 48px 18px 18px; font-size: var(--fs-sm); color: var(--muted); }
+.sl-map-tag {
+  position: absolute; left: 10px; top: 10px; z-index: 500; pointer-events: none;
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-2); background: var(--scrim); padding: 3px 8px; border-radius: var(--r-sm);
+}
+.sl-minimap.leaflet-container { font-family: var(--font-ui); }
+/* base.css caps svg at max-width 100%, and custom Leaflet panes are 0 px wide */
+.sl-minimap .leaflet-pane svg, .sl-minimap .leaflet-pane img { max-width: none !important; max-height: none !important; }
+/* The locator uses whole zoom levels (see slope.js), where Leaflet's additive tile blending
+   leaves a bright hairline along some tile rows. Plain blending is seamless at that scale. */
+.sl-minimap.leaflet-container img.leaflet-tile { mix-blend-mode: normal; }
+.sl-minimap .leaflet-control-zoom { margin-top: 36px; border: 1px solid var(--rule-strong); box-shadow: none; }
+/* Stroked icons from slope.js in the UI face, like the atlas map's zoom buttons (no Leaflet monospace). */
+.sl-minimap .leaflet-control-zoom a {
+  display: grid; place-items: center;
+  font: 400 18px/1 var(--font-ui); text-indent: 0;
+  background: var(--surface); color: var(--ink-2); border-color: var(--rule);
+}
+.sl-minimap .leaflet-control-zoom a:hover { background: var(--surface-2); color: var(--ink); }
+.sl-minimap .leaflet-control-zoom a.leaflet-disabled { background: var(--surface); color: var(--faint); }
+.sl-minimap .leaflet-control-zoom svg { display: block; }
+/* Credits in the atlas map's style (mono, muted, underlined links), on an opaque paper strip so
+   the muted text keeps AA contrast over the photograph. */
+.sl-minimap .leaflet-control-attribution {
+  background: var(--paper); color: var(--muted);
+  font-family: var(--font-mono); font-size: 10.5px; line-height: 1.4;
+  padding: 1px 6px; border-top-left-radius: var(--r-sm);
+}
+.sl-minimap .leaflet-control-attribution a { color: var(--muted); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 0.16em; }
+.sl-minimap .leaflet-control-attribution a:hover { color: var(--ink); }
+/* A short locator (phones) drops the tag, which the attribution already carries. */
+.sl-mapbox.is-compact .sl-map-tag { display: none; }
+.sl-mapbox.is-compact .sl-minimap .leaflet-control-zoom { margin-top: 10px; }
+
+.sl-minimap .sl-poly { stroke: var(--c); stroke-width: 1.5; stroke-opacity: 0.95; fill: var(--c); fill-opacity: 0.16; transition: fill-opacity 0.18s, stroke-width 0.18s; }
+.sl-minimap .sl-poly:focus { outline: none; }
+.sl-minimap .sl-poly.sl-l-vl { stroke-width: var(--vl-sw); stroke-opacity: var(--vl-so); fill-opacity: 0.05; }
+.sl-minimap .sl-poly.is-sel { fill-opacity: 0.32; stroke-width: 2.5; }
+.sl-minimap .sl-poly.is-hot { fill-opacity: 0.5; stroke-width: 3; }
+/* Village appellations are large and lie under the crus, so their highlight is a lighter wash. */
+.sl-minimap .sl-poly.sl-l-vl.is-sel { fill-opacity: 0.12; stroke-width: 2; stroke-opacity: 0.95; }
+.sl-minimap .sl-poly.sl-l-vl.is-hot { fill-opacity: 0.24; stroke-width: 2.5; stroke-opacity: 0.95; }
+.sl-minimap .sl-mcase { stroke: var(--surface); stroke-opacity: 0.9; stroke-width: 7; stroke-linecap: round; fill: none; }
+.sl-minimap .sl-mline { stroke: var(--c); stroke-width: 3.5; stroke-linecap: butt; fill: none; }
+.sl-minimap .sl-mline.sl-l-none { stroke: var(--muted); }
+.sl-minimap .sl-mline.is-hot { stroke-width: 6; }
+.sl-minimap .sl-mdot { fill: var(--surface); fill-opacity: 1; stroke: var(--ink); stroke-width: 2.5; opacity: 0; transition: opacity 0.12s; }
+.sl-minimap .sl-mdot.is-on { opacity: 1; }
+.sl-mend { background: none; border: 0; }
+.sl-mend span {
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--ink); color: var(--surface); border: 2px solid var(--surface);
+  font-family: var(--font-display); font-size: 15px; font-weight: 700; line-height: 1;
+}
+.leaflet-tooltip.sl-maptip {
+  background: var(--ink); color: var(--paper); border: 0; border-radius: var(--r-sm);
+  box-shadow: var(--shadow-2); font-family: var(--font-display); font-size: 0.98rem; padding: 4px 9px;
+}
+.leaflet-tooltip.sl-maptip::before { display: none; }
+
+/* ---------- Caption, facts, table, notes ---------- */
+.sl-caption { font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.7; max-width: 76ch; font-variant-numeric: tabular-nums; }
+.sl-dd-sub { display: block; margin-top: 1px; font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--muted); }
+.sl-facts { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
+.sl-table-btn { margin-top: 14px; }
+.sl-table-wrap:not(.visually-hidden) { margin-top: 12px; overflow-x: auto; }
+.sl-table { width: 100%; border-collapse: collapse; font-size: var(--fs-xs); }
+.sl-table caption { text-align: left; color: var(--muted); padding-bottom: 8px; caption-side: top; }
+.sl-table th { text-align: left; font-family: var(--font-ui); font-weight: 600; color: var(--ink-2); border-bottom: 1px solid var(--rule-strong); padding: 6px 10px 6px 0; }
+.sl-table td { border-bottom: 1px solid var(--rule); padding: 5px 10px 5px 0; color: var(--ink); vertical-align: top; }
+.sl-table td.num { white-space: nowrap; }
+.sl-table-wrap[tabindex]:focus-visible { outline-offset: 2px; }
+.sl-table .sl-sw { margin-right: 2px; vertical-align: 0; }
+.sl-notes { margin-top: 22px; display: grid; gap: 8px; max-width: 76ch; }
+.sl-method .eyebrow { margin-right: 4px; }

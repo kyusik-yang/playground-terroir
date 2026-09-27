@@ -1,0 +1,636 @@
+/* ==========================================================================
+   Plate IV: the villages.
+   Shared by js/hierarchy.js (.hx-*) and js/villages.js (.vl-*).
+   Uses only the tokens defined in base.css.
+   ========================================================================== */
+
+/* ---------- Comparison series ----------
+   Colour follows the profile, not its position. The three hues sit outside the level colours (gilt, copper,
+   sage) so a compared profile never reads as a level. Checked with the dataviz palette validator over all pairs:
+   light cool/accent/ink worst CVD dE 13.7, normal 20.6. Dark cool/accent/ink worst CVD dE 9.7, normal 15.6.
+   Each series also has its own marker shape (circle, square, diamond). */
+.vl-series-0 { --series: var(--cool); }
+.vl-series-1 { --series: var(--accent); }
+.vl-series-2 { --series: var(--ink); }
+
+/* ---------- Level fills used by both modules ----------
+   Flat fills, no texture. The atlas already uses a diagonal hatch for red-only ground (map) and for land
+   outside any AOC (slope), so a hatch here would give one texture a third meaning. The level colours pass
+   the colourblind check on their own (base.css tokens, CIEDE2000 under Machado 2009 simulation: premier cru
+   against village 12.5 light and 21.4 dark at worst), the levels always run in the same order, and the
+   segments are split by a 2px gap. */
+.hx, .vl-app { --vl-track: var(--rule); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hx, :root:not([data-theme="light"]) .vl-app { --vl-track: var(--rule-strong); }
+}
+:root[data-theme="dark"] .hx, :root[data-theme="dark"] .vl-app { --vl-track: var(--rule-strong); }
+.hx-seg[data-level="grand-cru"], .hx-range[data-level="grand-cru"], .hx-dot[data-level="grand-cru"], .vl-stack-seg[data-level="grand-cru"] { background: var(--lvl-gc); }
+.hx-seg[data-level="premier-cru"], .hx-range[data-level="premier-cru"], .hx-dot[data-level="premier-cru"], .vl-stack-seg[data-level="premier-cru"] { background: var(--lvl-pc); }
+.hx-seg[data-level="village"], .hx-range[data-level="village"], .hx-dot[data-level="village"], .vl-stack-seg[data-level="village"] { background: var(--lvl-vl); }
+
+/* ---------- Level pips on the labels ----------
+   Which levels of land a profile holds. A filled dot means present, an open ring means none. The words stay
+   in ink or muted ink so they pass AA on the label paper. */
+.vl-lvls { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.03em; line-height: 1; }
+.vl-lvl { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-2); white-space: nowrap; }
+.vl-lvl-dot { width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.vl-lvl[data-on="true"][data-level="grand-cru"] .vl-lvl-dot { background: var(--lvl-gc); box-shadow: none; }
+.vl-lvl[data-on="true"][data-level="premier-cru"] .vl-lvl-dot { background: var(--lvl-pc); box-shadow: none; }
+.vl-lvl[data-on="true"][data-level="village"] .vl-lvl-dot { background: var(--lvl-vl); box-shadow: none; }
+.vl-lvl[data-on="false"] { color: var(--muted); }
+.vl-lvl[data-on="false"] .vl-lvl-dot { background: transparent; }
+
+/* Shared tooltip body (rendered inside util.tip) */
+.vl-tipbody { display: grid; gap: 1px; }
+.vl-tipbody b { font-weight: 600; margin-bottom: 3px; }
+.vl-tipv { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.vl-tipk { opacity: 0.82; }
+
+/* ==========================================================================
+   Hierarchy: two figures
+   ========================================================================== */
+.hx { margin-bottom: clamp(64px, 9vw, 112px); }
+.hx-figs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(40px, 5vw, 72px);
+  align-items: start;
+}
+@media (max-width: 1080px) { .hx-figs { grid-template-columns: minmax(0, 1fr); } }
+
+.hx-fig {
+  margin: 0; min-width: 0;
+  --hx-name: 156px;
+  --hx-val: 66px;
+  --hx-lk: 28px;
+  --row-bg: var(--paper);
+  /* Ink for the level names printed inside the bars (11px, so 4.5:1 is the bar). Light: surface on copper 7.8:1
+     and on sage 4.7:1, deepened ink on gilt 5.7:1. Dark: paper on gilt 6.2:1 and on sage 6.6:1, but paper on
+     the dark copper is only 2.8:1, so premier cru takes light ink there (5.4:1). */
+  --seg-ink: var(--surface);
+  --seg-ink-gc: color-mix(in srgb, var(--ink) 70%, black);
+  --seg-ink-pc: var(--surface);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hx-fig { --seg-ink: var(--paper); --seg-ink-gc: var(--paper); --seg-ink-pc: var(--ink); }
+}
+:root[data-theme="dark"] .hx-fig { --seg-ink: var(--paper); --seg-ink-gc: var(--paper); --seg-ink-pc: var(--ink); }
+.hx-fig-head { margin-bottom: 20px; }
+.hx-sub { font-size: var(--fs-sm); color: var(--ink-2); max-width: 54ch; }
+.hx-controls { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 8px; }
+.hx-control { display: flex; align-items: center; gap: 10px; }
+.hx-control-k { font-size: var(--fs-xs); color: var(--muted); }
+.hx-control .seg button { font-size: var(--fs-xs); padding: 5px 12px; }
+
+.hx-legend {
+  list-style: none; padding: 0; margin: 0 0 12px;
+  display: flex; flex-wrap: wrap; gap: 6px 16px;
+  font-size: var(--fs-xs); color: var(--ink-2);
+}
+.hx-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.hx-key-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-2); }
+.hx-key-bar { width: 18px; height: 3px; border-radius: 1.5px; background: var(--ink-2); }
+
+/* Axis: pinned under the site navigation while its figure scrolls past, so the scale stays in view on a phone */
+.hx-axis {
+  position: sticky; top: var(--nav-h); z-index: 3;
+  display: grid;
+  grid-template-columns: var(--hx-name) minmax(0, 1fr) var(--hx-val);
+  column-gap: 12px;
+  height: 24px;
+  font-family: var(--font-mono); font-size: var(--fs-tick); color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.hx-axis-elev { grid-template-columns: var(--hx-name) minmax(0, 1fr); }
+.hx-axis-elev .hx-axis-track { margin-left: calc(var(--hx-lk) + 8px); }
+.hx-axis-track { position: relative; }
+.hx-tick { position: absolute; bottom: 4px; transform: translateX(-50%); white-space: nowrap; line-height: 1; }
+.hx-tick.is-start { transform: none; }
+.hx-tick.is-end { transform: translateX(-100%); }
+
+/* Groups and rows */
+.hx-group { margin-top: 12px; }
+.hx-group:first-child { margin-top: 10px; }
+.hx-group-name { max-width: none; display: flex; align-items: center; gap: 10px; margin: 0 0 2px; }
+.hx-group-name::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.hx-rows { list-style: none; padding: 0; margin: 0; }
+.hx-body > .hx-rows { margin-top: 8px; }
+
+.hx-hit {
+  display: grid;
+  grid-template-columns: var(--hx-name) minmax(0, 1fr) var(--hx-val);
+  column-gap: 12px;
+  align-items: center;
+  width: calc(100% + 12px);
+  margin-inline: -6px;
+  padding: 5px 6px;
+  border: 0; border-radius: var(--r-sm);
+  background: var(--row-bg);
+  color: var(--ink);
+  text-align: left;
+  font-size: var(--fs-sm);
+  transition: background 0.15s;
+}
+.hx-hit:hover { --row-bg: var(--surface-2); }
+.hx-hit:focus-visible { outline-offset: 0; }
+.hx-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hx-val { text-align: right; font-size: var(--fs-xs); color: var(--ink-2); white-space: nowrap; }
+
+.hx-track { position: relative; height: 22px; display: flex; align-items: center; min-width: 0; }
+.hx-gridlines { position: absolute; inset: -5px 0; pointer-events: none; }
+.hx-gl { position: absolute; top: 0; bottom: 0; width: 1px; margin-left: -0.5px; background: var(--rule); }
+.hx-gl:first-child { background: var(--rule-strong); }
+
+.hx-bar {
+  position: relative; display: flex; gap: 2px;
+  height: 16px; width: 0;
+  transition: width 0.7s var(--ease);
+}
+.hx-fig-area.is-pre .hx-bar { width: 0 !important; }
+.hx-seg {
+  position: relative; flex: 1 1 0; min-width: 2px; overflow: hidden;
+  display: flex; align-items: center;
+  transition: flex-grow 0.7s var(--ease);
+}
+.hx-seg:last-child { border-radius: 0 3px 3px 0; }
+.hx-seg:hover { outline: 1.5px solid var(--ink); outline-offset: 1px; z-index: 1; }
+.hx-seg-lbl {
+  display: none; padding-left: 5px; pointer-events: none;
+  font-family: var(--font-mono); font-size: var(--fs-2xs); font-weight: 500; line-height: 1; letter-spacing: 0.02em;
+  color: var(--seg-ink); white-space: nowrap;
+}
+.hx-seg.has-lbl .hx-seg-lbl { display: block; }
+.hx-seg[data-level="grand-cru"] .hx-seg-lbl { color: var(--seg-ink-gc); }
+.hx-seg[data-level="premier-cru"] .hx-seg-lbl { color: var(--seg-ink-pc); }
+/* Direct label for the part of an outlier bar that runs past the break (hectare view) */
+.hx-past {
+  grid-column: 2; margin-top: 2px;
+  font-family: var(--font-mono); font-size: var(--fs-2xs); line-height: 1.35; color: var(--ink-2); text-align: right;
+}
+.hx-past[hidden] { display: none; }
+.hx-break {
+  position: absolute; top: 50%; z-index: 2;
+  width: 7px; height: 22px; margin: -11px 0 0 -3.5px;
+  background: var(--row-bg);
+  border-inline: 1px solid var(--ink-2);
+  transform: skewX(-22deg);
+}
+.hx-break[hidden] { display: none; }
+
+/* Elevation rows */
+.hx-ehit { grid-template-columns: var(--hx-name) minmax(0, 1fr); padding-block: 6px; }
+.hx-lanes { position: relative; display: grid; gap: 3px; min-width: 0; }
+.hx-lanes > .hx-gridlines { inset: -6px 0 -6px calc(var(--hx-lk) + 8px); }
+.hx-lane { position: relative; display: grid; grid-template-columns: var(--hx-lk) minmax(0, 1fr); column-gap: 8px; align-items: center; height: 12px; }
+.hx-lk { font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.02em; color: var(--muted); text-align: right; line-height: 1; }
+.hx-etrack { position: relative; height: 12px; }
+.hx-range { position: absolute; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 1.5px; }
+.hx-dot {
+  position: absolute; top: 50%;
+  width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--row-bg);
+}
+.hx-lane:hover .hx-dot { box-shadow: 0 0 0 2px var(--row-bg), 0 0 0 3.5px var(--ink); }
+
+/* Cross-links from other modules */
+.hx-row.is-dim .hx-bar, .hx-row.is-dim .hx-range, .hx-row.is-dim .hx-dot { opacity: 0.5; }
+/* A faded segment would take its level name below text contrast, so dimmed rows drop the names */
+.hx-row.is-dim .hx-seg-lbl { visibility: hidden; }
+.hx-row.is-dim .hx-name, .hx-row.is-dim .hx-val { color: var(--muted); }
+.hx-row.is-current .hx-name { font-weight: 600; }
+.hx-row.is-current .hx-hit { box-shadow: inset 2px 0 0 var(--accent); }
+
+/* Caption, tables and notes */
+.hx-cap { margin-top: 18px; display: grid; gap: 6px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.55; }
+.hx-cap p { max-width: 64ch; }
+.hx-cap p:first-child { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.35; color: var(--ink); font-weight: 500; font-variant-numeric: lining-nums; }
+.hx-table { margin-top: 14px; font-size: var(--fs-sm); }
+.hx-table-scroll { overflow-x: auto; margin-top: 10px; }
+.hx-tbl { border-collapse: collapse; width: 100%; font-size: var(--fs-xs); }
+.hx-tbl th, .hx-tbl td { padding: 6px 12px 6px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; white-space: nowrap; }
+.hx-tbl thead th { color: var(--muted); font-weight: 500; border-bottom-color: var(--rule-strong); }
+.hx-tbl tbody th { font-weight: 500; color: var(--ink); }
+.hx-tbl .is-num { text-align: right; }
+.hx-tbl td.num { color: var(--ink); }
+
+.hx-notes {
+  margin-top: clamp(28px, 4vw, 44px); padding-top: 12px; border-top: 1px solid var(--rule);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px clamp(18px, 3vw, 36px);
+}
+.hx-notes .eyebrow { grid-column: 1 / -1; }
+@media (max-width: 860px) { .hx-notes { grid-template-columns: minmax(0, 1fr); } }
+
+/* Phone: name and value on one line, the chart underneath */
+@media (max-width: 600px) {
+  .hx-fig { --hx-lk: 22px; }
+  .hx-hit {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name val" "track track" "past past";
+    row-gap: 3px;
+  }
+  .hx-name { grid-area: name; }
+  .hx-val { grid-area: val; }
+  .hx-track { grid-area: track; }
+  .hx-past { grid-area: past; margin-top: 0; }
+  .hx-track > .hx-gridlines { inset: 0; }
+  .hx-ehit { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "lanes"; row-gap: 5px; }
+  .hx-lanes { grid-area: lanes; }
+  .hx-lanes > .hx-gridlines { top: -3px; }
+  .hx-axis, .hx-axis-elev { grid-template-columns: minmax(0, 1fr); }
+  .hx-axis > span:not(.hx-axis-track) { display: none; }
+  .hx-controls { flex-direction: column; gap: 10px; }
+}
+
+/* ==========================================================================
+   Village profiles
+   ========================================================================== */
+.vl-app { position: relative; }
+.vl-head { display: grid; gap: 6px; margin-bottom: 18px; }
+.vl-head-k { max-width: none; display: flex; align-items: center; gap: 14px; }
+.vl-head-k::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.vl-head-sub { font-size: var(--fs-sm); color: var(--ink-2); }
+
+/* Toolbar */
+.vl-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(190px, 240px) minmax(200px, 1fr);
+  gap: 14px 22px; align-items: end;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule);
+}
+.vl-toolbar .field { min-width: 0; }
+.vl-toolbar .seg button { font-size: var(--fs-sm); }
+/* Region control: one line, scrolling inside its pill on a narrow screen (the map's pattern) */
+.vl-regions-wrap {
+  min-width: 0; max-width: 100%; width: fit-content;
+  overflow-x: auto; scrollbar-width: none;
+  border-radius: 999px;
+}
+.vl-regions-wrap::-webkit-scrollbar { display: none; }
+.vl-regions { flex-wrap: nowrap; }
+.vl-regions-wrap.can-l { -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px); mask-image: linear-gradient(90deg, transparent, #000 32px); }
+.vl-regions-wrap.can-r { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent); }
+.vl-regions-wrap.can-l.can-r { -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
+.vl-toolbar input[type="search"] { -webkit-appearance: none; appearance: none; }
+.vl-toolbar input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+.vl-q-wrap { position: relative; }
+.vl-q-wrap .input { padding-right: 40px; }
+.vl-q-clear {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; display: grid; place-items: center;
+  border: 0; border-radius: 50%; background: transparent; color: var(--ink-2);
+}
+.vl-q-clear:hover { background: var(--surface-2); color: var(--ink); }
+.vl-q-clear[hidden] { display: none; }
+@media (max-width: 1000px) {
+  .vl-toolbar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .vl-field-region { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .vl-toolbar { grid-template-columns: minmax(0, 1fr); }
+}
+.vl-count { margin: 12px 0 18px; }
+
+/* Grid of cards. The cards in a row share one height. Where subgrid is supported each card is three rows of
+   the grid (label, body, actions), so the labels, the Measured kickers and the actions line up across a row
+   and any spare height sits at the foot of the shorter bodies. */
+.vl-grid {
+  list-style: none; padding: 0; margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+.vl-cell { min-width: 0; display: flex; }
+.vl-cell > .vl-card { flex: 1 1 auto; }
+.vl-cell[hidden] { display: none; }
+@supports (grid-template-rows: subgrid) {
+  .vl-cell { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 0; }
+  .vl-cell > .vl-card { grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; row-gap: 0; }
+}
+.vl-grid.is-resorted .vl-no { visibility: hidden; }
+
+.vl-card {
+  min-width: 0;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: 14px 16px 16px;
+  /* html already pads for the sticky navigation, so the card needs only a small margin of its own */
+  scroll-margin-top: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.vl-card:focus { outline: none; }
+.vl-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.vl-card.is-compared { border-color: var(--rule-strong); }
+/* The current profile uses the accent, as the current row in the figures does. --gilt is chrome too, but in this
+   plate it sits too close to the grand cru fill (--lvl-gc) to mark anything that is not grand cru land. */
+.vl-card.is-focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.vl-card.is-flash .vl-label { animation: vl-flash 1.8s var(--ease); }
+@keyframes vl-flash {
+  0%, 20% { box-shadow: 0 0 0 6px var(--accent-soft); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.vl-top { display: flex; flex-direction: column; min-width: 0; }
+.vl-body { min-width: 0; }
+.vl-back-slot:empty { display: none; }
+.vl-back-slot { margin: -2px 0 10px; }
+.vl-back { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); }
+.vl-ico-up { flex: none; }
+
+/* The label. It fills the label row of its grid row, with the number and pips at the top and the rest centred
+   in the height that is left. */
+.vl-label {
+  flex: 1 1 auto; display: flex; flex-direction: column;
+  border: 1px solid var(--rule-strong); border-radius: 3px; padding: 4px; background: var(--paper);
+}
+.vl-label-inner {
+  flex: 1 1 auto; display: flex; flex-direction: column;
+  border: 1px solid var(--rule); border-radius: 1px;
+  padding: 12px 14px 18px;
+  text-align: center;
+  container-type: inline-size;
+}
+.vl-label-main { margin-block: auto; display: grid; justify-items: center; }
+.vl-label-top { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.vl-no { font-size: var(--fs-xs); color: var(--muted); letter-spacing: 0.06em; }
+.vl-name {
+  font-size: clamp(1.75rem, 1.45rem + 0.8vw, 2.15rem);
+  /* Long names step down to fit one line. --vl-n is the name's length in characters (set in villages.js).
+     Cormorant runs at most about 0.46 em a character in these names, so 0.47 leaves a little room. */
+  font-size: min(clamp(1.75rem, 1.45rem + 0.8vw, 2.15rem), calc(100cqi / (var(--vl-n, 1) * 0.47)));
+  line-height: 1.02; margin-top: 6px;
+  text-wrap: balance; overflow-wrap: anywhere; max-width: 100%;
+}
+.vl-apps { margin-top: 8px; font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.vl-producer { margin-top: 10px; font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 1.2rem; line-height: 1.2; color: var(--ink-2); }
+.vl-grape {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; max-width: 250px; margin-top: 12px;
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+}
+.vl-grape::before, .vl-grape::after { content: ""; flex: 1; height: 1px; background: var(--rule-strong); }
+
+/* Section kickers */
+.vl-kicker { max-width: none; display: flex; align-items: center; gap: 10px; margin: 20px 0 12px; }
+.vl-kicker::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.vl-sub { font-family: var(--font-ui); font-size: var(--fs-xs); font-weight: 500; color: var(--muted); letter-spacing: 0; }
+
+/* Measured block */
+.vl-area-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.vl-total { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; line-height: 1; }
+.vl-stack { display: flex; gap: 2px; height: 10px; margin: 10px 0 9px; }
+.vl-stack-seg { flex: 0 1 0; min-width: 3px; }
+.vl-stack-seg:first-child { border-radius: 2px 0 0 2px; }
+.vl-stack-seg:last-child { border-radius: 0 2px 2px 0; }
+.vl-stack-seg:only-child { border-radius: 2px; }
+.vl-stack-key { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 12px; }
+.vl-stack-key dt { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); white-space: nowrap; }
+.vl-stack-key dd { margin: 2px 0 0; font-size: var(--fs-xs); color: var(--ink); display: flex; flex-wrap: wrap; gap: 0 6px; }
+.vl-share { color: var(--muted); }
+.vl-stack-key .is-zero dt, .vl-stack-key .is-zero dd { color: var(--muted); }
+.vl-stack-key .is-zero .swatch { background: transparent; box-shadow: inset 0 0 0 1px var(--rule-strong); }
+
+.vl-facts {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px; margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--rule);
+}
+.vl-fact { min-width: 0; }
+.vl-fact dt { font-size: var(--fs-xs); color: var(--muted); line-height: 1.3; }
+.vl-fact dd { margin: 3px 0 0; font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink); font-variant-numeric: tabular-nums; }
+/* Named climats with a second, official count: two figures, each tagged with its source */
+.vl-cl { display: grid; gap: 2px; }
+.vl-cl-row { display: flex; align-items: baseline; gap: 8px; }
+.vl-cl-n { min-width: 2ch; }
+.vl-cl-src {
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+}
+.vl-cl-note {
+  margin-top: 12px; padding-left: 12px; border-left: 2px solid var(--rule-strong);
+  font-size: var(--fs-xs); line-height: 1.5; color: var(--ink-2); max-width: none;
+}
+.vl-cl-note a { white-space: normal; }
+.vl-ico-out { display: inline-block; margin-left: 3px; vertical-align: 0.05em; }
+.vl-facing { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 16px; align-items: center; margin-top: 16px; }
+.vl-rose { color: var(--slate); }
+.vl-rose .aspect-rose text { font-size: var(--fs-tick); }
+.vl-facing-dl { display: grid; gap: 10px; margin: 0; }
+.vl-facing-dl dd { font-family: var(--font-ui); }
+
+.vl-gc { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.vl-gc-list {
+  list-style: none; padding: 0; margin: 6px 0 0;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 16px;
+}
+.vl-gc-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--rule); min-width: 0; }
+.vl-gc-list .num { font-size: var(--fs-xs); color: var(--muted); white-space: nowrap; }
+/* Three or more grand crus: a compact two-column list without rules */
+.vl-gc-list.is-flow { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 0 18px; }
+.vl-gc-list.is-flow li { border: 0; padding: 1px 0; }
+.vl-gc-link, .vl-gc-list li > span:first-child {
+  font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; line-height: 1.2; text-align: left; min-width: 0;
+}
+.vl-gc-link { color: var(--ink); text-decoration-color: var(--rule-strong); display: inline-flex; align-items: center; min-height: 24px; }
+.vl-gc-link:hover { color: var(--accent); text-decoration-color: currentColor; }
+/* Grand cru land that another profile also counts */
+.vl-overlap { margin-top: 10px; font-size: var(--fs-xs); line-height: 1.5; color: var(--ink-2); max-width: none; }
+.vl-plink { font-size: inherit; }
+
+/* Editorial block */
+.vl-editorial { margin-bottom: 18px; }
+.vl-style { font-family: var(--font-display); font-size: 1.14rem; font-weight: 500; line-height: 1.4; color: var(--ink); }
+.vl-tags { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.vl-taste-block { margin-top: 18px; }
+.vl-taste { display: grid; gap: 6px; margin-top: 8px; }
+.vl-taste-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 26px; align-items: center; gap: 10px; font-size: var(--fs-xs); }
+.vl-taste-k { color: var(--ink-2); }
+.vl-taste-track { position: relative; height: 4px; border-radius: 2px; background: var(--vl-track); }
+/* Editorial scores in neutral ink, so they never read as the rust of premier cru or as a measured quantity */
+.vl-taste-bar { display: block; height: 100%; border-radius: 2px; background: var(--ink-2); }
+.vl-taste-v { text-align: right; color: var(--muted); }
+.vl-ed-dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; margin: 18px 0 0; font-size: var(--fs-sm); }
+.vl-ed-dl dt { font-size: var(--fs-xs); color: var(--muted); padding-top: 2px; }
+.vl-ed-dl dd { margin: 0; color: var(--ink-2); }
+.vl-producers { font-family: var(--font-display); font-style: italic; font-size: 1.05rem; line-height: 1.3; }
+.vl-note { margin-top: 18px; }
+
+/* Phone disclosure: terrain facts, grand crus and the editorial block open per card. Wider screens show
+   everything and never see the button. */
+.vl-more-btn { display: none; }
+@media (max-width: 640px) {
+  .vl-more-btn {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    width: 100%; min-height: 44px; margin-top: 14px; padding: 8px 0;
+    border: 0; border-top: 1px solid var(--rule); background: none;
+    color: var(--ink); font-size: var(--fs-sm); font-weight: 500; text-align: left;
+  }
+  .vl-more-btn:hover { color: var(--accent); }
+  .vl-ico-down { flex: none; transition: transform 0.2s var(--ease); }
+  .vl-card.is-open .vl-ico-down { transform: rotate(180deg); }
+  .vl-card:not(.is-open) .vl-more { display: none; }
+}
+
+/* Card actions */
+.vl-actions { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 8px; }
+.vl-actions .btn svg { flex: none; }
+.vl-cmp-btn .vl-ico-check { display: none; }
+.vl-cmp-btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.vl-cmp-btn[aria-pressed="true"] .vl-ico-plus { display: none; }
+.vl-cmp-btn[aria-pressed="true"] .vl-ico-check { display: block; }
+
+/* Empty state and caveats */
+.vl-empty { padding: 40px 0 24px; text-align: center; }
+.vl-empty[hidden] { display: none; }
+.vl-empty p { margin-inline: auto; }
+.vl-empty-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin-bottom: 4px; }
+.vl-caveats { margin-top: 32px; padding-top: 12px; border-top: 1px solid var(--rule); display: grid; gap: 6px; }
+.vl-caveats .caveat { max-width: 96ch; }
+
+/* ---------- Compare tray ---------- */
+.vl-tray {
+  position: sticky; bottom: 16px; z-index: 30;
+  margin-top: 24px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  padding: 10px 12px 10px 18px;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+}
+.vl-tray[hidden] { display: none; }
+.vl-tray-k { flex: none; }
+.vl-tray-list { list-style: none; padding: 0; margin: 0; flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.vl-tray-item {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 3px 3px 3px 12px;
+  border: 1px solid var(--rule); border-radius: 999px; background: var(--paper);
+  font-size: var(--fs-sm); max-width: 100%;
+}
+.vl-tray-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.vl-tray-x { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--muted); }
+.vl-tray-x:hover { background: var(--surface-2); color: var(--ink); }
+.vl-tray-slot { display: inline-flex; align-items: center; padding: 0 14px; border: 1px dashed var(--rule-strong); border-radius: 999px; font-size: var(--fs-xs); color: var(--muted); }
+.vl-tray-actions { display: flex; align-items: center; gap: 8px 12px; margin-left: auto; }
+.vl-tray-hint { font-size: var(--fs-xs); color: var(--muted); max-width: none; white-space: nowrap; }
+.vl-tray-hint[hidden], .vl-tray .btn[hidden] { display: none; }
+@media (max-width: 560px) {
+  /* Two fixed rows on a phone: the chosen villages scroll sideways, the actions sit under them */
+  .vl-tray {
+    display: grid; grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "list list" "k actions";
+    padding: 10px 12px; bottom: 10px; gap: 8px 12px;
+  }
+  .vl-tray-list {
+    grid-area: list; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin-inline: -12px; padding-inline: 12px; scroll-padding-inline: 12px;
+  }
+  .vl-tray-list::-webkit-scrollbar { display: none; }
+  .vl-tray-item { flex: none; }
+  .vl-tray-k { grid-area: k; align-self: center; }
+  .vl-tray-slot { display: none; }
+  .vl-tray-actions { grid-area: actions; justify-self: end; margin-left: 0; }
+}
+
+/* Series keys */
+.vl-key { flex: none; overflow: visible; }
+.vl-key-line { stroke: var(--series); stroke-width: 2; stroke-linecap: round; }
+.vl-key-mark { fill: var(--series); stroke: var(--surface); stroke-width: 1.5; paint-order: stroke; }
+
+/* ---------- Comparison dialog ---------- */
+.vl-dialog {
+  width: min(1060px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 40px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-2);
+  overscroll-behavior: contain;
+}
+.vl-dialog::backdrop { background: var(--scrim); }
+.vl-dialog[open] { animation: vl-dlg-in 0.35s var(--ease); }
+@keyframes vl-dlg-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.vl-dialog { --dlg-pad: clamp(18px, 3vw, 34px); }
+.vl-dlg-inner { padding: 0 var(--dlg-pad) var(--dlg-pad); }
+/* The header (title and close button) stays pinned while the dialog scrolls */
+.vl-dlg-head {
+  position: sticky; top: 0; z-index: 4;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  margin: 0 calc(-1 * var(--dlg-pad)) 22px;
+  padding: var(--dlg-pad) var(--dlg-pad) 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+}
+.vl-dlg-title { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.3rem); margin-top: 6px; }
+.vl-dlg-close {
+  flex: none; width: 38px; height: 38px; display: grid; place-items: center;
+  border: 1px solid var(--rule); border-radius: 50%; background: transparent; color: var(--ink-2);
+}
+.vl-dlg-close:hover { border-color: var(--rule-strong); color: var(--ink); }
+/* One column (radar above the table) until there is room for the radar beside a full-width table */
+.vl-dlg-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(22px, 3.5vw, 48px); align-items: start; }
+@media (min-width: 1100px) { .vl-dlg-body { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); } }
+
+.vl-radar-fig { margin: 0; display: grid; gap: 12px; justify-items: center; }
+@media (min-width: 1100px) { .vl-radar-fig { position: sticky; top: calc(var(--vl-dlg-head-h, 0px) + 22px); } }
+.vl-radar-fig .caption { text-align: center; max-width: 36ch; }
+.vl-radar { width: 100%; max-width: 340px; height: auto; overflow: visible; }
+.vl-radar-grid polygon { fill: none; stroke: var(--rule); stroke-width: 1; }
+.vl-radar-grid polygon.is-outer { stroke: var(--rule-strong); }
+.vl-radar-grid line { stroke: var(--rule); stroke-width: 1; }
+.vl-radar-axis { font-family: var(--font-ui); font-size: var(--fs-xs); fill: var(--ink-2); }
+.vl-radar-tick { font-family: var(--font-mono); font-size: var(--fs-tick); fill: var(--muted); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+.vl-radar-area { fill: var(--series); fill-opacity: 0.1; stroke: var(--series); stroke-width: 2; stroke-linejoin: round; }
+.vl-radar-mark { fill: var(--series); stroke: var(--surface); stroke-width: 2; paint-order: stroke; }
+.vl-radar-hit { fill: transparent; }
+.vl-legend { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: var(--fs-sm); color: var(--ink-2); }
+.vl-legend li { display: inline-flex; align-items: center; gap: 8px; }
+
+.vl-ctable-col { min-width: 0; display: grid; gap: 14px; }
+.vl-ctable-notes { display: grid; gap: 8px; }
+.vl-ctable-notes .vl-cl-note { margin-top: 0; }
+.vl-ctable { border-collapse: collapse; width: 100%; font-size: var(--fs-sm); }
+/* The names stay pinned under the dialog header while the rows scroll */
+.vl-ctable thead { position: sticky; top: var(--vl-dlg-head-h, 0px); z-index: 2; background: var(--surface); }
+.vl-ctable th, .vl-ctable td { padding: 7px 14px 7px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.vl-ctable thead th { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; line-height: 1.15; vertical-align: bottom; }
+.vl-ctable thead tr:first-child > * { border-bottom: 0; padding-bottom: 2px; }
+.vl-ct-head { display: inline-flex; align-items: center; gap: 8px; }
+/* Region sits under each name, above the measured and editorial groups */
+.vl-ct-region td {
+  padding-top: 2px; padding-bottom: 8px;
+  /* A drawn rule rather than a border, because collapsed borders do not travel with a pinned header */
+  border-bottom: 0; box-shadow: inset 0 -1px 0 var(--rule-strong);
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+}
+.vl-ctable tbody th { font-weight: 400; font-size: var(--fs-xs); color: var(--muted); white-space: nowrap; }
+.vl-ctable td.num { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vl-ctable td.is-words { font-size: 0.8125rem; color: var(--ink); }
+.vl-nw { white-space: nowrap; }
+.vl-ct-sec th {
+  padding-top: 18px; border-bottom-color: var(--rule-strong);
+  font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+/* Stacked layout for narrow screens: each label on its own row above equal value columns */
+.vl-ctable.is-stacked { table-layout: fixed; }
+.vl-ctable.is-stacked thead th { font-size: 1.05rem; overflow-wrap: anywhere; padding-right: 10px; }
+.vl-ctable.is-stacked .vl-ct-head { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.vl-ctable.is-stacked .vl-ct-region td { padding-right: 10px; letter-spacing: 0.06em; line-height: 1.35; }
+.vl-ctable.is-stacked .vl-ct-k th { padding: 10px 0 1px; border-bottom: 0; white-space: normal; }
+.vl-ctable.is-stacked .vl-ct-v td { padding: 1px 10px 8px 0; white-space: normal; overflow-wrap: anywhere; }
+.vl-ctable.is-stacked .vl-ct-sec th { padding-top: 20px; }
+
+/* ---------- Forced colours (Windows high contrast): keep the data marks visible ---------- */
+@media (forced-colors: active) {
+  .hx-seg, .hx-range, .hx-dot, .hx-key-dot, .hx-key-bar, .hx .swatch,
+  .vl-stack-seg, .vl-app .swatch, .vl-taste-bar, .vl-rose, .vl-radar-series, .vl-key, .vl-lvl-dot { forced-color-adjust: none; }
+  .hx-break { forced-color-adjust: none; background: Canvas; border-color: CanvasText; }
+}
